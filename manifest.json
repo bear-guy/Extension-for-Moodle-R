@@ -15,5 +15,11 @@
 "css": ["content.css"],
 "js": ["content.js"]
 }
+],
+"web_accessible_resources": [
+{
+"resources": ["icon/monologo1.svg"],
+"matches": ["https://lms.ritsumei.ac.jp/*"]
+}
 ]
 }
