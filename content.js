@@ -1,8 +1,11 @@
 // 拡張機能が有効な場合のみ処理を実行する
-chrome.storage.local.get({ isEnabled: true }, (data) => {
+chrome.storage.local.get({ isEnabled: true, isDarkMode: false }, (data) => {
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
     initExtension();
+  }
+  if (data.isDarkMode) {
+    document.body.classList.add('dark-mode');
   }
 });
 

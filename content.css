@@ -49,6 +49,13 @@ body.moodle-ext-enabled .timetable-table table {
     border-collapse: collapse !important;
 }
 
+/* 時限（1〜7）の列幅を小さくする */
+body.moodle-ext-enabled .timetable-table th:first-child,
+body.moodle-ext-enabled .timetable-table td.time {
+    width: 50px !important;
+    text-align: center !important;
+}
+
 body.moodle-ext-enabled .timetable-table td {
     font-size: 0.85rem !important;
     padding: 6px 4px !important;
@@ -56,9 +63,185 @@ body.moodle-ext-enabled .timetable-table td {
     word-break: break-all !important; /* 文字がはみ出さないように */
 }
 
+/* バッジ（未提出課題の件数など）を赤色にして目立たせる */
+body.moodle-ext-enabled .badge.rounded-pill.bg-light.text-dark {
+    background-color: #dc3545 !important; /* 少し落ち着いた見やすい赤色 */
+    color: #fff !important; /* 文字色は白にして視認性を確保 */
+}
+
 /* 画面が狭いときは縦並びに戻す */
 @media (max-width: 1100px) {
     body.moodle-ext-enabled .custom-layout-wrapper {
         flex-direction: column !important;
     }
+}
+
+/* --- ダークモード用スタイル --- */
+body.dark-mode,
+body.dark-mode #page,
+body.dark-mode #page-wrapper,
+body.dark-mode #region-main-box,
+body.dark-mode #region-main,
+body.dark-mode .main-inner {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-light,
+body.dark-mode .card,
+body.dark-mode .navbar,
+body.dark-mode .dropdown-menu,
+body.dark-mode .list-group-item,
+body.dark-mode .drawer,
+body.dark-mode .popover-region-container,
+body.dark-mode .footer-popover,
+body.dark-mode .card-header,
+body.dark-mode .message-app,
+body.dark-mode .form-control,
+body.dark-mode .modal-content,
+body.dark-mode .moodle-dialogue-base .moodle-dialogue-wrap,
+body.dark-mode .popover,
+body.dark-mode .moremenu,
+body.dark-mode .nav-tabs,
+body.dark-mode .content-item-container,
+body.dark-mode .popover-region-footer-container,
+body.dark-mode .see-all-link,
+body.dark-mode .activity-header {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-color: #333 !important;
+}
+
+/* ダークモード時のバッジを明るく見やすい赤色に上書き */
+body.moodle-ext-enabled.dark-mode .badge.rounded-pill.bg-light.text-dark,
+body.moodle-ext-enabled.dark-mode .activity-information .badge {
+    background-color: #ff5252 !important; /* ダークモードに映える明るい赤 */
+    color: #ffffff !important;
+    position: relative !important;
+    z-index: 10 !important; /* 他の背景の後ろに隠れないように前面に出す */
+}
+body.moodle-ext-enabled.dark-mode .badge.rounded-pill.bg-light.text-dark *,
+body.moodle-ext-enabled.dark-mode .activity-information .badge * {
+    color: #ffffff !important; /* バッジの中の文字も強制的に白にする */
+}
+
+/* 未読の通知を少し明るめのダークグレーにして区別する */
+body.dark-mode .content-item-container.unread {
+    background-color: #2a2a2a !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* ナビゲーションメニューのリンク背景（アクティブ時やホバー時） */
+body.dark-mode .moremenu .nav-link.active,
+body.dark-mode .moremenu .nav-link:hover,
+body.dark-mode .moremenu .nav-link:focus,
+body.dark-mode .nav-tabs .nav-link.active,
+body.dark-mode .nav-tabs .nav-link:hover,
+body.dark-mode .nav-tabs .nav-link:focus {
+    background-color: #333 !important;
+    color: #fff !important;
+    border-bottom-color: #82b1ff !important; /* 現在開いているタブの下線 */
+}
+
+body.dark-mode a,
+body.dark-mode .btn-link,
+body.dark-mode .aalink {
+    color: #82b1ff !important;
+}
+
+body.dark-mode .text-dark,
+body.dark-mode .text-muted,
+body.dark-mode .text-body {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .border-bottom,
+body.dark-mode .border-top,
+body.dark-mode .border-start,
+body.dark-mode .border-end,
+body.dark-mode .border {
+    border-color: #333 !important;
+}
+
+/* 読み込み中のスケルトンアニメーションの背景 */
+body.dark-mode .bg-pulse-grey {
+    background-color: #333 !important;
+}
+
+body.dark-mode .navbar-light .navbar-brand,
+body.dark-mode .navbar-light .navbar-nav .nav-link,
+body.dark-mode .navbar-light .navbar-nav .nav-link.active {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .table,
+body.dark-mode .calendarmonth,
+body.dark-mode .submissionsummarytable,
+body.dark-mode .submissionsummarytable table,
+body.dark-mode .submissionsummarytable th,
+body.dark-mode .submissionsummarytable td,
+body.dark-mode .generaltable,
+body.dark-mode .generaltable th,
+body.dark-mode .generaltable td {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .calendarmonth td.today,
+body.dark-mode .calendarmonth td.weekend {
+    background-color: #2a2a2a !important;
+}
+
+/* Moodle+R特有の時間割表の背景 */
+/* 時間割の縦線・横線を白線で引き直す */
+body.dark-mode .timetable th,
+body.dark-mode .timetable td {
+    border: 1px solid #ccc !important;
+}
+
+body.dark-mode .timetable th,
+body.dark-mode .timetable td.empty,
+body.dark-mode .timetable td.time {
+    background-color: #1e1e1e !important;
+}
+
+body.dark-mode .timetable td.highlight {
+    background-color: #2a2a2a !important;
+}
+
+/* 時間割内の教室表示 */
+body.dark-mode .room {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+/* 「その他」セクションのテーブル */
+body.dark-mode .additional-section th,
+body.dark-mode .additional-section td {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #ccc !important;
+}
+
+/* 時間割の凡例（legend）の背景 */
+body.dark-mode .timetable-legend,
+body.dark-mode .legend-container {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
 }
