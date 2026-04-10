@@ -66,7 +66,7 @@ body.moodle-ext-enabled .timetable-table td {
     font-size: 0.85rem !important;
     padding: 6px 4px !important;
     vertical-align: top !important;
-    word-break: break-all !important; /* 文字がはみ出さないように */
+    word-break: break-word !important; /* 単語の途中での不自然な改行を防ぎつつ文字を折り返す */
 }
 
 /* バッジ（未提出課題の件数など）を赤色にして目立たせる */
@@ -79,6 +79,11 @@ body.moodle-ext-enabled .badge.rounded-pill.bg-light.text-dark {
 @media (max-width: 1100px) {
     body.moodle-ext-enabled .custom-layout-wrapper {
         flex-direction: column !important;
+    }
+    /* スマホ等で画面幅が350px未満になった場合の横スクロール（はみ出し）を防止 */
+    body.moodle-ext-enabled .custom-layout-wrapper > .block_timeline,
+    body.moodle-ext-enabled .custom-layout-wrapper > .block_rutime_table {
+        min-width: 0 !important;
     }
 }
 
@@ -227,7 +232,7 @@ body.dark-mode .notification-area table h4 {
 /* 時間割の縦線・横線を白線で引き直す */
 body.dark-mode .timetable th,
 body.dark-mode .timetable td {
-    border: 1px solid #ccc !important;
+    border: 1px solid #333 !important; /* 他のテーブル要素に合わせて暗いグレーに修正 */
 }
 
 body.dark-mode .timetable th,
@@ -241,8 +246,8 @@ body.dark-mode .timetable td.highlight {
 }
 
 /* ダークモード時の曜日と時限を明るい青色にする */
-body.dark-mode .timetable th,
-body.dark-mode .timetable td.time {
+body.moodle-ext-enabled.dark-mode .timetable-table th,
+body.moodle-ext-enabled.dark-mode .timetable-table td.time {
     color: #82b1ff !important;
 }
 
@@ -257,7 +262,7 @@ body.dark-mode .additional-section th,
 body.dark-mode .additional-section td {
     background-color: #1e1e1e !important;
     color: #e0e0e0 !important;
-    border: 1px solid #ccc !important;
+    border: 1px solid #333 !important; /* ここも明るいグレーから暗いグレーに修正 */
 }
 
 /* 時間割の凡例（legend）の背景 */
