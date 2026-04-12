@@ -5,12 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const staffModeToggle = document.getElementById('staffModeToggle');
   const syllabusToggle = document.getElementById('syllabusToggle');
   const staffModeWrapper = document.getElementById('staffModeWrapper');
+  const syllabusWrapper = document.getElementById('syllabusWrapper');
   const clearSyllabusDataBtn = document.getElementById('clearSyllabusDataBtn');
 
-  // 教職員モードのUI状態を更新する関数
-  const updateStaffModeUI = (isEnabled) => {
+  // ベターレイアウトに依存するUI状態を更新する関数
+  const updateDependentUI = (isEnabled) => {
     staffModeToggle.disabled = !isEnabled;
     staffModeWrapper.style.opacity = isEnabled ? '1' : '0.4';
+    
+    if (syllabusToggle && syllabusWrapper) {
+      syllabusToggle.disabled = !isEnabled;
+      syllabusWrapper.style.opacity = isEnabled ? '1' : '0.4';
+    }
   };
 
   // Moodle のタブをリロードして変更を反映する共通関数
@@ -38,20 +44,24 @@ document.addEventListener('DOMContentLoaded', () => {
       document.documentElement.classList.add('dark-mode');
     }
 
-    // 初期状態の教職員モードの表示を更新
-    updateStaffModeUI(data.isEnabled);
+    // 初期状態の依存する設定の表示を更新
+    updateDependentUI(data.isEnabled);
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', () => {
     const isEnabled = toggle.checked;
-    updateStaffModeUI(isEnabled);
+    updateDependentUI(isEnabled);
 
     const updates = { isEnabled: isEnabled };
-    // ベターレイアウトがオフになったら、教職員モードも連動してオフにする
+    // ベターレイアウトがオフになったら、依存する機能も連動してオフにする
     if (!isEnabled && staffModeToggle.checked) {
       staffModeToggle.checked = false;
       updates.isStaffMode = false;
+    }
+    if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
+      syllabusToggle.checked = false;
+      updates.isSyllabusEnabled = false;
     }
     
     chrome.storage.local.set(updates, reloadTabs);
