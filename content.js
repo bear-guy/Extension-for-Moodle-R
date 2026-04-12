@@ -1,7 +1,7 @@
 // 拡張機能が有効な場合のみ処理を実行する
 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: false, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
+chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
   // ホームスキップが有効な場合の処理
   if (data.isSkipHomeEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
     if (window.location.pathname === '/' || window.location.pathname === '/index.php') {

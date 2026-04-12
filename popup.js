@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: false, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
