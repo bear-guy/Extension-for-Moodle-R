@@ -2,12 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('extensionToggle');
   const darkToggle = document.getElementById('darkModeToggle');
   const skipHomeToggle = document.getElementById('skipHomeToggle');
+  const staffModeToggle = document.getElementById('staffModeToggle');
 
   // 保存されている状態を取得
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
+    staffModeToggle.checked = data.isStaffMode;
   });
 
   // Moodle のタブをリロードして変更を反映する共通関数
@@ -30,5 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (ホームスキップ)
   skipHomeToggle.addEventListener('change', () => {
     chrome.storage.local.set({ isSkipHomeEnabled: skipHomeToggle.checked }, reloadTabs);
+  });
+
+  // トグル切り替え時の処理 (教職員モード)
+  staffModeToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
 });

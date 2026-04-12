@@ -1,5 +1,5 @@
 // 拡張機能が有効な場合のみ処理を実行する
-chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false }, (data) => {
+chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false }, (data) => {
   // ホームスキップが有効な場合の処理
   if (data.isSkipHomeEnabled) {
     if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
@@ -11,14 +11,14 @@ chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled
 
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension();
+    initExtension(data.isStaffMode);
   }
   if (data.isDarkMode) {
     document.body.classList.add('dark-mode');
   }
 });
 
-const initExtension = () => {
+const initExtension = (isStaffMode) => {
   // 拡張機能内の画像をCSSで参照するためのスタイルを動的に注入
   if (!document.getElementById('moodle-ext-dynamic-style')) {
     const style = document.createElement('style');
@@ -81,12 +81,23 @@ const initExtension = () => {
     }
   };
 
-  // カスタムリンク（Student Portal / Campus Web）の追加
+  // カスタムリンクの追加
   const addCustomLinks = () => {
-    const links = [
+    const studentLinks = [
       { name: 'Student Portal', url: 'https://sp.ritsumei.ac.jp/studentportal' },
       { name: 'Campus Web', url: 'https://cw.ritsumei.ac.jp/campusweb/login.html' }
     ];
+
+    const staffLinks = [
+      { name: '教職員ポータル', url: 'https://ritsumei365.sharepoint.com/sites/portal/' },
+      { name: '教務支援', url: 'https://www.ritsumei.ac.jp/staff-all/academic-affairs/' },
+      { name: '教員ポータル', url: 'https://www.ritsumei.ac.jp/faculty-portal/' },
+      { name: 'Respon', url: 'https://ritsumei.respon.jp/t/' },
+      { name: '打刻', url: 'https://ritsumei-cws.company.works-hi.com/self-workflow/cws/srwtimerec' },
+      { name: 'manaba+R', url: 'https://ct.ritsumei.ac.jp/ct/' }
+    ];
+
+    const links = isStaffMode ? staffLinks : studentLinks;
 
     // ヘッダーのナビゲーションメニューに追加（「Intelliboard」の後ろ）
     const navbar = document.querySelector('ul.navbar-nav.more-nav');
