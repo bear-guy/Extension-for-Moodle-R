@@ -21,7 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Moodle のタブをリロードして変更を反映する共通関数
   const reloadTabs = () => {
-    chrome.tabs.query({ url: "*://lms.ritsumei.ac.jp/*" }, (tabs) => {
+    // Moodleとシラバスの両方のタブを対象にする
+    chrome.tabs.query({ url: ["*://lms.ritsumei.ac.jp/*", "*://syllabus.ritsumei.ac.jp/*"] }, (tabs) => {
       tabs.forEach(tab => chrome.tabs.reload(tab.id));
     });
   };

@@ -44,6 +44,37 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
     document.head.appendChild(style);
   }
 
+  // 画面右下に通知を表示する関数（alertの代わり）
+  const showToast = (message) => {
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.right = '20px';
+    toast.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#444' : '#323232';
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 20px';
+    toast.style.borderRadius = '8px';
+    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    toast.style.zIndex = '9999';
+    toast.style.fontSize = '14px';
+    toast.style.transition = 'opacity 0.3s, transform 0.3s';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+    });
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 4000); // 4秒後に自動でフワッと消える
+  };
+
   const fixMoodleLayout = () => {
     // 1. ページ全体を広くするためにbodyのクラスをいじる
     document.body.classList.remove('limitedwidth');
@@ -397,7 +428,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
           clearInterval(window.syllabusExtractInterval);
           window.syllabusExtractInterval = null;
           
-          alert(`【Extension for Moodle+R】\nシラバス情報（${courseCode}）を取得・保存しました。\nMoodleの授業ページに戻って更新してください。`);
+          showToast(`✅ シラバス情報（${courseCode}）を取得・保存しました！`);
         });
       });
     }, 1000);
