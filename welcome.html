@@ -21,7 +21,19 @@
       border-radius: 8px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    h1 { color: #2196F3; font-size: 28px; text-align: center; }
+    .header-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+    .top-icon {
+      width: 80px;
+      height: 80px;
+      flex-shrink: 0;
+    }
+    h1 { color: #2196F3; font-size: 28px; margin: 0; }
     h2 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px; }
     li { margin-bottom: 10px; }
     .contact-links a { color: #2196F3; text-decoration: none; font-weight: bold; }
@@ -61,18 +73,27 @@
       .before-after-container {
         flex-direction: column;
       }
+      .header-wrapper {
+        flex-direction: column;
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>インストールしていただきありがとうございます！</h1>
-    <p style="text-align: center;">「Extension for Moodle+R」は、Moodleのレイアウトをより使いやすく改善する拡張機能です。</p>
+    <div class="header-wrapper">
+      <img src="icons/icon128.png" alt="Extension for Moodle+R" class="top-icon">
+      <div>
+        <h1>インストールしていただきありがとうございます！</h1>
+        <p style="margin: 8px 0 0 0; color: #555;">「Extension for Moodle+R」は、Moodleのレイアウトをより使いやすく改善する拡張機能です。</p>
+      </div>
+    </div>
     
     <h2>使い方</h2>
     <ul>
       <li>画面右上の <strong>パズルアイコン</strong> をクリックし、この拡張機能を右クリックしてピン留めしてください。</li>
-      <li>ツールバーに追加されたアイコンをクリックするとメニューが開き、各機能（ベターレイアウト、教職員モード、ダークモードなど）をオン・オフできます。</li>
+      <li>ツールバーに追加されたアイコンをクリックするとメニューが開き、各機能をオン・オフできます。</li>
     </ul>
 
     <h2>機能の紹介</h2>
