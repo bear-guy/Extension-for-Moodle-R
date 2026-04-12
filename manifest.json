@@ -1,19 +1,60 @@
-{
-"manifest_version": 3,
-"name": "Extention for Moodle+R",
-"version": "1.0",
-"permissions": [
-"storage",
-"tabs"
-],
-"action": {
-"default_popup": "popup.html"
-},
-"content_scripts": [
-{
-"matches": ["https://lms.ritsumei.ac.jp/*"],
-"css": ["content.css"],
-"js": ["content.js"]
-}
-]
-}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>拡張機能メニュー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      width: 220px;
+      margin: 0;
+      padding: 15px;
+      background-color: #f8f9fa;
+    }
+    h1 {
+      font-size: 15px;
+      margin: 0 0 15px 0;
+      color: #333;
+    }
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .toggle-label {
+      font-size: 14px;
+      color: #555;
+    }
+    .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 16px; width: 16px;
+      left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: #2196F3; }
+    input:checked + .slider:before { transform: translateX(20px); }
+  </style>
+</head>
+<body>
+  <h1>Extension for Moodle+R</h1>
+  <div class="toggle-wrapper">
+    <span class="toggle-label">ベターレイアウト</span>
+    <label class="switch">
+      <input type="checkbox" id="extensionToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="toggle-wrapper" style="margin-top: 10px;">
+    <span class="toggle-label">ダークモード（ベータ）</span>
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
