@@ -5,6 +5,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const staffModeToggle = document.getElementById('staffModeToggle');
   const staffModeWrapper = document.getElementById('staffModeWrapper');
 
+  // 教職員モードのUI状態を更新する関数
+  const updateStaffModeUI = (isEnabled) => {
+    staffModeToggle.disabled = !isEnabled;
+    staffModeWrapper.style.opacity = isEnabled ? '1' : '0.4';
+  };
+
+  // Moodle のタブをリロードして変更を反映する共通関数
+  const reloadTabs = () => {
+    chrome.tabs.query({ url: "*://lms.ritsumei.ac.jp/*" }, (tabs) => {
+      tabs.forEach(tab => chrome.tabs.reload(tab.id));
+    });
+  };
+
   // 保存されている状態を取得
   chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false }, (data) => {
     toggle.checked = data.isEnabled;
@@ -21,19 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期状態の教職員モードの表示を更新
     updateStaffModeUI(data.isEnabled);
   });
-
-  // 教職員モードのUI状態を更新する関数
-  const updateStaffModeUI = (isEnabled) => {
-    staffModeToggle.disabled = !isEnabled;
-    staffModeWrapper.style.opacity = isEnabled ? '1' : '0.4';
-  };
-
-  // Moodle のタブをリロードして変更を反映する共通関数
-  const reloadTabs = () => {
-    chrome.tabs.query({ url: "*://lms.ritsumei.ac.jp/*" }, (tabs) => {
-      tabs.forEach(tab => chrome.tabs.reload(tab.id));
-    });
-  };
 
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', () => {

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Extension for Moodle+R へようこそ！</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      font-size: 16px;
+      margin: 0;
+      padding: 40px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 { color: #2196F3; font-size: 28px; text-align: center; }
+    h2 { font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 5px; margin-top: 30px; }
+    li { margin-bottom: 10px; }
+    .contact-links a { color: #2196F3; text-decoration: none; font-weight: bold; }
+    .contact-links a:hover { text-decoration: underline; }
+    .footer { margin-top: 40px; text-align: center; font-size: 14px; color: #888; }
+    .feature-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-top: 12px;
+      margin-bottom: 20px;
+      display: block;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .before-after-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 12px;
+      margin-bottom: 20px;
+    }
+    .image-wrapper {
+      flex: 1;
+    }
+    .image-wrapper .feature-img {
+      margin-top: 5px;
+      margin-bottom: 0;
+    }
+    .image-label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #666;
+      display: block;
+      text-align: center;
+    }
+    @media (max-width: 600px) {
+      .before-after-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>インストールありがとうございます！</h1>
+    <p>「Extension for Moodle+R」は、Moodleのレイアウトをより使いやすく改善する拡張機能です。</p>
+    
+    <h2>使い方</h2>
+    <ul>
+      <li>画面右上の <strong>パズルアイコン</strong> をクリックし、この拡張機能を右クリックしてピン留めしてください。</li>
+      <li>ツールバーに追加されたアイコンをクリックするとメニューが開き、各機能（ベターレイアウト、教職員モード、ダークモードなど）をオン・オフできます。</li>
+    </ul>
+
+    <h2>機能の紹介</h2>
+    <ul>
+      <li>
+        <strong>ベターレイアウト:</strong> 時間割を見やすくし、画面を広く使えます。
+        <div class="before-after-container">
+          <div class="image-wrapper">
+            <span class="image-label">適用前 (Before)</span>
+            <img src="assets/layout-before.png" alt="ベターレイアウト適用前" class="feature-img">
+          </div>
+          <div class="image-wrapper">
+            <span class="image-label">適用後 (After)</span>
+            <img src="assets/layout-after.png" alt="ベターレイアウト適用後" class="feature-img">
+          </div>
+        </div>
+      </li>
+      <li><strong>教職員モード:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を直接アクセスできるように追加します。</li>
+      <li><strong>ホームスキップ:</strong> 使わないトップページをスキップして直接ダッシュボードに遷移します。</li>
+      <li>
+        <strong>ダークモード:</strong> 目に優しい暗めの配色に変更します。
+        <img src="assets/dark-mode.png" alt="ダークモードの例" class="feature-img">
+      </li>
+    </ul>
+
+    <h2>サポートと連絡先</h2>
+    <div class="contact-links">
+      <p>不具合の報告やご要望、ご質問等はX（Twitter）までお気軽にご連絡ください。<br>
+      <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a></p>
+      <p>もしこの拡張機能が役に立ったと感じていただけたら、開発のサポートをしていただけると嬉しいです！（未実装）<br>
+      <a href="#" target="_blank">Buy Me a Coffee</a></p>
+    </div>
+
+    <div class="footer">
+      &copy; 2026 Soma Kumagai All rights reserved.
+    </div>
+  </div>
+</body>
+</html>
