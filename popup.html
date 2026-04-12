@@ -11,9 +11,19 @@
       padding: 15px;
       background-color: #f8f9fa;
     }
+    .header-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .header-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
     h1 {
       font-size: 15px;
-      margin: 0 0 15px 0;
+      margin: 0;
       color: #333;
     }
     .toggle-wrapper {
@@ -56,7 +66,10 @@
   </style>
 </head>
 <body>
-  <h1>Extension for Moodle+R</h1>
+  <div class="header-container">
+    <img src="icons/icon128.png" alt="icon" class="header-icon">
+    <h1>Extension for Moodle+R</h1>
+  </div>
   <div class="toggle-wrapper">
     <span class="toggle-label">ベターレイアウト</span>
     <label class="switch">
@@ -72,16 +85,16 @@
     </label>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
-    <span class="toggle-label">ダークモード（ベータ）</span>
+    <span class="toggle-label">ホームスキップ</span>
     <label class="switch">
-      <input type="checkbox" id="darkModeToggle">
+      <input type="checkbox" id="skipHomeToggle">
       <span class="slider"></span>
     </label>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
-    <span class="toggle-label">ホームスキップ</span>
+    <span class="toggle-label">ダークモード（ベータ）</span>
     <label class="switch">
-      <input type="checkbox" id="skipHomeToggle">
+      <input type="checkbox" id="darkModeToggle">
       <span class="slider"></span>
     </label>
   </div>
