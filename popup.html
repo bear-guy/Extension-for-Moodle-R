@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>拡張機能メニュー</title>
   <style>
+    html {
+      background-color: #f8f9fa;
+    }
     body {
       font-family: sans-serif;
       width: 220px;
@@ -63,6 +66,22 @@
       font-size: 10px;
       color: #999;
     }
+    
+    /* --- ダークモード用スタイル --- */
+    html.dark-mode,
+    body.dark-mode {
+      background-color: #1e1e1e;
+      color-scheme: dark;
+    }
+    body.dark-mode h1 { color: #e0e0e0; }
+    body.dark-mode .toggle-label { color: #bbb; }
+    body.dark-mode .slider { background-color: #555; }
+    body.dark-mode input:checked + .slider { background-color: #2196F3; }
+    body.dark-mode .bottom-link { color: #90caf9; }
+    body.dark-mode .bottom-link:hover { color: #e3f2fd; }
+    body.dark-mode .divider { color: #555; }
+    body.dark-mode .credit-text { color: #777; }
+    body.dark-mode .header-icon { filter: brightness(0.9); }
   </style>
 </head>
 <body>

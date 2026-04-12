@@ -12,6 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     staffModeToggle.checked = data.isStaffMode;
 
+    // 初期状態のダークモード表示を更新
+    if (data.isDarkMode) {
+      document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark-mode');
+    }
+
     // 初期状態の教職員モードの表示を更新
     updateStaffModeUI(data.isEnabled);
   });
@@ -46,7 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // トグル切り替え時の処理 (ダークモード)
   darkToggle.addEventListener('change', () => {
-    chrome.storage.local.set({ isDarkMode: darkToggle.checked }, reloadTabs);
+    const isDarkMode = darkToggle.checked;
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+      document.documentElement.classList.remove('dark-mode');
+    }
+    chrome.storage.local.set({ isDarkMode: isDarkMode }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (ホームスキップ)
