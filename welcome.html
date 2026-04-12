@@ -48,6 +48,11 @@
       margin-bottom: 20px;
       display: block;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+    .feature-img:hover {
+      transform: scale(1.02);
     }
     .before-after-container {
       display: flex;
@@ -78,15 +83,35 @@
         text-align: center;
       }
     }
+    /* 画像拡大用のモーダルスタイル */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .modal-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header-wrapper">
       <img src="icons/icon128.png" alt="Extension for Moodle+R" class="top-icon">
-      <div>
+      <div style="text-align: center;">
         <h1>インストールしていただきありがとうございます！</h1>
-        <p style="margin: 8px 0 0 0; color: #555;">「Extension for Moodle+R」は、Moodle+Rを使いやすく改善する拡張機能です。</p>
+        <p style="margin: 8px 0 0 0; color: #555;">「Extension for Moodle+R」は、2026年度から「manaba+R」に代わって立命館大学に新しく導入されたLMS「Moodle+R」を、より使いやすく快適にするための拡張機能です。</p>
       </div>
     </div>
     
@@ -111,10 +136,13 @@
           </div>
         </div>
       </li>
-      <li><strong>教職員モード:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を直接アクセスできるように追加します。</li>
+      <li>
+        <strong>教職員モード:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を直接アクセスできるように追加します。
+        <img src="assets/staff-ribbon.png" alt="教職員モードの例" class="feature-img">
+      </li>
       <li><strong>ホームスキップ:</strong> 使わないトップページをスキップして直接ダッシュボードに遷移します。</li>
       <li>
-        <strong>シラバス情報の自動取得:</strong> Moodleの授業ページに「シラバス」ボタンを追加し、ワンクリックでアクセス。さらに、一度シラバスを開くだけで<strong>開講曜日・時限、担当教員、単位数、教室</strong>のデータを自動取得し、Moodleのタイトル横からいつでも確認できるようにします。
+        <strong>シラバス情報の自動取得:</strong> Moodleの授業ページに「シラバス」ボタンを追加し、ワンクリックでアクセス。さらに、一度シラバスを開くだけで<strong>開講曜日・時限、担当教員、単位数、教室</strong>のデータを自動取得し、Moodleからいつでも確認できるようにします。
         <img src="assets/syllabus.png" alt="シラバス連携の例" class="feature-img">
       </li>
       <li>
@@ -144,5 +172,24 @@
       &copy; 2026 Soma Kumagai All rights reserved.
     </div>
   </div>
+
+  <!-- 拡大表示用のモーダル -->
+  <div id="imageModal" class="modal">
+    <img class="modal-content" id="modalImage">
+  </div>
+
+  <script>
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImage");
+    document.querySelectorAll(".feature-img").forEach(img => {
+      img.addEventListener("click", function() {
+        modal.style.display = "flex";
+        modalImg.src = this.src;
+      });
+    });
+    modal.addEventListener("click", function() {
+      modal.style.display = "none";
+    });
+  </script>
 </body>
 </html>
