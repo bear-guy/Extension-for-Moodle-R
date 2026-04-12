@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkToggle = document.getElementById('darkModeToggle');
   const skipHomeToggle = document.getElementById('skipHomeToggle');
   const staffModeToggle = document.getElementById('staffModeToggle');
+  const syllabusToggle = document.getElementById('syllabusToggle');
   const staffModeWrapper = document.getElementById('staffModeWrapper');
 
   // 教職員モードのUI状態を更新する関数
@@ -19,11 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // 保存されている状態を取得
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     staffModeToggle.checked = data.isStaffMode;
+    if (syllabusToggle) {
+      syllabusToggle.checked = data.isSyllabusEnabled;
+    }
 
     // 初期状態のダークモード表示を更新
     if (data.isDarkMode) {
@@ -72,4 +76,11 @@ document.addEventListener('DOMContentLoaded', () => {
   staffModeToggle.addEventListener('change', () => {
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
+
+  // トグル切り替え時の処理 (シラバス連携)
+  if (syllabusToggle) {
+    syllabusToggle.addEventListener('change', () => {
+      chrome.storage.local.set({ isSyllabusEnabled: syllabusToggle.checked }, reloadTabs);
+    });
+  }
 });

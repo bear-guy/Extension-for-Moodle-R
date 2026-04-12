@@ -1,5 +1,5 @@
 // 拡張機能が有効な場合のみ処理を実行する
-chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false }, (data) => {
+chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled: false, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
   // ホームスキップが有効な場合の処理
   if (data.isSkipHomeEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
     if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
@@ -11,14 +11,14 @@ chrome.storage.local.get({ isEnabled: true, isDarkMode: false, isSkipHomeEnabled
 
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension(data.isStaffMode);
+    initExtension(data.isStaffMode, data.isSyllabusEnabled);
   }
   if (data.isDarkMode) {
     document.body.classList.add('dark-mode');
   }
 });
 
-const initExtension = (isStaffMode) => {
+const initExtension = (isStaffMode, isSyllabusEnabled) => {
   // 拡張機能内の画像をCSSで参照するためのスタイルを動的に注入
   if (!document.getElementById('moodle-ext-dynamic-style')) {
     const style = document.createElement('style');
@@ -315,8 +315,70 @@ const initExtension = (isStaffMode) => {
     }
   };
 
-  // シラバスリンクの追加とタイトルの左寄せ
-  const addSyllabusLink = () => {
+  // シラバス詳細ページから情報を取得して保存する処理
+  const extractAndSaveSyllabusData = () => {
+    if (!isSyllabusEnabled) return; // 設定がオフなら実行しない
+
+    // 既に取得済みならスキップ（負荷軽減・無限ループ防止）
+    if (document.body.dataset.syllabusExtracted === "true") return;
+    // 既に待機タイマーが動いていればスキップ
+    if (window.syllabusExtractInterval) return;
+
+    // SPAの非同期レンダリングを待つために1秒ごとにチェック
+    window.syllabusExtractInterval = setInterval(() => {
+      if (document.body.dataset.syllabusExtracted === "true") {
+        clearInterval(window.syllabusExtractInterval);
+        window.syllabusExtractInterval = null;
+        return;
+      }
+
+      // 「授業科目名」のテーブルセルがあるか確認
+      const courseNameEl = document.querySelector('td[data-label="授業科目名"]');
+      if (!courseNameEl) return; // まだロードされていない
+
+      // 詳細ページ特有の項目（授業施設など）があるか確認し、検索結果一覧ページでの誤作動を防ぐ
+      const labels = Array.from(document.querySelectorAll('span.slds-form-element__label'));
+      const isDetailPage = labels.some(el => el.textContent.includes('授業施設') || el.textContent.includes('キャンパス'));
+      if (!isDetailPage) return;
+
+      // 授業コードを取得 (例: "54571:社会と福祉(GV)" から "54571" を抽出)
+      const courseCodeMatch = courseNameEl.textContent.match(/\d{5,}/);
+      if (!courseCodeMatch) return;
+      const courseCode = courseCodeMatch[0];
+
+      // 属性「data-label」を目印にして各項目をピンポイントで取得
+      const scheduleEl = document.querySelector('td[data-label="開講曜日・時限"]');
+      const teacherEl = document.querySelector('td[data-label="全担当教員"]');
+      const creditsEl = document.querySelector('td[data-label="単位数"]');
+
+      // 「授業施設」は少し別の構造に入っているので、ラベルの隣から取得
+      let room = "不明";
+      const roomLabel = labels.find(el => el.textContent.includes('授業施設'));
+      if (roomLabel && roomLabel.nextElementSibling) {
+        room = roomLabel.nextElementSibling.textContent.trim();
+      }
+
+      const syllabusData = {
+        schedule: scheduleEl ? scheduleEl.textContent.trim() : "不明",
+        teacher: teacherEl ? teacherEl.textContent.trim() : "不明",
+        credits: creditsEl ? creditsEl.textContent.trim() : "不明",
+        room: room || "不明"
+      };
+
+      const storageKey = `syllabus_${courseCode}`;
+      chrome.storage.local.set({ [storageKey]: syllabusData }, () => {
+        console.log(`[Extension-for-Moodle-R] シラバス情報を保存しました: ${courseCode}`, syllabusData);
+        document.body.dataset.syllabusExtracted = "true";
+        clearInterval(window.syllabusExtractInterval);
+        window.syllabusExtractInterval = null;
+        
+        alert(`【Extension for Moodle+R】\nシラバス情報（${courseCode}）を取得・保存しました！\nMoodleの授業ページに戻って更新してください。`);
+      });
+    }, 1000);
+  };
+
+  // シラバスリンクの追加とシラバス情報の表示
+  const addSyllabusLinkAndInfo = () => {
     // コースページかどうかの判定 (course/view.php)
     if (!window.location.pathname.includes('/course/view.php')) return;
 
@@ -352,9 +414,10 @@ const initExtension = (isStaffMode) => {
 
     // 授業コードをタイトルから取得 (例: "54571" などの先頭5桁の数字)
     let courseCode = '';
-    const titleEl = document.querySelector('.page-context-header h1');
+    // Moodleのページによってクラス名が異なるため、複数を指定
+    const titleEl = document.querySelector('.page-header-headings h1, .page-context-header h1, h1');
     if (titleEl) {
-      const match = titleEl.textContent.trim().match(/^\d{5}/);
+      const match = titleEl.textContent.trim().match(/\d{5,}/); // 先頭に限らず5桁以上の数字を探す
       if (match) {
         courseCode = match[0];
       }
@@ -370,17 +433,67 @@ const initExtension = (isStaffMode) => {
       syllabusBtn.textContent = 'シラバス';
       headerContainer.prepend(syllabusBtn);
     }
+
+    if (!isSyllabusEnabled) return; // 設定がオフならシラバス情報の取得・表示は行わない
+
+    // シラバス情報（曜日・教室など）の表示
+    if (courseCode && headerContainer && !document.querySelector('.syllabus-info-container')) {
+      // 重複実行を防ぐためのプレースホルダーを挿入
+      const placeholder = document.createElement('div');
+      placeholder.className = 'syllabus-info-container d-none';
+      headerContainer.parentNode.insertBefore(placeholder, headerContainer);
+
+      const storageKey = `syllabus_${courseCode}`;
+      chrome.storage.local.get([storageKey], (result) => {
+        const data = result[storageKey];
+        if (data) {
+          const infoContainer = document.querySelector('.syllabus-info-container');
+          if (infoContainer) {
+            // ヘッダーの右寄り(ms-auto)に並べるためマージンを調整し、シラバスボタンの左側に配置します
+            infoContainer.className = 'syllabus-info-container ms-auto me-3 p-2 border rounded d-flex align-items-center';
+            if (document.body.classList.contains('dark-mode')) {
+              infoContainer.style.backgroundColor = '#2c2c2c';
+              infoContainer.style.color = '#e0e0e0';
+              infoContainer.style.borderColor = '#444';
+            } else {
+              infoContainer.style.backgroundColor = '#ffffff';
+              infoContainer.style.color = '#212529';
+              infoContainer.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+            }
+            infoContainer.style.fontSize = '0.9rem';
+            infoContainer.style.fontWeight = 'bold'; // 文字を太くして視認性アップ
+            infoContainer.style.gap = '15px';
+            infoContainer.innerHTML = `
+              <div><strong>開講曜日・時限:</strong> ${data.schedule}</div>
+              <div><strong>担当教員:</strong> ${data.teacher}</div>
+              <div><strong>単位:</strong> ${data.credits}</div>
+              <div><strong>教室:</strong> ${data.room}</div>
+            `;
+          }
+        }
+      });
+    }
   };
 
   // 監視設定（Moodleは後から要素が増えるので多めに監視）
+  let lastUrl = location.href;
   const observer = new MutationObserver(() => {
+    // URLが変わった（シラバス内で別ページに遷移した等）場合は取得フラグをリセットする
+    if (lastUrl !== location.href) {
+      lastUrl = location.href;
+      document.body.dataset.syllabusExtracted = "false";
+      clearInterval(window.syllabusExtractInterval);
+      window.syllabusExtractInterval = null;
+    }
+
     if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
       fixMoodleLayout();
       addCustomLinks();
       hideDuplicateLinks();
-      addSyllabusLink();
+      addSyllabusLinkAndInfo();
     } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
       autoFillSyllabusSearch();
+      extractAndSaveSyllabusData();
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
@@ -389,8 +502,9 @@ const initExtension = (isStaffMode) => {
     fixMoodleLayout();
     addCustomLinks();
     hideDuplicateLinks();
-    addSyllabusLink();
+    addSyllabusLinkAndInfo();
   } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
     autoFillSyllabusSearch();
+    extractAndSaveSyllabusData();
   }
 };
