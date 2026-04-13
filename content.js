@@ -543,6 +543,24 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
     }
   };
 
+  // ホームスキップが有効な場合にロゴのリンク変更とHomeの非表示化を行う処理
+  const applySkipHomeLinks = () => {
+    if (document.body.classList.contains('moodle-ext-skip-home')) {
+      document.querySelectorAll('a[href="https://lms.ritsumei.ac.jp/"]').forEach(link => {
+        // ヘッダーやドロワー内のロゴのリンク先をダッシュボードに変更
+        if (link.classList.contains('navbar-brand') || link.dataset.region === 'site-home-link') {
+          link.href = 'https://lms.ritsumei.ac.jp/my/';
+        } 
+        // メニュー等の「Home」ボタンを非表示化
+        else if (link.textContent.trim() === 'Home') {
+          const li = link.closest('li[data-key="home"]');
+          if (li) li.style.display = 'none';
+          else link.style.display = 'none';
+        }
+      });
+    }
+  };
+
   // 監視設定（Moodleは後から要素が増えるので多めに監視）
   let lastUrl = location.href;
   const observer = new MutationObserver(() => {
@@ -559,6 +577,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
       addCustomLinks();
       hideDuplicateLinks();
       addSyllabusLinkAndInfo();
+      applySkipHomeLinks();
     } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
       autoFillSyllabusSearch();
       extractAndSaveSyllabusData();
@@ -571,6 +590,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
     addCustomLinks();
     hideDuplicateLinks();
     addSyllabusLinkAndInfo();
+    applySkipHomeLinks();
   } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
     autoFillSyllabusSearch();
     extractAndSaveSyllabusData();
