@@ -128,6 +128,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
   // リンク定義
   const studentLinks = [
     { name: 'Student Portal', url: 'https://sp.ritsumei.ac.jp/studentportal' },
+    { name: 'Respon', url: 'https://ritsumei.respon.jp/' },
     { name: 'Campus Web', url: 'https://cw.ritsumei.ac.jp/campusweb/login.html' }
   ];
 
