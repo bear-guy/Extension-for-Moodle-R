@@ -106,21 +106,42 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
         }
       });
 
-      // 授業名カット
-      const courseLinks = table.querySelectorAll('td a'); 
-      courseLinks.forEach(link => {
-        const text = link.innerText.trim();
-        if (link.dataset.processed === "true") return;
+      // 授業名カットおよび教室・教員名の表示変更
+      const subjects = table.querySelectorAll('.subject'); 
+      subjects.forEach(subject => {
+        const link = subject.querySelector('a');
+        if (link && link.dataset.processed !== "true") {
+          const text = link.innerText.trim();
+          link.title = text;
+          
+          // 授業名が6文字以下の場合は削らずにそのまま表示し、見えなくなるのを防ぐ
+          if (text.length > 6) {
+            const newText = text.substring(6, 22);
+            link.innerText = text.length > 22 ? newText + '…' : newText;
+          }
+          link.dataset.processed = "true";
 
-        link.title = text;
-        
-        // 授業名が6文字以下の場合は削らずにそのまま表示し、見えなくなるのを防ぐ
-        if (text.length > 6) {
-          const newText = text.substring(6, 22);
-          link.innerText = text.length > 22 ? newText + '…' : newText;
+          const roomDiv = subject.querySelector('.room');
+          if (roomDiv) {
+            // "月4:AC130" などの先頭の "曜日+数字:" を削除
+            let roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日]\d+:/, '');
+            roomDiv.innerText = roomText;
+
+            // 授業コードを取得して教員名を付与
+            const match = text.match(/\d{5,}/);
+            if (match) {
+              const courseCode = match[0];
+              const storageKey = `syllabus_${courseCode}`;
+              chrome.storage.local.get([storageKey], (result) => {
+                const teacher = result[storageKey]?.teacher;
+                if (teacher && teacher !== "不明") {
+                  // 教員名が存在する場合、教室の後に付与
+                  roomDiv.innerText = `${roomText} ${teacher}`;
+                }
+              });
+            }
+          }
         }
-        
-        link.dataset.processed = "true";
       });
     }
   };
