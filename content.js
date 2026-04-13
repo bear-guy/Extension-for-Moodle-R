@@ -144,6 +144,17 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
         }
       });
     }
+
+    // 4. 凡例セクション（お気に入りコース等）を下部に移動
+    const legend = document.querySelector('.timetable-legend');
+    const others = document.querySelector('.timetable-others');
+    if (legend && others) {
+      // 既に移動済みでなければ移動する
+      if (others.nextElementSibling !== legend) {
+        others.insertAdjacentElement('afterend', legend);
+      }
+      legend.style.marginTop = '20px'; // 「その他」の表との間に余白を追加
+    }
   };
 
   // リンク定義
