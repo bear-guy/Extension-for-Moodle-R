@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // シラバスデータの削除ボタン
   if (clearSyllabusDataBtn) {
     clearSyllabusDataBtn.addEventListener('click', () => {
-      if (confirm('取得・保存したシラバスのデータをすべて削除しますか？\n※Moodle上の表示が消え、再度シラバスを開くまで表示されなくなります。')) {
+      if (confirm('取得したシラバスのデータをすべて削除しますか？\n取得したシラバス情報の表示が消え、再度シラバスを開くまで表示されなくなります。')) {
         chrome.storage.local.get(null, (items) => {
           const keysToRemove = Object.keys(items).filter(key => key.startsWith('syllabus_'));
           if (keysToRemove.length > 0) {
