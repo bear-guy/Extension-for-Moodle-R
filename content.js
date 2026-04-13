@@ -15,7 +15,23 @@ chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeE
     document.body.classList.add('moodle-ext-enabled');
     initExtension(data.isStaffMode, data.isSyllabusEnabled);
   }
-  if (data.isDarkMode) {
+  
+  // シラバスのサイトではダークモードを強制的に無効化する
+  if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
+    document.documentElement.classList.remove('dark-mode');
+    document.body.classList.remove('dark-mode');
+    
+    const lightStyle = document.createElement('style');
+    lightStyle.textContent = `
+      /* シラバスサイトが意図せず黒くなるのを防ぐための強制リセット */
+      :root, html, body {
+        color-scheme: light !important;
+        background-color: #ffffff !important;
+        color: #333333 !important;
+      }
+    `;
+    document.head.appendChild(lightStyle);
+  } else if (data.isDarkMode && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
     document.body.classList.add('dark-mode');
   }
 });
