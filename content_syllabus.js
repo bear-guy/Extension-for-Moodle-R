@@ -1,6 +1,5 @@
 window.addEventListener('load', () => {
     try {
-        // ※注意: 以下のセレクタ（document.querySelector等）は実際のシラバス詳細ページのHTML構造に合わせて書き換えてください。
         
         // 授業コードを取得 (Moodle側のコードと一致させるためのキーとなります)
         // 仮の取得例

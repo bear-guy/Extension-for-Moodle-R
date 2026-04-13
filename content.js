@@ -30,15 +30,43 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
         filter: invert(1) brightness(1.5) !important;
       }
       
-      /* ダークモード時のシラバスボタンのスタイル */
+      /* ダークモード時のセカンダリボタンのスタイル */
+      body.dark-mode .btn-secondary,
       body.dark-mode .custom-syllabus-link {
         background-color: #2c2c2c !important;
         color: #e0e0e0 !important;
         border-color: #555 !important;
       }
+      body.dark-mode .btn-secondary:hover,
       body.dark-mode .custom-syllabus-link:hover {
         background-color: #3a3a3a !important;
         color: #ffffff !important;
+      }
+      
+      /* ダークモード時の activity-header, completion-info 関連のスタイル調整 */
+      body.dark-mode .activity-header,
+      body.dark-mode .activity-information,
+      body.dark-mode .completion-info {
+        background: none !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        position: relative; /* z-indexを有効にするため */
+        z-index: 0; /* 重なりの基準を作る */
+      }
+
+      /* 完了条件のテキストとバッジを最前面に表示し、色を強制的に変更 */
+      body.dark-mode .completion-info *,
+      body.dark-mode .activity-information * {
+        color: #e0e0e0 !important;
+        position: relative;
+        z-index: 1; /* 覆い被さる要素より手前に来るようにする */
+      }
+      body.dark-mode .completion-info .badge {
+        background-color: #444 !important;
+      }
+      body.dark-mode .completion-info .badge.alert-success {
+        background-color: #1e4620 !important;
       }
     `;
     document.head.appendChild(style);
