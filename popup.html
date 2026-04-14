@@ -93,6 +93,11 @@
     body.dark-mode .header-icon { filter: brightness(0.9); }
     body.dark-mode .clear-data-link { color: #aaa; }
     body.dark-mode .clear-data-link:hover { color: #ef5350; }
+    body.dark-mode button {
+      background-color: #333 !important;
+      color: #e0e0e0 !important;
+      border-color: #555 !important;
+    }
   </style>
 </head>
 <body>
@@ -115,7 +120,9 @@
         <span class="slider"></span>
       </label>
     </div>
-    <div style="text-align: right; margin-top: 4px;">
+    <div style="text-align: right; margin-top: 8px;">
+      <span id="autoFetchSyllabusBtn" class="clear-data-link" style="margin-bottom: 6px;">登録された授業のシラバスを自動取得</span>
+      <br>
       <span id="clearSyllabusDataBtn" class="clear-data-link">取得したデータを削除</span>
     </div>
   </div>

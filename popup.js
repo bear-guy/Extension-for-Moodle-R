@@ -21,9 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Moodle のタブをリロードして変更を反映する共通関数
   const reloadTabs = () => {
-    // Moodleとシラバスの両方のタブを対象にする
+    // 現在開いているアクティブなタブを確実に再読み込みする
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs.length > 0) {
+        chrome.tabs.reload(tabs[0].id);
+      }
+    });
+    // 裏で開いているMoodleやシラバスの他のタブも再読み込みする
     chrome.tabs.query({ url: ["*://lms.ritsumei.ac.jp/*", "*://syllabus.ritsumei.ac.jp/*"] }, (tabs) => {
-      tabs.forEach(tab => chrome.tabs.reload(tab.id));
+      tabs.forEach(tab => {
+        if (!tab.active) chrome.tabs.reload(tab.id);
+      });
     });
   };
 
@@ -91,11 +99,57 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
 
+  // シラバス自動取得の実行関数
+  const triggerAutoFetch = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      if (activeTab && activeTab.url.includes('lms.ritsumei.ac.jp')) {
+        chrome.tabs.sendMessage(activeTab.id, { action: "getCourseCodes" }, (response) => {
+          if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
+            alert("時間割から授業コードが見つかりませんでした。\nMoodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。");
+          } else {
+            // 取得済みのシラバスデータをストレージから確認する
+            const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
+            chrome.storage.local.get(storageKeys, (result) => {
+              const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
+              
+              if (missingCodes.length === 0) {
+                alert("登録されているすべての授業のシラバス情報はすでに取得済みです。\n最新の情報に更新したい場合は、下の「取得したデータを削除」を実行してから再度実行してください。");
+              } else {
+                chrome.runtime.sendMessage({ 
+                  action: "startAutoFetchSyllabus", 
+                  courseCodes: missingCodes, // 未取得の授業コードだけを渡す
+                  originalTabId: activeTab.id
+                });
+                alert(`未取得の ${missingCodes.length} 件の授業のシラバス自動取得を開始します。\n別タブが順次開いて処理されますので、しばらくお待ちください。`);
+              }
+            });
+          }
+        });
+      } else {
+        alert("Moodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。");
+      }
+    });
+  };
+
   // トグル切り替え時の処理 (シラバス連携)
   if (syllabusToggle) {
     syllabusToggle.addEventListener('change', () => {
-      chrome.storage.local.set({ isSyllabusEnabled: syllabusToggle.checked }, reloadTabs);
+      const isEnabled = syllabusToggle.checked;
+      chrome.storage.local.set({ isSyllabusEnabled: isEnabled }, () => {
+        if (isEnabled && confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
+          triggerAutoFetch();
+        } else {
+          reloadTabs();
+        }
+      }); 
     });
+  }
+
+  // シラバスデータの自動取得ボタン
+  const autoFetchSyllabusBtn = document.getElementById('autoFetchSyllabusBtn');
+  if (autoFetchSyllabusBtn) {
+    autoFetchSyllabusBtn.addEventListener('click', triggerAutoFetch);
   }
 
   // シラバスデータの削除ボタン

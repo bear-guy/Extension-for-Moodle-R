@@ -1,3 +1,25 @@
+// バックグラウンドからのメッセージをリッスン（シラバス自動取得用）
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "getCourseCodes") {
+    const courseCodes = [];
+    const subjects = document.querySelectorAll('.timetable-table table .subject a');
+    subjects.forEach(link => {
+      const text = link.title || link.innerText;
+      const match = text.match(/\d{5,}/);
+      if (match) {
+        const code = match[0];
+        if (!courseCodes.includes(code)) {
+          courseCodes.push(code);
+        }
+      }
+    });
+    sendResponse({ courseCodes: courseCodes });
+  } else if (request.action === "autoFetchCompleted") {
+    alert("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nOKを押すとページを再読み込みして表示を更新します。");
+    window.location.reload();
+  }
+});
+
 // 拡張機能が有効な場合のみ処理を実行する
 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -362,6 +384,17 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
               if (link && link.offsetParent !== null) { // 画面に表示されているならクリック
                 hasClickedResult = true;
                 link.target = '_self'; // 新しいタブで開く設定を強制的に上書きして同じタブで開く
+                
+                // autofetchパラメータを引き継ぐ
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('autofetch') === 'true') {
+                  try {
+                    const hrefUrl = new URL(link.href, window.location.origin);
+                    hrefUrl.searchParams.set('autofetch', 'true');
+                    link.href = hrefUrl.toString();
+                  } catch (e) {}
+                }
+
                 link.click();
                 if (obs) obs.disconnect(); // 監視終了
                 return true;
@@ -386,6 +419,17 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
                 hasClickedResult = true;
                 const link = searchResultLinks[0];
                 link.target = '_self'; // 新しいタブで開く設定を強制的に上書き
+                
+                // autofetchパラメータを引き継ぐ
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('autofetch') === 'true') {
+                  try {
+                    const hrefUrl = new URL(link.href, window.location.origin);
+                    hrefUrl.searchParams.set('autofetch', 'true');
+                    link.href = hrefUrl.toString();
+                  } catch (e) {}
+                }
+
                 link.click();
                 if (obs) obs.disconnect(); // 監視終了
                 return true;
@@ -488,6 +532,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
 
       const storageKey = `syllabus_${courseCode}`;
       
+      // URLパラメータに autofetch=true があるか確認
+      const urlParams = new URLSearchParams(window.location.search);
+      const isAutoFetch = urlParams.get('autofetch') === 'true';
+
       // すでに保存されているか確認する
       chrome.storage.local.get([storageKey], (result) => {
         if (result[storageKey]) {
@@ -495,6 +543,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
           window.syllabusExtractInterval = null;
+          
+          if (isAutoFetch) {
+            chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
+          }
           return;
         }
 
@@ -506,6 +558,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
           window.syllabusExtractInterval = null;
           
           showToast(`✅ シラバス情報（${courseCode}）を取得・保存しました！`);
+
+          if (isAutoFetch) {
+            chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
+          }
         });
       });
     }, 1000);
