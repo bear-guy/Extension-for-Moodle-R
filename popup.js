@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const highlightCurrentClassWrapper = document.getElementById('highlightCurrentClassWrapper');
   const syllabusWrapper = document.getElementById('syllabusWrapper');
   const clearSyllabusDataBtn = document.getElementById('clearSyllabusDataBtn');
+  const resetExtensionBtn = document.getElementById('resetExtensionBtn');
 
   // ベターレイアウトに依存するUI状態を更新する関数
   const updateDependentUI = (isEnabled) => {
@@ -180,6 +181,19 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             alert('削除するデータがありません。');
           }
+        });
+      }
+    });
+  }
+
+  // 拡張機能のリセットボタン
+  if (resetExtensionBtn) {
+    resetExtensionBtn.addEventListener('click', () => {
+      if (confirm('拡張機能のすべての設定と取得したデータを削除し、初期状態に戻しますか？\nこの操作は取り消せません。')) {
+        chrome.storage.local.clear(() => {
+          alert('すべての設定とデータをリセットしました。\nページを再読み込みします。');
+          reloadTabs();
+          window.close(); // 完了後にポップアップを閉じる
         });
       }
     });
