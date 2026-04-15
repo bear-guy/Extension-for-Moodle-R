@@ -351,3 +351,8 @@ body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight a,
 body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight .room {
     color: #f0e6d2 !important;
 }
+
+/* --- アンケート回答結果の左寄せ --- */
+body.moodle-ext-enabled#page-mod-questionnaire-report .generaltable td.cell.c1.lastcol {
+    text-align: left !important;
+}

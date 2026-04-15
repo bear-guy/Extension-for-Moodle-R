@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (activeTab && activeTab.url.includes('lms.ritsumei.ac.jp')) {
         chrome.tabs.sendMessage(activeTab.id, { action: "getCourseCodes" }, (response) => {
           if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
-            alert("時間割から授業コードが見つかりませんでした。\nMoodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。");
+            alert("時間割から授業コードが見つかりませんでした。\nMoodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。\nまた、すでに登録されている可能性があります。");
           } else {
             // 取得済みのシラバスデータをストレージから確認する
             const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
