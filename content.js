@@ -533,12 +533,20 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         room = roomLabel.nextElementSibling.textContent.trim();
       }
 
+      // キャンパスを取得
+      let campus = "不明";
+      const campusLabel = labels.find(el => el.textContent.includes('キャンパス'));
+      if (campusLabel && campusLabel.nextElementSibling) {
+        campus = campusLabel.nextElementSibling.textContent.trim();
+      }
+
       const syllabusData = {
         url: cleanUrl.toString(), // シラバス詳細ページの直接リンクを保存
         schedule: scheduleEl ? scheduleEl.textContent.trim() : "不明",
         teacher: teacherEl ? teacherEl.textContent.trim() : "不明",
         credits: creditsEl ? creditsEl.textContent.trim() : "不明",
-        room: room || "不明"
+        room: room || "不明",
+        campus: campus || "不明"
       };
 
       const storageKey = `syllabus_${courseCode}`;
@@ -694,11 +702,31 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
             infoContainer.style.gap = '15px';
             infoContainer.style.flexShrink = '0'; // 幅が狭くなってもコンテナを縮ませない
             infoContainer.style.whiteSpace = 'nowrap'; // 取得した情報の文字を改行させない
+
+            // 教室情報のリンクを生成
+            let roomHTML = `<strong>教室:</strong> ${data.room || '不明'}`;
+            const campus = data.campus;
+            // 教室情報があり、かつ「不明」でない場合にリンク化を試みる
+            if (campus && data.room && data.room !== '不明') {
+              let campusMapURL = '';
+
+              if (campus.includes('衣笠')) {
+                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=227619&f=.pdf';
+              } else if (campus.includes('BKC')) {
+                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=227632&f=.pdf';
+              } else if (campus.includes('OIC')) {
+                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=229844&f=.pdf';
+              }
+
+              if (campusMapURL) {
+                roomHTML = `<strong>教室:</strong> <a href="${campusMapURL}" target="_blank" title="${campus}キャンパスマップ（PDF）" style="color: inherit; text-decoration: underline;">${data.room}</a>`;
+              }
+            }
             infoContainer.innerHTML = `
               <div><strong>開講曜日・時限:</strong> ${data.schedule}</div>
               <div><strong>担当教員:</strong> ${data.teacher}</div>
               <div><strong>単位:</strong> ${data.credits}</div>
-              <div><strong>教室:</strong> ${data.room}</div>
+              <div>${roomHTML}</div>
             `;
           }
         }
