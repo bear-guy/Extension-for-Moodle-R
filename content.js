@@ -569,8 +569,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
   // シラバスリンクの追加とシラバス情報の表示
   const addSyllabusLinkAndInfo = () => {
-    // コースページかどうかの判定 (course/view.php)
-    if (!window.location.pathname.includes('/course/view.php')) return;
+    // コース関連ページかどうかの判定 (course/view.php, enrol/index.php, course/search.php)
+    if (!window.location.pathname.match(/\/(course\/view|enrol\/index|course\/search)\.php/)) return;
 
     // ヘッダーの幅制限を解除し、下のメインコンテンツと横位置を揃える
     const pageHeader = document.querySelector('#page-header');
