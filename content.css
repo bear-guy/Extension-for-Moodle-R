@@ -333,3 +333,21 @@ body.moodle-ext-skip-home li[data-key="home"] {
 body.moodle-ext-skip-home .drawercontent .list-group a.list-group-item[href="https://lms.ritsumei.ac.jp/"] {
     display: none !important;
 }
+
+/* --- 現在の授業をハイライト --- */
+body.moodle-ext-enabled .timetable-table td.current-class-highlight {
+    background-color: #fffde7 !important;
+    border: 2px solid #ffd54f !important;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+}
+
+body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight {
+    background-color: #38321d !important;
+    border: 2px solid #826824 !important;
+    box-shadow: 0 0 8px rgba(255, 220, 100, 0.15);
+}
+
+body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight a,
+body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight .room {
+    color: #f0e6d2 !important;
+}

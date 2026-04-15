@@ -3,15 +3,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const darkToggle = document.getElementById('darkModeToggle');
   const skipHomeToggle = document.getElementById('skipHomeToggle');
   const staffModeToggle = document.getElementById('staffModeToggle');
+  const highlightCurrentClassToggle = document.getElementById('highlightCurrentClassToggle');
   const syllabusToggle = document.getElementById('syllabusToggle');
   const staffModeWrapper = document.getElementById('staffModeWrapper');
+  const highlightCurrentClassWrapper = document.getElementById('highlightCurrentClassWrapper');
   const syllabusWrapper = document.getElementById('syllabusWrapper');
   const clearSyllabusDataBtn = document.getElementById('clearSyllabusDataBtn');
 
   // ベターレイアウトに依存するUI状態を更新する関数
   const updateDependentUI = (isEnabled) => {
     staffModeToggle.disabled = !isEnabled;
+    highlightCurrentClassToggle.disabled = !isEnabled;
     staffModeWrapper.style.opacity = isEnabled ? '1' : '0.4';
+    highlightCurrentClassWrapper.style.opacity = isEnabled ? '1' : '0.4';
     
     if (syllabusToggle && syllabusWrapper) {
       syllabusToggle.disabled = !isEnabled;
@@ -38,10 +42,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
+    highlightCurrentClassToggle.checked = data.isHighlightCurrentClassEnabled;
     staffModeToggle.checked = data.isStaffMode;
     if (syllabusToggle) {
       syllabusToggle.checked = data.isSyllabusEnabled;
@@ -72,6 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
       syllabusToggle.checked = false;
       updates.isSyllabusEnabled = false;
     }
+    if (!isEnabled && highlightCurrentClassToggle.checked) {
+      highlightCurrentClassToggle.checked = false;
+      updates.isHighlightCurrentClassEnabled = false;
+    }
     
     chrome.storage.local.set(updates, reloadTabs);
   });
@@ -97,6 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (教職員モード)
   staffModeToggle.addEventListener('change', () => {
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
+  });
+
+  // トグル切り替え時の処理 (現在の授業をハイライト)
+  highlightCurrentClassToggle.addEventListener('change', () => {
+    chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
   });
 
   // シラバス自動取得の実行関数

@@ -23,7 +23,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // 拡張機能が有効な場合のみ処理を実行する
 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true }, (data) => {
+chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true }, (data) => {
   // ホームスキップが有効な場合の処理
   if (data.isSkipHomeEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
     if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
@@ -35,7 +35,7 @@ chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeE
 
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension(data.isStaffMode, data.isSyllabusEnabled);
+    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled);
   }
   
   // シラバスのサイトではダークモードを強制的に無効化する
@@ -58,7 +58,7 @@ chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeE
   }
 });
 
-const initExtension = (isStaffMode, isSyllabusEnabled) => {
+const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled) => {
   // 拡張機能内の画像をCSSで参照するためのスタイルを動的に注入
   if (!document.getElementById('moodle-ext-dynamic-style')) {
     const style = document.createElement('style');
@@ -693,6 +693,55 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
     }
   };
 
+  // 現在の授業をハイライトする関数
+  const highlightCurrentClass = () => {
+    // 既存のハイライトをクリア
+    document.querySelectorAll('.current-class-highlight').forEach(el => {
+      el.classList.remove('current-class-highlight');
+    });
+
+    const now = new Date();
+    const day = now.getDay(); // 0:日, 1:月, ..., 6:土
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    // 曜日が月曜から土曜でなければ何もしない
+    if (day < 1 || day > 6) {
+      return;
+    }
+
+    const classTimes = [
+      { period: 1, start: 9 * 60, end: 10 * 60 + 35 },
+      { period: 2, start: 10 * 60 + 45, end: 12 * 60 + 20 },
+      { period: 3, start: 13 * 60 + 10, end: 14 * 60 + 45 },
+      { period: 4, start: 14 * 60 + 55, end: 16 * 60 + 30 },
+      { period: 5, start: 16 * 60 + 40, end: 18 * 60 + 15 },
+      { period: 6, start: 18 * 60 + 25, end: 20 * 60 + 0 }
+    ];
+
+    let currentPeriod = 0;
+    for (const time of classTimes) {
+      if (currentMinutes >= time.start && currentMinutes <= time.end) {
+        currentPeriod = time.period;
+        break;
+      }
+    }
+
+    if (currentPeriod === 0) {
+      return; // 授業時間外
+    }
+
+    const table = document.querySelector('.timetable-table table');
+    if (!table) return;
+
+    const row = table.rows[currentPeriod];
+    if (!row) return;
+
+    const cell = row.cells[day];
+    if (cell && !cell.classList.contains('empty')) {
+      cell.classList.add('current-class-highlight');
+    }
+  };
+
   // 監視設定（Moodleは後から要素が増えるので多めに監視）
   let lastUrl = location.href;
   const observer = new MutationObserver(() => {
@@ -709,6 +758,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
       addCustomLinks();
       hideDuplicateLinks();
       addSyllabusLinkAndInfo();
+      if (isHighlightCurrentClassEnabled) {
+        highlightCurrentClass();
+      }
       applySkipHomeLinks();
     } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
       autoFillSyllabusSearch();
@@ -722,6 +774,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled) => {
     addCustomLinks();
     hideDuplicateLinks();
     addSyllabusLinkAndInfo();
+    if (isHighlightCurrentClassEnabled) {
+      highlightCurrentClass();
+      setInterval(highlightCurrentClass, 60000); // 1分ごとに更新
+    }
     applySkipHomeLinks();
   } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
     autoFillSyllabusSearch();
