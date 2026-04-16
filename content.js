@@ -298,7 +298,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
           let roomHTML = `<strong>教室:</strong> ${data.room || '不明'}`;
           if (data.campus && data.room && data.room !== '不明') {
-            const mapUrls = { '衣笠': '227619', 'BKC': '227632', 'OIC': '229845' };
+            const mapUrls = { '衣笠': '227619', 'BKC': '227632', 'OIC': '229844' };
             const matchedCampus = Object.keys(mapUrls).find(k => data.campus.includes(k));
             if (matchedCampus) roomHTML = `<strong>教室:</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
           }
