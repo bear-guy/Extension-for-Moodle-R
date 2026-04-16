@@ -10,7 +10,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// Chrome標準の自動確認でアップデートが見つかった場合も即時適用
+// Chrome標準の自動確認でアップデートが見つかった場合
 chrome.runtime.onUpdateAvailable.addListener(() => {
   chrome.runtime.reload();
 });
