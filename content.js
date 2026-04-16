@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
     sendResponse({ courseCodes });
   } else if (request.action === "autoFetchCompleted") {
-    if (confirm("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nページを再読み込みして表示を更新しますか？")) window.location.reload();
+    if (confirm("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nページを再読み込みして表示を更新します。")) window.location.reload();
   }
 });
 
