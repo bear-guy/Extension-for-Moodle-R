@@ -1,7 +1,18 @@
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.tabs.create({ url: "welcome.html" });
+  } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+    // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
+    const currentVersion = chrome.runtime.getManifest().version;
+    if (details.previousVersion !== currentVersion) {
+      chrome.tabs.create({ url: "welcome.html" });
+    }
   }
+});
+
+// Chrome標準の自動確認でアップデートが見つかった場合も即時適用
+chrome.runtime.onUpdateAvailable.addListener(() => {
+  chrome.runtime.reload();
 });
 
 let fetchQueue = [];
