@@ -1,236 +1,98 @@
-// バックグラウンドからのメッセージをリッスン（シラバス自動取得用）
+// ==========================================
+// メッセージ受信（シラバス自動取得用）
+// ==========================================
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getCourseCodes") {
     const courseCodes = [];
     const subjects = document.querySelectorAll('.timetable-table table .subject a');
     subjects.forEach(link => {
-      const text = link.title || link.innerText;
-      const match = text.match(/\d{5,}/);
-      if (match) {
-        const code = match[0];
-        if (!courseCodes.includes(code)) {
-          courseCodes.push(code);
-        }
-      }
+      const match = (link.title || link.innerText).match(/\d{5,}/);
+      if (match && !courseCodes.includes(match[0])) courseCodes.push(match[0]);
     });
-    sendResponse({ courseCodes: courseCodes });
+    sendResponse({ courseCodes });
   } else if (request.action === "autoFetchCompleted") {
-    alert("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nOKを押すとページを再読み込みして表示を更新します。");
-    window.location.reload();
+    if (confirm("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nページを再読み込みして表示を更新しますか？")) window.location.reload();
   }
 });
 
-// 拡張機能が有効な場合のみ処理を実行する
+// OSのダークモード設定を取得
 const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true }, (data) => {
-  // ホームスキップが有効な場合の処理
-  if (data.isSkipHomeEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-    if (window.location.pathname === '/' || window.location.pathname === '/index.php') {
-      window.location.replace('https://lms.ritsumei.ac.jp/my/');
-      return; // リダイレクト処理に入るため以降の処理は実行しない
-    }
-    document.body.classList.add('moodle-ext-skip-home');
+// ==========================================
+// 初期化・設定読み込み
+// ==========================================
+chrome.storage.local.get({ 
+  isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, 
+  isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true 
+}, (data) => {
+  // ホームスキップ（リダイレクト）
+  if (data.isSkipHomeEnabled && window.location.pathname.match(/^\/(index\.php)?$/)) {
+    window.location.replace('https://lms.ritsumei.ac.jp/my/');
+    return;
   }
+  if (data.isSkipHomeEnabled) document.body.classList.add('moodle-ext-skip-home');
 
+  // 拡張機能のメイン処理開始
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
     initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled);
   }
   
-  // シラバスのサイトではダークモードを強制的に無効化する
+  // ダークモードの適用・強制解除（シラバス）
   if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
     document.documentElement.classList.remove('dark-mode');
     document.body.classList.remove('dark-mode');
-    
     const lightStyle = document.createElement('style');
-    lightStyle.textContent = `
-      /* シラバスサイトが意図せず黒くなるのを防ぐための強制リセット */
-      :root, html, body {
-        color-scheme: light !important;
-        background-color: #ffffff !important;
-        color: #333333 !important;
-      }
-    `;
+    lightStyle.textContent = `:root, html, body { color-scheme: light !important; background-color: #ffffff !important; color: #333333 !important; }`;
     document.head.appendChild(lightStyle);
-  } else if (data.isDarkMode && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+  } else if (data.isDarkMode) {
     document.body.classList.add('dark-mode');
   }
 });
 
+// ==========================================
+// 拡張機能のメイン処理
+// ==========================================
 const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled) => {
-  // 拡張機能内の画像をCSSで参照するためのスタイルを動的に注入
+  
+  // --- 共通ユーティリティ ---
+
+  // 動的スタイルの注入
   if (!document.getElementById('moodle-ext-dynamic-style')) {
     const style = document.createElement('style');
     style.id = 'moodle-ext-dynamic-style';
     style.textContent = `
-      body.dark-mode img[src*="/monologo"] {
-        filter: invert(1) brightness(1.5) !important;
-      }
-      
-      /* ダークモード時のセカンダリボタンのスタイル */
-      body.dark-mode .btn-secondary,
-      body.dark-mode .custom-syllabus-link {
-        background-color: #2c2c2c !important;
-        color: #e0e0e0 !important;
-        border-color: #555 !important;
-      }
-      body.dark-mode .btn-secondary:hover,
-      body.dark-mode .custom-syllabus-link:hover {
-        background-color: #3a3a3a !important;
-        color: #ffffff !important;
-      }
-      
-      /* ダークモード時の activity-header, completion-info 関連のスタイル調整 */
-      body.dark-mode .activity-header,
-      body.dark-mode .activity-information,
-      body.dark-mode .completion-info {
-        background: none !important;
-        background-color: transparent !important;
-        box-shadow: none !important;
-        border: none !important;
-        position: relative; /* z-indexを有効にするため */
-        z-index: 0; /* 重なりの基準を作る */
-      }
-
-      /* 完了条件のテキストとバッジを最前面に表示し、色を強制的に変更 */
-      body.dark-mode .completion-info *,
-      body.dark-mode .activity-information * {
-        color: #e0e0e0 !important;
-        position: relative;
-        z-index: 1; /* 覆い被さる要素より手前に来るようにする */
-      }
-      body.dark-mode .completion-info .badge {
-        background-color: #444 !important;
-      }
-      body.dark-mode .completion-info .badge.alert-success {
-        background-color: #1e4620 !important;
-      }
+      body.dark-mode img[src*="/monologo"] { filter: invert(1) brightness(1.5) !important; }
+      body.dark-mode .btn-secondary, body.dark-mode .custom-syllabus-link { background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #555 !important; }
+      body.dark-mode .btn-secondary:hover, body.dark-mode .custom-syllabus-link:hover { background-color: #3a3a3a !important; color: #ffffff !important; }
+      body.dark-mode .activity-header, body.dark-mode .activity-information, body.dark-mode .completion-info { background: transparent !important; box-shadow: none !important; border: none !important; position: relative; z-index: 0; }
+      body.dark-mode .completion-info *, body.dark-mode .activity-information * { color: #e0e0e0 !important; position: relative; z-index: 1; }
+      body.dark-mode .completion-info .badge { background-color: #444 !important; }
+      body.dark-mode .completion-info .badge.alert-success { background-color: #1e4620 !important; }
     `;
     document.head.appendChild(style);
   }
 
-  // 画面右下に通知を表示する関数（alertの代わり）
+  // トースト通知を表示
   const showToast = (message) => {
     const toast = document.createElement('div');
     toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.right = '20px';
-    toast.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#444' : '#323232';
-    toast.style.color = '#fff';
-    toast.style.padding = '12px 20px';
-    toast.style.borderRadius = '8px';
-    toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-    toast.style.zIndex = '9999';
-    toast.style.fontSize = '14px';
-    toast.style.transition = 'opacity 0.3s, transform 0.3s';
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
-    document.body.appendChild(toast);
-
-    requestAnimationFrame(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateY(0)';
+    Object.assign(toast.style, {
+      whiteSpace: 'pre-wrap', position: 'fixed', bottom: '20px', right: '20px', zIndex: '9999', padding: '12px 20px',
+      backgroundColor: document.body.classList.contains('dark-mode') ? '#444' : '#323232', color: '#fff',
+      borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: '14px',
+      transition: 'opacity 0.3s, transform 0.3s', opacity: '0', transform: 'translateY(10px)'
     });
-
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
+      toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)';
       setTimeout(() => toast.remove(), 300);
-    }, 4000); // 4秒後に自動でフワッと消える
+    }, 4000);
   };
 
-  const fixMoodleLayout = () => {
-    // 1. ページ全体を広くするためにbodyのクラスをいじる
-    document.body.classList.remove('limitedwidth');
-
-    const timetable = document.querySelector('.block_rutime_table');
-    const timeline = document.querySelector('.block_timeline');
-    const mainRegion = document.querySelector('#block-region-content');
-
-    // 2. 横並びコンテナの作成と移動
-    if (timetable && timeline && mainRegion && !document.querySelector('.custom-layout-wrapper')) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'custom-layout-wrapper';
-      
-      mainRegion.insertBefore(wrapper, mainRegion.firstChild);
-      wrapper.appendChild(timeline);
-      wrapper.appendChild(timetable);
-    }
-
-    // 3. 時間割の文字加工（6文字消して16文字表示）
-    const table = document.querySelector('.timetable-table table');
-    if (table) {
-      // 土曜日以降を隠す
-      const rows = table.querySelectorAll('tr');
-      rows.forEach(row => {
-        if (row.cells.length > 6) {
-          for (let i = 6; i < row.cells.length; i++) {
-            row.cells[i].style.display = 'none';
-          }
-        }
-      });
-
-      // 授業名カットおよび教室・教員名の表示変更
-      const subjects = table.querySelectorAll('.subject'); 
-      subjects.forEach(subject => {
-        const link = subject.querySelector('a');
-        if (link && link.dataset.processed !== "true") {
-          const text = link.innerText.trim();
-          link.title = text;
-          
-          // 授業名が6文字以下の場合は削らずにそのまま表示し、見えなくなるのを防ぐ
-          if (text.length > 6) {
-            const newText = text.substring(6, 22);
-            link.innerText = text.length > 22 ? newText + '…' : newText;
-          }
-          link.dataset.processed = "true";
-
-          const roomDiv = subject.querySelector('.room');
-          if (roomDiv) {
-            // "月4:AC130" などの先頭の "曜日+数字:" を削除
-            let roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日]\d+:/, '');
-            roomDiv.innerText = roomText;
-
-            // 授業コードを取得して教員名を付与
-            const match = text.match(/\d{5,}/);
-            if (match) {
-              const courseCode = match[0];
-              const storageKey = `syllabus_${courseCode}`;
-              chrome.storage.local.get([storageKey], (result) => {
-                const teacher = result[storageKey]?.teacher;
-                if (teacher && teacher !== "不明") {
-                  // 教員名が存在する場合、教室の後に付与
-                  roomDiv.innerText = `${roomText} ${teacher}`;
-                }
-              });
-            }
-          }
-        }
-      });
-    }
-
-    // 4. 凡例セクション（お気に入りコース等）を下部に移動
-    const legend = document.querySelector('.timetable-legend');
-    const others = document.querySelector('.timetable-others');
-    if (legend && others) {
-      // 既に移動済みでなければ移動する
-      if (others.nextElementSibling !== legend) {
-        others.insertAdjacentElement('afterend', legend);
-      }
-      legend.style.marginTop = '20px'; // 「その他」の表との間に余白を追加
-    }
-  };
-
-  // リンク定義
-  const studentLinks = [
-    { name: 'Student Portal', url: 'https://sp.ritsumei.ac.jp/studentportal' },
-    { name: 'Respon', url: 'https://ritsumei.respon.jp/' },
-    { name: 'Campus Web', url: 'https://cw.ritsumei.ac.jp/campusweb/login.html' }
-  ];
-
-  const staffLinks = [
+  // カスタムリンクの定義
+  const currentLinks = isStaffMode ? [
     { name: '教職員ポータル', url: 'https://ritsumei365.sharepoint.com/sites/portal/' },
     { name: '教務支援', url: 'https://www.ritsumei.ac.jp/staff-all/academic-affairs/' },
     { name: '教員ポータル', url: 'https://www.ritsumei.ac.jp/faculty-portal/' },
@@ -238,608 +100,339 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     { name: '休補講・教室変更', url: 'https://www.ritsumei.ac.jp/pathways-future/course/cancel.html/' },
     { name: '打刻', url: 'https://ritsumei-cws.company.works-hi.com/self-workflow/cws/srwtimerec' },
     { name: 'manaba+R', url: 'https://ct.ritsumei.ac.jp/ct/' }
+  ] : [
+    { name: 'Student Portal', url: 'https://sp.ritsumei.ac.jp/studentportal' },
+    { name: 'Respon', url: 'https://ritsumei.respon.jp/' },
+    { name: 'Campus Web', url: 'https://cw.ritsumei.ac.jp/campusweb/login.html' }
   ];
 
-  const currentLinks = isStaffMode ? staffLinks : studentLinks;
+
+  // --- Moodle UI 調整機能 ---
+
+  // レイアウトの最適化（時間割の加工など）
+  const fixMoodleLayout = () => {
+    document.body.classList.remove('limitedwidth');
+    const timetable = document.querySelector('.block_rutime_table');
+    const timeline = document.querySelector('.block_timeline');
+    const mainRegion = document.querySelector('#block-region-content');
+
+    // 横並びコンテナ
+    if (timetable && timeline && mainRegion && !document.querySelector('.custom-layout-wrapper')) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'custom-layout-wrapper';
+      mainRegion.insertBefore(wrapper, mainRegion.firstChild);
+      wrapper.append(timeline, timetable);
+    }
+
+    // 時間割の表示調整
+    const table = document.querySelector('.timetable-table table');
+    if (table) {
+      table.querySelectorAll('tr').forEach(row => {
+        for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = 'none'; // 土日を隠す
+      });
+
+      table.querySelectorAll('.subject a:not([data-processed="true"])').forEach(link => {
+        link.dataset.processed = "true";
+        link.title = link.innerText.trim();
+        if (link.innerText.length > 6) {
+          const newText = link.innerText.substring(6, 22);
+          link.innerText = link.innerText.length > 22 ? newText + '…' : newText;
+        }
+
+        const roomDiv = link.parentElement.querySelector('.room');
+        if (roomDiv) {
+          const roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日]\d+:/, '');
+          roomDiv.innerText = roomText;
+          const match = link.title.match(/\d{5,}/);
+          if (match) chrome.storage.local.get(`syllabus_${match[0]}`, (res) => {
+            if (res[`syllabus_${match[0]}`]?.teacher && res[`syllabus_${match[0]}`].teacher !== "不明") {
+              roomDiv.innerText = `${roomText} ${res[`syllabus_${match[0]}`].teacher}`;
+            }
+          });
+        }
+      });
+    }
+
+    // 「その他」を凡例の上に移動
+    const legend = document.querySelector('.timetable-legend');
+    const others = document.querySelector('.timetable-others');
+    if (legend && others && others.nextElementSibling !== legend) {
+      others.insertAdjacentElement('afterend', legend);
+      legend.style.marginTop = '20px';
+    }
+  };
 
   // カスタムリンクの追加
   const addCustomLinks = () => {
-    // ヘッダーのナビゲーションメニューに追加（「Intelliboard」の後ろ）
     const navbar = document.querySelector('ul.navbar-nav.more-nav');
     if (navbar && !document.querySelector('.custom-nav-link')) {
       const navItems = Array.from(navbar.querySelectorAll('li.nav-item'));
       const targetItem = navItems.find(li => li.textContent.includes('Intelliboard')) || navItems[navItems.length - 1];
-
       if (targetItem) {
         currentLinks.slice().reverse().forEach(link => {
-          const li = document.createElement('li');
-          li.className = 'nav-item custom-nav-link';
-          li.setAttribute('role', 'none');
-          li.innerHTML = `<a role="menuitem" class="nav-link" href="${link.url}" target="_blank" tabindex="-1">${link.name}</a>`;
-          targetItem.after(li);
+          targetItem.insertAdjacentHTML('afterend', `<li class="nav-item custom-nav-link" role="none"><a role="menuitem" class="nav-link" href="${link.url}" target="_blank" tabindex="-1">${link.name}</a></li>`);
         });
       }
     }
 
-    // 左サイドバー(ドロワー)のメニューに追加（「Intelliboard」の後ろ）
     const drawerList = document.querySelector('.drawercontent .list-group');
     if (drawerList && !document.querySelector('.custom-drawer-link')) {
       const listItems = Array.from(drawerList.children);
       let targetLink = listItems.find(el => el.textContent.includes('Intelliboard') && el.tagName === 'A');
-      
-      if (targetLink && targetLink.nextElementSibling && targetLink.nextElementSibling.tagName === 'DIV') {
-        targetLink = targetLink.nextElementSibling;
-      } else if (!targetLink && listItems.length > 0) {
-        targetLink = listItems[listItems.length - 1]; // Intelliboardが見つからない場合は最後に追加
-      }
+      if (targetLink?.nextElementSibling?.tagName === 'DIV') targetLink = targetLink.nextElementSibling;
+      else if (!targetLink) targetLink = listItems[listItems.length - 1];
 
       if (targetLink) {
         currentLinks.slice().reverse().forEach(link => {
-          const a = document.createElement('a');
-          a.className = 'list-group-item list-group-item-action custom-drawer-link';
-          a.href = link.url;
-          a.target = '_blank';
-          a.textContent = link.name;
-          targetLink.after(a);
+          targetLink.insertAdjacentHTML('afterend', `<a class="list-group-item list-group-item-action custom-drawer-link" href="${link.url}" target="_blank">${link.name}</a>`);
         });
       }
     }
   };
 
-  // 既存のリンク集などから重複するリンクを非表示にする
+  // 重複するデフォルトリンクを非表示
   const hideDuplicateLinks = () => {
-    let duplicateKeywords = [];
-    let duplicateUrls = [];
+    const duplicateKeywords = isStaffMode ? ['休補講・教室変更', '教職員ポータル', '教務支援', '教員ポータル', 'Respon', '打刻', 'manaba+R'] : ['Student Portal', 'STUDENT PORTAL', 'Campus Web'];
+    const duplicateUrls = isStaffMode ? ['course/cancel.html', 'kyu-hoko', 'sharepoint.com/sites/portal', 'academic-affairs', 'faculty-portal', 'ritsumei.respon.jp', 'ritsumei-cws', 'ct.ritsumei.ac.jp/ct/'] : ['sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'cw.ritsumei.ac.jp/campusweb'];
 
-    if (isStaffMode) {
-      // 教職員モードで非表示にする重複リンク
-      duplicateKeywords = ['休補講・教室変更', '教職員ポータル', '教務支援', '教員ポータル', 'Respon', '打刻', 'manaba+R'];
-      duplicateUrls = ['course/cancel.html', 'kyu-hoko', 'sharepoint.com/sites/portal', 'academic-affairs', 'faculty-portal', 'ritsumei.respon.jp', 'ritsumei-cws', 'ct.ritsumei.ac.jp/ct/'];
-    } else {
-      // 学生モードで非表示にする重複リンク
-      duplicateKeywords = ['Student Portal', 'STUDENT PORTAL', 'Campus Web'];
-      duplicateUrls = ['sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'cw.ritsumei.ac.jp/campusweb'];
-    }
-
-    document.querySelectorAll('a').forEach(a => {
-      // 拡張機能自身が追加したリンクは除外
+    document.querySelectorAll('a:not(.custom-drawer-link)').forEach(a => {
       if (a.closest('.custom-nav-link') || a.classList.contains('custom-drawer-link')) return;
-
-      const href = a.href || '';
-      const text = a.textContent.trim();
-      
-      const isMatch = duplicateUrls.some(url => href.includes(url)) || 
-                      duplicateKeywords.some(kw => text.includes(kw));
-
+      const isMatch = duplicateUrls.some(url => (a.href || '').includes(url)) || duplicateKeywords.some(kw => a.textContent.trim().includes(kw));
       if (isMatch) {
         const li = a.closest('li');
-        // ドロップダウンメニューの親要素（リンク集など）を誤って消さないようにする
-        if (li && !li.classList.contains('dropdown') && !li.classList.contains('nav-item')) {
-          li.style.display = 'none';
-        } else {
+        if (li && !li.classList.contains('dropdown') && !li.classList.contains('nav-item')) li.style.display = 'none';
+        else {
           a.style.display = 'none';
-          // brタグ等で区切られている場合の改行を消す
-          let next = a.nextSibling;
-          while (next && next.nodeType === Node.TEXT_NODE && next.textContent.trim() === '') {
-            next = next.nextSibling;
-          }
-          if (next && next.nodeName === 'BR') {
-            next.style.display = 'none';
-          }
+          if (a.nextSibling?.nodeName === 'BR') a.nextSibling.style.display = 'none';
         }
       }
     });
   };
 
-  // シラバスサイトの自動入力処理
-  const autoFillSyllabusSearch = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const courseCode = urlParams.get('coursecode');
-    if (!courseCode) return;
+  // ホームリンクのスキップ処理
+  const applySkipHomeLinks = () => {
+    if (!document.body.classList.contains('moodle-ext-skip-home')) return;
+    document.querySelectorAll('a[href="https://lms.ritsumei.ac.jp/"]').forEach(link => {
+      if (link.classList.contains('navbar-brand') || link.dataset.region === 'site-home-link') link.href = 'https://lms.ritsumei.ac.jp/my/';
+      else if (link.textContent.trim() === 'Home') (link.closest('li[data-key="home"]') || link).style.display = 'none';
+    });
+  };
 
-    // 「授業コード・科目名・教員名・関連する単語」などのプレースホルダーを持つ検索ボックスを探す
-    const searchInput = document.querySelector('input[placeholder*="授業コード"], input[placeholder*="科目名"]');
-    if (searchInput && !searchInput.dataset.autoFilled) {
-      searchInput.dataset.autoFilled = "true";
-      
-      // フォーカスを当ててからexecCommandを使うことで、SPA(LWC等)に実際のユーザー入力として認識させる
-      searchInput.focus();
-      
-      if (!document.execCommand('insertText', false, courseCode)) {
-        // execCommandが失敗した場合のフォールバック
-        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-        nativeInputValueSetter.call(searchInput, courseCode);
-        searchInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-        searchInput.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+  // 現在の授業をハイライト
+  const highlightCurrentClass = () => {
+    document.querySelectorAll('.current-class-highlight').forEach(el => el.classList.remove('current-class-highlight'));
+    const now = new Date(), day = now.getDay(), currentMinutes = now.getHours() * 60 + now.getMinutes();
+    if (day < 1 || day > 6) return;
+
+    const currentPeriod = [
+      { p: 1, s: 540, e: 635 }, { p: 2, s: 645, e: 740 }, { p: 3, s: 790, e: 885 },
+      { p: 4, s: 895, e: 990 }, { p: 5, s: 1000, e: 1095 }, { p: 6, s: 1105, e: 1200 }
+    ].find(t => currentMinutes >= t.s && currentMinutes <= t.e)?.p || 0;
+
+    if (currentPeriod === 0) return;
+    const cell = document.querySelector('.timetable-table table')?.rows[currentPeriod]?.cells[day];
+    if (cell && !cell.classList.contains('empty')) cell.classList.add('current-class-highlight');
+  };
+
+
+  // --- シラバス連携機能 ---
+
+  // コースページ等にシラバスリンクと情報を表示
+  const addSyllabusLinkAndInfo = () => {
+    if (!window.location.pathname.match(/\/(course\/view|enrol\/index|course\/search)\.php/)) return;
+    const isCourseSearch = window.location.pathname.match(/\/(enrol\/index|course\/search)\.php/);
+
+    // ヘッダー幅の調整
+    const pageHeader = document.querySelector('#page-header');
+    if (pageHeader) {
+      pageHeader.classList.remove('header-maxwidth');
+      pageHeader.style.maxWidth = '100%';
+      const alignContainer = pageHeader.querySelector('.w-100 > .d-flex.align-items-center') || pageHeader;
+      if (alignContainer && !alignContainer.dataset.resizeSynced) {
+        alignContainer.dataset.resizeSynced = 'true';
+        const syncWidth = () => {
+          const target = document.querySelector('.course-content') || document.querySelector('#region-main');
+          if (target && pageHeader) {
+            const tr = target.getBoundingClientRect(), hr = pageHeader.getBoundingClientRect();
+            if (tr.left - hr.left >= 0) alignContainer.style.paddingLeft = `${tr.left - hr.left}px`;
+            if (hr.right - tr.right >= 0) alignContainer.style.paddingRight = `${hr.right - tr.right}px`;
+          }
+        };
+        syncWidth(); window.addEventListener('resize', syncWidth);
       }
-      
-      // 入力状態を確定させるためにフォーカスを外すイベントを発火
-      searchInput.dispatchEvent(new Event('blur', { bubbles: true, composed: true }));
-      
-        // --- 検索結果の監視と自動遷移 ---
-        let hasClickedResult = false;
-        const checkResultsAndClick = (obs) => {
-          if (hasClickedResult) return false;
-          const contentArea = document.querySelector('.siteforceContentArea') || document.body;
-          
-          // 検索結果の行やカードと思われる要素を幅広く探す
-          const resultRows = contentArea.querySelectorAll(
-            'table.slds-table tbody tr, ' +
-            'table tbody tr, ' +
-            '.forceCommunitySearchRecordList .slds-item, ' +
-            'force-search-results-item, ' +
-            'article.slds-card, ' +
-            '.search-result-item'
-          );
+    }
 
-          // 有効なリンクを含むデータ行だけを抽出
-          const dataRows = Array.from(resultRows).filter(row => {
-            const a = row.querySelector('a[href]');
-            return a && !a.href.includes('javascript:');
+    const titleContainer = document.querySelector('.page-context-header');
+    if (titleContainer?.parentElement) titleContainer.parentElement.style.minWidth = '0';
+
+    // 授業コード取得
+    const courseCode = document.querySelector('.page-header-headings h1, .page-context-header h1, h1')?.textContent.trim().match(/\d{5,}/)?.[0] || '';
+
+    // シラバスボタンの追加
+    const headerContainer = document.querySelector('.header-actions-container');
+    if (headerContainer && !document.querySelector('.custom-syllabus-link')) {
+      const url = `https://syllabus.ritsumei.ac.jp/syllabus/s/${courseCode ? `?coursecode=${courseCode}${isCourseSearch ? '&nosave=true' : ''}` : ''}`;
+      headerContainer.insertAdjacentHTML('afterbegin', `<a href="${url}" target="_blank" class="btn btn-secondary custom-syllabus-link" style="flex-shrink:0; white-space:nowrap;">シラバス</a>`);
+      
+      if (isSyllabusEnabled && courseCode && !isCourseSearch) {
+        chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
+          if (res[`syllabus_${courseCode}`]?.url) document.querySelector('.custom-syllabus-link').href = res[`syllabus_${courseCode}`].url;
+        });
+      }
+    }
+
+    // シラバス情報の表示
+    if (isSyllabusEnabled && courseCode && headerContainer && !document.querySelector('.syllabus-info-container')) {
+      headerContainer.insertAdjacentHTML('beforebegin', `<div class="syllabus-info-container d-none"></div>`); // 重複防止用
+      chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
+        const data = res[`syllabus_${courseCode}`];
+        const container = document.querySelector('.syllabus-info-container');
+        if (data && container) {
+          const isDark = document.body.classList.contains('dark-mode');
+          container.className = 'syllabus-info-container ms-auto me-3 p-2 border rounded d-flex align-items-center';
+          Object.assign(container.style, {
+            backgroundColor: isDark ? '#2c2c2c' : '#ffffff', color: isDark ? '#e0e0e0' : '#212529',
+            borderColor: isDark ? '#444' : '', boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
+            fontSize: '0.9rem', fontWeight: 'bold', gap: '15px', flexShrink: '0', whiteSpace: 'nowrap'
           });
 
-          if (dataRows.length > 0) {
-            if (dataRows.length === 1) { // 1件だけヒットした場合
-              const link = dataRows[0].querySelector('a[href]');
-              if (link && link.offsetParent !== null) { // 画面に表示されているならクリック
-                hasClickedResult = true;
-                link.target = '_self'; // 新しいタブで開く設定を強制的に上書きして同じタブで開く
-                
-                // autofetch, nosaveパラメータを引き継ぐ
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('autofetch') === 'true' || urlParams.get('nosave') === 'true') {
-                  try {
-                    const hrefUrl = new URL(link.href, window.location.origin);
-                    if (urlParams.get('autofetch') === 'true') hrefUrl.searchParams.set('autofetch', 'true');
-                    if (urlParams.get('nosave') === 'true') hrefUrl.searchParams.set('nosave', 'true');
-                    link.href = hrefUrl.toString();
-                  } catch (e) {}
-                }
-
-                link.click();
-                if (obs) obs.disconnect(); // 監視終了
-                return true;
-              }
-            }
-          } 
-          // 行が特定できなくても、授業コードが含まれる領域にあるリンクを探すフォールバック
-          else {
-            const allLinks = Array.from(contentArea.querySelectorAll('a[href]')).filter(a => {
-              return a.offsetParent !== null && !a.href.includes('javascript:') && !a.href.includes('#');
-            });
-
-            // 親要素のテキストに「授業コード」が含まれるリンクを抽出
-            const searchResultLinks = allLinks.filter(a => {
-              const textContext = (a.closest('tr, article, li') || a.parentElement || a).textContent;
-              return textContext.includes(courseCode);
-            });
-
-            if (searchResultLinks.length > 0) {
-              const uniqueUrls = new Set(searchResultLinks.map(a => a.href.split('?')[0]));
-              if (uniqueUrls.size === 1) { // 遷移先が1種類だけならクリック
-                hasClickedResult = true;
-                const link = searchResultLinks[0];
-                link.target = '_self'; // 新しいタブで開く設定を強制的に上書き
-                
-                // autofetch, nosaveパラメータを引き継ぐ
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('autofetch') === 'true' || urlParams.get('nosave') === 'true') {
-                  try {
-                    const hrefUrl = new URL(link.href, window.location.origin);
-                    if (urlParams.get('autofetch') === 'true') hrefUrl.searchParams.set('autofetch', 'true');
-                    if (urlParams.get('nosave') === 'true') hrefUrl.searchParams.set('nosave', 'true');
-                    link.href = hrefUrl.toString();
-                  } catch (e) {}
-                }
-
-                link.click();
-                if (obs) obs.disconnect(); // 監視終了
-                return true;
-              }
-            }
+          let roomHTML = `<strong>教室:</strong> ${data.room || '不明'}`;
+          if (data.campus && data.room && data.room !== '不明') {
+            const mapUrls = { '衣笠': '227619', 'BKC': '227632', 'OIC': '229845' };
+            const matchedCampus = Object.keys(mapUrls).find(k => data.campus.includes(k));
+            if (matchedCampus) roomHTML = `<strong>教室:</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
           }
-          return false;
-        };
-
-        // DOMの変更を監視して結果が出たかチェックする
-        const observer = new MutationObserver((mutations, obs) => {
-          checkResultsAndClick(obs);
-        });
-
-        // 検索ボタン押下後、画面のDOM変化の監視を開始
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        // もしすでに結果が出ている場合に備えて一度チェック
-        checkResultsAndClick(observer);
-
-        // 10秒経っても結果が出なければ監視を終了（無限ループ防止）
-        setTimeout(() => observer.disconnect(), 10000);
-
-        // --- 検索実行処理（ラグ対策で複数回即時トリガー） ---
-        const triggerSearch = () => {
-          if (hasClickedResult) return; // すでに結果が出ていれば中止
-          const enterEventInit = { bubbles: true, cancelable: true, composed: true, key: 'Enter', code: 'Enter', keyCode: 13, which: 13, charCode: 13 };
-          searchInput.dispatchEvent(new KeyboardEvent('keydown', enterEventInit));
-          searchInput.dispatchEvent(new KeyboardEvent('keypress', enterEventInit));
-          searchInput.dispatchEvent(new KeyboardEvent('keyup', enterEventInit));
-          
-          let searchBtn = document.querySelector('button[title="検索"], button[aria-label="検索"], button[type="submit"]');
-          if (!searchBtn && searchInput.parentElement) searchBtn = searchInput.parentElement.querySelector('button');
-          if (!searchBtn && searchInput.closest('form')) searchBtn = searchInput.closest('form').querySelector('button');
-          if (!searchBtn) searchBtn = Array.from(document.querySelectorAll('button')).find(btn => btn.textContent.trim().includes('検索'));
-
-          if (searchBtn) {
-            searchBtn.click();
-          } else if (searchInput.closest('form')) {
-            searchInput.closest('form').submit();
-          }
-        };
-
-        triggerSearch(); // 待機せず即実行
-        setTimeout(triggerSearch, 50);  // 念のため50ms後
-        setTimeout(triggerSearch, 150); // 念のため150ms後
-        setTimeout(triggerSearch, 300); // 念のため300ms後
+          container.innerHTML = `<div><strong>開講曜日・時限:</strong> ${data.schedule}</div><div><strong>担当教員:</strong> ${data.teacher}</div><div><strong>単位:</strong> ${data.credits}</div><div>${roomHTML}</div>`;
+        }
+      });
     }
   };
 
-  // シラバス詳細ページから情報を取得して保存する処理
+  // シラバス検索の自動入力（シラバスサイト用）
+  const autoFillSyllabusSearch = () => {
+    const courseCode = new URLSearchParams(window.location.search).get('coursecode');
+    const searchInput = document.querySelector('input[placeholder*="授業コード"], input[placeholder*="科目名"]');
+    if (!courseCode || !searchInput || searchInput.dataset.autoFilled) return;
+
+    searchInput.dataset.autoFilled = "true";
+    searchInput.focus();
+    if (!document.execCommand('insertText', false, courseCode)) {
+      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(searchInput, courseCode);
+      searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    searchInput.dispatchEvent(new Event('blur', { bubbles: true }));
+
+    let hasClicked = false;
+    const checkResults = (obs) => {
+      if (hasClicked) return;
+      const links = Array.from(document.querySelectorAll('.siteforceContentArea a[href], body a[href]'))
+        .filter(a => a.offsetParent !== null && !a.href.includes('javascript:') && !a.href.includes('#'));
+      
+      const targetLinks = links.filter(a => (a.closest('tr, article, li') || a).textContent.includes(courseCode));
+      if (targetLinks.length > 0 && new Set(targetLinks.map(a => a.href.split('?')[0])).size === 1) {
+        hasClicked = true;
+        const link = targetLinks[0];
+        link.target = '_self';
+        
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('autofetch') === 'true') link.href += (link.href.includes('?') ? '&' : '?') + 'autofetch=true';
+        if (params.get('nosave') === 'true') link.href += (link.href.includes('?') ? '&' : '?') + 'nosave=true';
+        
+        link.click();
+        if (obs) obs.disconnect();
+      }
+    };
+
+    const obs = new MutationObserver(() => checkResults(obs));
+    obs.observe(document.body, { childList: true, subtree: true });
+    setTimeout(() => obs.disconnect(), 10000);
+
+    const triggerSearch = () => {
+      if (hasClicked) return;
+      searchInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true }));
+      const btn = document.querySelector('button[title="検索"], button[aria-label="検索"]') || Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('検索'));
+      if (btn) btn.click();
+      else searchInput.closest('form')?.submit();
+    };
+    [0, 50, 150, 300].forEach(delay => setTimeout(triggerSearch, delay));
+  };
+
+  // シラバス情報の取得と保存（シラバスサイト用）
   const extractAndSaveSyllabusData = () => {
-    if (!isSyllabusEnabled) return; // 設定がオフなら実行しない
+    if (!isSyllabusEnabled || new URLSearchParams(window.location.search).get('nosave') === 'true' || document.body.dataset.syllabusExtracted === "true" || window.syllabusExtractInterval) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('nosave') === 'true') return; // nosaveパラメータがある場合は保存しない
-
-    // 既に取得済みならスキップ（負荷軽減・無限ループ防止）
-    if (document.body.dataset.syllabusExtracted === "true") return;
-    // 既に待機タイマーが動いていればスキップ
-    if (window.syllabusExtractInterval) return;
-
-    // SPAの非同期レンダリングを待つために1秒ごとにチェック
     window.syllabusExtractInterval = setInterval(() => {
-      if (document.body.dataset.syllabusExtracted === "true") {
-        clearInterval(window.syllabusExtractInterval);
-        window.syllabusExtractInterval = null;
-        return;
-      }
-
-      // 「授業科目名」のテーブルセルがあるか確認
       const courseNameEl = document.querySelector('td[data-label="授業科目名"]');
-      if (!courseNameEl) return; // まだロードされていない
-
-      // 詳細ページ特有の項目（授業施設など）があるか確認し、検索結果一覧ページでの誤作動を防ぐ
       const labels = Array.from(document.querySelectorAll('span.slds-form-element__label'));
-      const isDetailPage = labels.some(el => el.textContent.includes('授業施設') || el.textContent.includes('キャンパス'));
-      if (!isDetailPage) return;
+      if (!courseNameEl || !labels.some(el => el.textContent.includes('授業施設'))) return;
 
-      // 授業コードを取得 (例: "54571:社会と福祉(GV)" から "54571" を抽出)
-      // URLから不要なパラメータを削除して保存する
+      const courseCode = courseNameEl.textContent.match(/\d{5,}/)?.[0];
+      if (!courseCode) return;
+
+      const getLabelNext = (text) => labels.find(el => el.textContent.includes(text))?.nextElementSibling?.textContent.trim();
       const cleanUrl = new URL(location.href);
-      cleanUrl.searchParams.delete('autofetch');
-      cleanUrl.searchParams.delete('nosave');
-
-      const courseCodeMatch = courseNameEl.textContent.match(/\d{5,}/);
-      if (!courseCodeMatch) return;
-      const courseCode = courseCodeMatch[0];
-
-      // 属性「data-label」を目印にして各項目をピンポイントで取得
-      const scheduleEl = document.querySelector('td[data-label="開講曜日・時限"]');
-      const teacherEl = document.querySelector('td[data-label="全担当教員"]');
-      const creditsEl = document.querySelector('td[data-label="単位数"]');
-
-      // 「授業施設」は少し別の構造に入っているので、ラベルの隣から取得
-      let room = "不明";
-      const roomLabel = labels.find(el => el.textContent.includes('授業施設'));
-      if (roomLabel && roomLabel.nextElementSibling) {
-        room = roomLabel.nextElementSibling.textContent.trim();
-      }
-
-      // キャンパスを取得
-      let campus = "不明";
-      const campusLabel = labels.find(el => el.textContent.includes('キャンパス'));
-      if (campusLabel && campusLabel.nextElementSibling) {
-        campus = campusLabel.nextElementSibling.textContent.trim();
-      }
+      cleanUrl.searchParams.delete('autofetch'); cleanUrl.searchParams.delete('nosave');
 
       const syllabusData = {
-        url: cleanUrl.toString(), // シラバス詳細ページの直接リンクを保存
-        schedule: scheduleEl ? scheduleEl.textContent.trim() : "不明",
-        teacher: teacherEl ? teacherEl.textContent.trim() : "不明",
-        credits: creditsEl ? creditsEl.textContent.trim() : "不明",
-        room: room || "不明",
-        campus: campus || "不明"
+        url: cleanUrl.toString(),
+        schedule: document.querySelector('td[data-label="開講曜日・時限"]')?.textContent.trim() || "不明",
+        teacher: document.querySelector('td[data-label="全担当教員"]')?.textContent.trim() || "不明",
+        credits: document.querySelector('td[data-label="単位数"]')?.textContent.trim() || "不明",
+        room: getLabelNext('授業施設') || "不明",
+        campus: getLabelNext('キャンパス') || "不明"
       };
 
-      const storageKey = `syllabus_${courseCode}`;
-      
-      // URLパラメータに autofetch=true があるか確認
-      const isAutoFetch = urlParams.get('autofetch') === 'true';
-
-      // すでに保存されているか確認する
-      chrome.storage.local.get([storageKey], (result) => {
-        const existingData = result[storageKey];
-
-        // 既にURL付きのデータが保存されている場合は何もしない
-        if (existingData && existingData.url) {
+      chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
+        if (res[`syllabus_${courseCode}`]?.url) {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          window.syllabusExtractInterval = null;
-          if (isAutoFetch) {
-            chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
-          }
+          if (new URLSearchParams(window.location.search).get('autofetch') === 'true') chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
           return;
         }
 
-        // 新規保存またはURLの追加更新
-        chrome.storage.local.set({ [storageKey]: syllabusData }, () => {
-          console.log(`[Extension-for-Moodle-R] シラバス情報を保存/更新しました: ${courseCode}`, syllabusData);
+        chrome.storage.local.set({ [`syllabus_${courseCode}`]: syllabusData }, () => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          window.syllabusExtractInterval = null;
-          
-          if (!existingData) {
-            showToast(`✅ シラバス情報（${courseCode}）を取得・保存しました！`);
-          } else {
-            showToast(`✅ シラバスの直接リンクを更新しました！`);
-          }
-
-          if (isAutoFetch) {
-            chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
-          }
+          showToast(`✅ シラバス情報${res[`syllabus_${courseCode}`] ? '（リンク）を更新' : 'を取得・保存'}しました！`);
+          if (new URLSearchParams(window.location.search).get('autofetch') === 'true') chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
         });
       });
     }, 1000);
   };
 
-  // シラバスリンクの追加とシラバス情報の表示
-  const addSyllabusLinkAndInfo = () => {
-    // コース関連ページかどうかの判定 (course/view.php, enrol/index.php, course/search.php)
-    if (!window.location.pathname.match(/\/(course\/view|enrol\/index|course\/search)\.php/)) return;
 
-    const isCourseSearch = window.location.pathname.match(/\/(enrol\/index|course\/search)\.php/);
+  // --- 監視と実行 ---
 
-    // ヘッダーの幅制限を解除し、下のメインコンテンツと横位置を揃える
-    const pageHeader = document.querySelector('#page-header');
-    if (pageHeader) {
-      pageHeader.classList.remove('header-maxwidth');
-      pageHeader.style.maxWidth = '100%';
-
-      const alignContainer = pageHeader.querySelector('.w-100 > .d-flex.align-items-center') || pageHeader;
-      if (alignContainer) {
-        alignContainer.style.boxSizing = 'border-box';
-
-        // 画面の再描画やサイズ変更に常に追従して幅をピッタリ合わせる
-        const syncWidth = () => {
-          const targetContent = document.querySelector('.course-content') || document.querySelector('#region-main');
-          if (targetContent && pageHeader) {
-            const targetRect = targetContent.getBoundingClientRect();
-            const headerRect = pageHeader.getBoundingClientRect();
-            const paddingLeft = targetRect.left - headerRect.left;
-            const paddingRight = headerRect.right - targetRect.right;
-            if (paddingLeft >= 0) alignContainer.style.paddingLeft = `${paddingLeft}px`;
-            if (paddingRight >= 0) alignContainer.style.paddingRight = `${paddingRight}px`;
-          }
-        };
-        syncWidth(); // 呼ばれるたびに位置を合わせる
-        if (!alignContainer.dataset.resizeSynced) {
-          alignContainer.dataset.resizeSynced = 'true';
-          window.addEventListener('resize', syncWidth);
-        }
-      }
-    }
-
-    // 長すぎるタイトルが右側の要素を押しつぶさないように、親要素の幅の縮小を許可する
-    const titleContainer = document.querySelector('.page-context-header');
-    if (titleContainer && titleContainer.parentElement) {
-      titleContainer.parentElement.style.minWidth = '0'; // 縮小を許可してタイトルの自然な改行を促す
-    }
-
-    // 授業コードをタイトルから取得 (例: "54571" などの先頭5桁の数字)
-    let courseCode = '';
-    // Moodleのページによってクラス名が異なるため、複数を指定
-    const titleEl = document.querySelector('.page-header-headings h1, .page-context-header h1, h1');
-    if (titleEl) {
-      const match = titleEl.textContent.trim().match(/\d{5,}/); // 先頭に限らず5桁以上の数字を探す
-      if (match) {
-        courseCode = match[0];
-      }
-    }
-
-    // シラバスリンクの追加
-    const headerContainer = document.querySelector('.header-actions-container');
-    if (headerContainer && !document.querySelector('.custom-syllabus-link')) {
-      const syllabusBtn = document.createElement('a');
-      let syllabusUrl = courseCode ? `https://syllabus.ritsumei.ac.jp/syllabus/s/?coursecode=${courseCode}` : 'https://syllabus.ritsumei.ac.jp/syllabus/s/';
-      if (isCourseSearch && courseCode) {
-        syllabusUrl += '&nosave=true';
-      }
-      syllabusBtn.href = syllabusUrl;
-      syllabusBtn.target = '_blank'; // Moodleからシラバスを開くときは新しいタブにする
-      syllabusBtn.className = 'btn btn-secondary custom-syllabus-link';
-      syllabusBtn.textContent = 'シラバス';
-      syllabusBtn.style.flexShrink = '0'; // ボタンが縮まないようにする
-      syllabusBtn.style.whiteSpace = 'nowrap'; // ボタン内の文字を改行させない
-      headerContainer.prepend(syllabusBtn);
-
-      // ボタン作成直後に、保存されたURLがあれば上書きする（コースサーチ画面では行わない）
-      if (isSyllabusEnabled && courseCode && !isCourseSearch) {
-        const storageKey = `syllabus_${courseCode}`;
-        chrome.storage.local.get([storageKey], (result) => {
-          if (result[storageKey]?.url) {
-            syllabusBtn.href = result[storageKey].url;
-          }
-        });
-      }
-    }
-
-    if (!isSyllabusEnabled) return; // 設定がオフならシラバス情報の取得・表示は行わない
-
-    // シラバス情報（曜日・教室など）の表示
-    if (courseCode && headerContainer && !document.querySelector('.syllabus-info-container')) {
-      // 重複実行を防ぐためのプレースホルダーを挿入
-      const placeholder = document.createElement('div');
-      placeholder.className = 'syllabus-info-container d-none';
-      headerContainer.parentNode.insertBefore(placeholder, headerContainer);
-
-      const storageKey = `syllabus_${courseCode}`;
-      chrome.storage.local.get([storageKey], (result) => {
-        const data = result[storageKey];
-        if (data) {
-          const infoContainer = document.querySelector('.syllabus-info-container');
-          if (infoContainer) {
-            // ヘッダーの右寄り(ms-auto)に並べるためマージンを調整し、シラバスボタンの左側に配置します
-            infoContainer.className = 'syllabus-info-container ms-auto me-3 p-2 border rounded d-flex align-items-center';
-            if (document.body.classList.contains('dark-mode')) {
-              infoContainer.style.backgroundColor = '#2c2c2c';
-              infoContainer.style.color = '#e0e0e0';
-              infoContainer.style.borderColor = '#444';
-            } else {
-              infoContainer.style.backgroundColor = '#ffffff';
-              infoContainer.style.color = '#212529';
-              infoContainer.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            }
-            infoContainer.style.fontSize = '0.9rem';
-            infoContainer.style.fontWeight = 'bold'; // 文字を太くして視認性アップ
-            infoContainer.style.gap = '15px';
-            infoContainer.style.flexShrink = '0'; // 幅が狭くなってもコンテナを縮ませない
-            infoContainer.style.whiteSpace = 'nowrap'; // 取得した情報の文字を改行させない
-
-            // 教室情報のリンクを生成
-            let roomHTML = `<strong>教室:</strong> ${data.room || '不明'}`;
-            const campus = data.campus;
-            // 教室情報があり、かつ「不明」でない場合にリンク化を試みる
-            if (campus && data.room && data.room !== '不明') {
-              let campusMapURL = '';
-
-              if (campus.includes('衣笠')) {
-                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=227619&f=.pdf';
-              } else if (campus.includes('BKC')) {
-                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=227632&f=.pdf';
-              } else if (campus.includes('OIC')) {
-                campusMapURL = 'https://www.ritsumei.ac.jp/file.jsp?id=229844&f=.pdf';
-              }
-
-              if (campusMapURL) {
-                roomHTML = `<strong>教室:</strong> <a href="${campusMapURL}" target="_blank" title="${campus}キャンパスマップ（PDF）" style="color: inherit; text-decoration: underline;">${data.room}</a>`;
-              }
-            }
-            infoContainer.innerHTML = `
-              <div><strong>開講曜日・時限:</strong> ${data.schedule}</div>
-              <div><strong>担当教員:</strong> ${data.teacher}</div>
-              <div><strong>単位:</strong> ${data.credits}</div>
-              <div>${roomHTML}</div>
-            `;
-          }
-        }
-      });
+  const runFeatures = () => {
+    if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+      fixMoodleLayout();
+      addCustomLinks();
+      hideDuplicateLinks();
+      addSyllabusLinkAndInfo();
+      if (isHighlightCurrentClassEnabled) highlightCurrentClass();
+      applySkipHomeLinks();
+    } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
+      autoFillSyllabusSearch();
+      extractAndSaveSyllabusData();
     }
   };
 
-  // ホームスキップが有効な場合にロゴのリンク変更とHomeの非表示化を行う処理
-  const applySkipHomeLinks = () => {
-    if (document.body.classList.contains('moodle-ext-skip-home')) {
-      document.querySelectorAll('a[href="https://lms.ritsumei.ac.jp/"]').forEach(link => {
-        // ヘッダーやドロワー内のロゴのリンク先をダッシュボードに変更
-        if (link.classList.contains('navbar-brand') || link.dataset.region === 'site-home-link') {
-          link.href = 'https://lms.ritsumei.ac.jp/my/';
-        } 
-        // メニュー等の「Home」ボタンを非表示化
-        else if (link.textContent.trim() === 'Home') {
-          const li = link.closest('li[data-key="home"]');
-          if (li) li.style.display = 'none';
-          else link.style.display = 'none';
-        }
-      });
-    }
-  };
-
-  // 現在の授業をハイライトする関数
-  const highlightCurrentClass = () => {
-    // 既存のハイライトをクリア
-    document.querySelectorAll('.current-class-highlight').forEach(el => {
-      el.classList.remove('current-class-highlight');
-    });
-
-    const now = new Date();
-    const day = now.getDay(); // 0:日, 1:月, ..., 6:土
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    // 曜日が月曜から土曜でなければ何もしない
-    if (day < 1 || day > 6) {
-      return;
-    }
-
-    const classTimes = [
-      { period: 1, start: 9 * 60, end: 10 * 60 + 35 },
-      { period: 2, start: 10 * 60 + 45, end: 12 * 60 + 20 },
-      { period: 3, start: 13 * 60 + 10, end: 14 * 60 + 45 },
-      { period: 4, start: 14 * 60 + 55, end: 16 * 60 + 30 },
-      { period: 5, start: 16 * 60 + 40, end: 18 * 60 + 15 },
-      { period: 6, start: 18 * 60 + 25, end: 20 * 60 + 0 }
-    ];
-
-    let currentPeriod = 0;
-    for (const time of classTimes) {
-      if (currentMinutes >= time.start && currentMinutes <= time.end) {
-        currentPeriod = time.period;
-        break;
-      }
-    }
-
-    if (currentPeriod === 0) {
-      return; // 授業時間外
-    }
-
-    const table = document.querySelector('.timetable-table table');
-    if (!table) return;
-
-    const row = table.rows[currentPeriod];
-    if (!row) return;
-
-    const cell = row.cells[day];
-    if (cell && !cell.classList.contains('empty')) {
-      cell.classList.add('current-class-highlight');
-    }
-  };
-
-  // 監視設定（Moodleは後から要素が増えるので多めに監視）
   let lastUrl = location.href;
   const observer = new MutationObserver(() => {
-    // URLが変わった（シラバス内で別ページに遷移した等）場合は取得フラグをリセットする
     if (lastUrl !== location.href) {
       lastUrl = location.href;
       document.body.dataset.syllabusExtracted = "false";
       clearInterval(window.syllabusExtractInterval);
       window.syllabusExtractInterval = null;
     }
-
-    if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-      fixMoodleLayout();
-      addCustomLinks();
-      hideDuplicateLinks();
-      addSyllabusLinkAndInfo();
-      if (isHighlightCurrentClassEnabled) {
-        highlightCurrentClass();
-      }
-      applySkipHomeLinks();
-    } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
-      autoFillSyllabusSearch();
-      extractAndSaveSyllabusData();
-    }
+    runFeatures();
   });
   observer.observe(document.body, { childList: true, subtree: true });
   
-  if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-    fixMoodleLayout();
-    addCustomLinks();
-    hideDuplicateLinks();
-    addSyllabusLinkAndInfo();
-    if (isHighlightCurrentClassEnabled) {
-      highlightCurrentClass();
-      setInterval(highlightCurrentClass, 60000); // 1分ごとに更新
-    }
-    applySkipHomeLinks();
-  } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
-    autoFillSyllabusSearch();
-    extractAndSaveSyllabusData();
+  // 初回実行と定期実行
+  runFeatures();
+  if (isHighlightCurrentClassEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+    setInterval(highlightCurrentClass, 60000); // 1分ごとにハイライト更新
   }
 };
+
