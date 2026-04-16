@@ -1,8 +1,8 @@
 {
 "manifest_version": 3,
 "name": "Extension for Moodle+R",
-"version": "1.0.0",
-"description": "さらばmanaba+R、ベターレイアウトやシラバスの情報の自動取得、ダークモード、教職員向けモードなど様々な機能を搭載しております。 ",
+"version": "1.1.0",
+"description": "さらばmanaba+R、ベターレイアウトやシラバスの自動取得、ダークモード、教職員向けモードなど様々な機能を搭載しております。 ",
 "icons": {
   "16": "icons/icon16.png",
   "32": "icons/icon32.png",
