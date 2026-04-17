@@ -38,4 +38,6 @@
 
 不具合のご報告やご要望については、以下のフォームよりご連絡ください。  
 お問い合わせフォーム (Google Forms)
+<<<<<<< HEAD
 https://forms.gle/THai6UsTLrEzRBWJ8
+=======

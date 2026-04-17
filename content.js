@@ -393,7 +393,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         chrome.storage.local.set({ [`syllabus_${courseCode}`]: syllabusData }, () => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          showToast(`✅ シラバス情報${res[`syllabus_${courseCode}`] ? '（リンク）を更新' : 'を取得・保存'}しました！`);
+          showToast(`シラバス情報${res[`syllabus_${courseCode}`] ? '（リンク）を更新' : 'を取得・保存'}しました！`);
           if (new URLSearchParams(window.location.search).get('autofetch') === 'true') chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
         });
       });
@@ -435,4 +435,3 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     setInterval(highlightCurrentClass, 60000); // 1分ごとにハイライト更新
   }
 };
-
