@@ -33,9 +33,8 @@
 
 ## 開発者・お問い合わせ
 
-*   Soma Kumagai
+不具合のご報告やご要望については、以下のSNS、メールアドレス、フォームよりご連絡ください。
+*   Email: potatogamer@gmail.com
 *   Instagram: @somakumagai
-
-不具合のご報告やご要望については、以下のフォームよりご連絡ください。  
-お問い合わせフォーム (Google Forms)
-https://forms.gle/THai6UsTLrEzRBWJ8
+*   お問い合わせフォーム (Google Forms)
+    https://forms.gle/THai6UsTLrEzRBWJ8
