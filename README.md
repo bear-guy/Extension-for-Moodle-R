@@ -40,4 +40,3 @@
 お問い合わせフォーム (Google Forms)
 <<<<<<< HEAD
 https://forms.gle/THai6UsTLrEzRBWJ8
-=======
