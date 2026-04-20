@@ -234,6 +234,25 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     if (cell && !cell.classList.contains('empty')) cell.classList.add('current-class-highlight');
   };
 
+  // フォーラムの一括既読ボタンを追加
+  const addMarkAllReadButton = () => {
+    if (!window.location.pathname.includes('/mod/forum/view.php')) return;
+    if (document.querySelector('.custom-mark-all-read-btn')) return; // 重複防止
+
+    // テーブルヘッダーの「このフォーラムの投稿すべてを既読にします。」のリンクを取得
+    const markAllReadLink = document.querySelector('a[href*="markposts.php"][href*="mark=read"]');
+    if (!markAllReadLink) return; // 未読がない場合は追加しない
+
+    const actionContainer = document.querySelector('.tertiary-navigation .ms-sm-auto.navitem');
+    if (actionContainer) {
+      const btn = document.createElement('a');
+      btn.href = markAllReadLink.href;
+      btn.className = 'btn btn-secondary custom-mark-all-read-btn';
+      btn.style.marginRight = '8px';
+      btn.innerHTML = '<i class="icon fa fa-check fa-fw" aria-hidden="true"></i>すべて既読にする';
+      actionContainer.insertBefore(btn, actionContainer.firstChild);
+    }
+  };
 
   // --- シラバス連携機能 ---
 
@@ -411,6 +430,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       addSyllabusLinkAndInfo();
       if (isHighlightCurrentClassEnabled) highlightCurrentClass();
       applySkipHomeLinks();
+      addMarkAllReadButton();
     } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
       autoFillSyllabusSearch();
       extractAndSaveSyllabusData();
