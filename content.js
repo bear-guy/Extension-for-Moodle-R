@@ -182,11 +182,50 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         7: "20:10<br>~<br>21:45"
       };
 
-      table.querySelectorAll('tr').forEach((row, index) => {
+      // 曜日ヘッダーにその週の日付を追加
+      const headerRow = table.querySelector('tr:not(.date-row)');
+      if (headerRow && !headerRow.dataset.dateAdded && !table.querySelector('.date-row')) {
+        headerRow.dataset.dateAdded = "true";
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        // 日曜日(0)なら6日前が月曜、それ以外は(曜日-1)日前が月曜日
+        const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+        const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - distanceToMonday);
+
+        // 日付用の新しい行を作成
+        const dateRow = document.createElement('tr');
+        dateRow.className = 'date-row';
+        dateRow.appendChild(document.createElement('th')); // 左上の空白セル
+
+        for (let i = 1; i <= 5; i++) { // 月(1)〜金(5)列に対して処理
+          const dateTh = document.createElement('th');
+          dateTh.style.textAlign = 'center';
+          dateTh.style.fontSize = '0.85em';
+          dateTh.style.fontWeight = 'normal';
+          
+          if (headerRow.cells[i]) {
+            const cellDate = new Date(monday);
+            cellDate.setDate(monday.getDate() + (i - 1));
+            dateTh.innerHTML = `<span style="opacity: 0.8;">${cellDate.getMonth() + 1}/${cellDate.getDate()}</span>`;
+          }
+          dateRow.appendChild(dateTh);
+        }
+        
+        // 土日の列（非表示列）も数を合わせる
+        for (let i = 6; i < headerRow.cells.length; i++) {
+          const hiddenTh = document.createElement('th');
+          hiddenTh.style.display = 'none';
+          dateRow.appendChild(hiddenTh);
+        }
+        if (headerRow.parentNode) headerRow.parentNode.insertBefore(dateRow, headerRow);
+      }
+
+      table.querySelectorAll('tr').forEach((row) => {
+        if (row.classList.contains('date-row')) return; // 追加した日付の行は処理をスキップ
         for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = 'none'; // 土日を隠す
         
         // 時限セルに時間を追加
-        if (index > 0 && row.cells.length > 0) {
+        if (row.cells.length > 0) {
           const timeCell = row.cells[0];
           if (!timeCell.dataset.timeAdded) {
             const p = timeCell.innerText.trim().match(/^\d/)?.[0];
@@ -201,14 +240,17 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       table.querySelectorAll('.subject a:not([data-processed="true"])').forEach(link => {
         link.dataset.processed = "true";
         link.title = link.innerText.trim();
-        if (link.innerText.length > 6) {
-          const newText = link.innerText.substring(6, 22);
-          link.innerText = link.innerText.length > 22 ? newText + '…' : newText;
+        
+        // 授業コードを含めた最初の6文字を削除し、§以降の文字も削除
+        let subjectText = link.innerText.trim();
+        if (subjectText.length > 6) {
+          subjectText = subjectText.substring(6).trim();
         }
+        link.innerText = subjectText.replace(/\s*§.*/, '');
 
         const roomDiv = link.parentElement.querySelector('.room');
         if (roomDiv) {
-          const roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日]\d+:/, '');
+          const roomText = roomDiv.innerText.trim();
           roomDiv.innerText = roomText;
           const match = link.title.match(/\d{5,}/);
           if (match) chrome.storage.local.get(`syllabus_${match[0]}`, (res) => {
@@ -262,8 +304,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const duplicateKeywords = isStaffMode ? ['休補講・教室変更', '教職員ポータル', '教務支援', '教員ポータル', 'Respon', '打刻', 'manaba+R'] : ['Student Portal', 'STUDENT PORTAL', 'Campus Web'];
     const duplicateUrls = isStaffMode ? ['course/cancel.html', 'kyu-hoko', 'sharepoint.com/sites/portal', 'academic-affairs', 'faculty-portal', 'ritsumei.respon.jp', 'ritsumei-cws', 'ct.ritsumei.ac.jp/ct/'] : ['sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'cw.ritsumei.ac.jp/campusweb'];
 
-    document.querySelectorAll('a:not(.custom-drawer-link)').forEach(a => {
+    document.querySelectorAll('a:not(.custom-drawer-link):not([data-hidden-checked="true"])').forEach(a => {
       if (a.closest('.custom-nav-link') || a.classList.contains('custom-drawer-link')) return;
+      a.dataset.hiddenChecked = "true"; // 二度とチェックしないようにマーク
       const isMatch = duplicateUrls.some(url => (a.href || '').includes(url)) || duplicateKeywords.some(kw => a.textContent.trim().includes(kw));
       if (isMatch) {
         const li = a.closest('li');
@@ -288,16 +331,38 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   // 現在の授業をハイライト
   const highlightCurrentClass = () => {
     document.querySelectorAll('.current-class-highlight').forEach(el => el.classList.remove('current-class-highlight'));
+    document.querySelectorAll('.today-column-highlight').forEach(el => el.classList.remove('today-column-highlight'));
+    
     const now = new Date(), day = now.getDay(), currentMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    const table = document.querySelector('.timetable-table table');
+    if (!table) return;
+
+    // 今日の曜日の列全体をハイライト
+    if (day >= 1 && day <= 5) {
+      Array.from(table.rows).forEach(row => {
+        if (row.cells[day]) row.cells[day].classList.add('today-column-highlight');
+      });
+    }
+
     if (day < 1 || day > 6) return;
 
     const currentPeriod = [
       { p: 1, s: 540, e: 635 }, { p: 2, s: 645, e: 740 }, { p: 3, s: 790, e: 885 },
-      { p: 4, s: 895, e: 990 }, { p: 5, s: 1000, e: 1095 }, { p: 6, s: 1105, e: 1200 }
+      { p: 4, s: 895, e: 990 }, { p: 5, s: 1000, e: 1095 }, { p: 6, s: 1105, e: 1200 },
+      { p: 7, s: 1210, e: 1305 }
     ].find(t => currentMinutes >= t.s && currentMinutes <= t.e)?.p || 0;
 
     if (currentPeriod === 0) return;
-    const cell = document.querySelector('.timetable-table table')?.rows[currentPeriod]?.cells[day];
+    
+    // 行の追加でズレないように、最初のセル（時限の数字）を見て対象の行を特定する
+    let cell = null;
+    Array.from(table.rows).forEach(row => {
+      if (row.cells.length > 0 && row.cells[0].innerText.trim().startsWith(currentPeriod.toString())) {
+        cell = row.cells[day];
+      }
+    });
+
     if (cell && !cell.classList.contains('empty')) cell.classList.add('current-class-highlight');
   };
 
@@ -529,6 +594,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   };
 
   let lastUrl = location.href;
+  let observerTimeout = null;
   const observer = new MutationObserver(() => {
     if (lastUrl !== location.href) {
       lastUrl = location.href;
@@ -536,7 +602,12 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       clearInterval(window.syllabusExtractInterval);
       window.syllabusExtractInterval = null;
     }
-    runFeatures();
+    
+    // 画面の連続更新による負荷（フリーズ）を防ぐための遅延処理（ディバウンス）
+    if (observerTimeout) clearTimeout(observerTimeout);
+    observerTimeout = setTimeout(() => {
+      runFeatures();
+    }, 300); // 300ミリ秒待ってから実行
   });
   observer.observe(document.body, { childList: true, subtree: true });
   

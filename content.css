@@ -74,11 +74,27 @@ body.moodle-ext-enabled .timetable-table td.time {
     vertical-align: middle !important;
 }
 
+/* テーブルのセルすべてに枠線を追加 */
+body.moodle-ext-enabled .timetable-table th,
+body.moodle-ext-enabled .timetable-table td {
+    border: 1px solid #dee2e6 !important;
+}
+
 body.moodle-ext-enabled .timetable-table td {
     font-size: 0.85rem !important;
     padding: 6px 4px !important;
     vertical-align: top !important;
     word-break: break-word !important;
+}
+
+/* 時間割の授業名を2行で省略表示 */
+body.moodle-ext-enabled .timetable-table .subject a {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
 }
 
 /* --- ホームリンクのスキップ処理 --- */
@@ -89,6 +105,18 @@ body.moodle-ext-skip-home .drawercontent .list-group a.list-group-item[href="htt
 }
 
 /* --- 現在の授業をハイライト --- */
+/* 今日の曜日の列全体をハイライト（空きコマとヘッダーのみ色を変え、授業セルは維持） */
+body.moodle-ext-enabled .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled .timetable-table td.empty.today-column-highlight {
+    background-color: #e3f2fd !important;
+}
+
+/* 今日の曜日の列全体をハイライト（ダークモード時） */
+body.moodle-ext-enabled.dark-mode .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode .timetable-table td.empty.today-column-highlight {
+    background-color: #1a3a5a !important;
+}
+
 /* 通常時のハイライト */
 body.moodle-ext-enabled .timetable-table td.current-class-highlight {
     background-color: #fffde7 !important;
@@ -315,6 +343,8 @@ body.dark-mode .notification-area table h4 {
 
 /* --- 時間割表のダークモード対応 --- */
 /* 時間割のセルと背景 */
+body.dark-mode .timetable-table th,
+body.dark-mode .timetable-table td,
 body.dark-mode .timetable th,
 body.dark-mode .timetable td {
     border: 1px solid #333 !important;
