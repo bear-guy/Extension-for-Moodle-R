@@ -24,7 +24,7 @@ let originalTabId = null;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "startAutoFetchSyllabus") {
     fetchQueue = request.courseCodes;
-    originalTabId = request.originalTabId;
+    originalTabId = request.originalTabId || (sender.tab ? sender.tab.id : null);
     if (!isFetching) {
       processNextFetch();
     }

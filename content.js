@@ -91,6 +91,51 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     }, 4000);
   };
 
+  // 初回アクセス時のシラバス自動取得プロンプト
+  let isPrompting = false;
+  const checkFirstTimePrompt = () => {
+    if (isPrompting) return;
+    // 時間割ブロックが存在するページ（ダッシュボード等）でのみ実行する
+    if (!document.querySelector('.block_rutime_table')) return;
+    
+    isPrompting = true; // 重複実行を即座にロック
+    chrome.storage.local.get({ hasPromptedAutoFetch: false }, (res) => {
+      if (res.hasPromptedAutoFetch) return;
+
+      let retryCount = 0;
+      const waitForTimetable = setInterval(() => {
+        const subjects = document.querySelectorAll('.timetable-table table .subject a');
+        if (subjects.length > 0) {
+          clearInterval(waitForTimetable);
+          chrome.storage.local.set({ hasPromptedAutoFetch: true });
+          
+          const courseCodes = [];
+          subjects.forEach(link => {
+            const match = (link.title || link.innerText).match(/\d{5,}/);
+            if (match && !courseCodes.includes(match[0])) courseCodes.push(match[0]);
+          });
+
+          if (courseCodes.length > 0) {
+            setTimeout(() => {
+              if (confirm(`【Extension for Moodle+R】\nインストールしていただき、ありがとうございます。\n\n${courseCodes.length}件の登録された授業のシラバス情報を自動で取得しますか？（約1分かかります）`)) {
+                chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
+                  chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
+                  alert(`シラバスの自動取得を開始しました（${courseCodes.length}件）。\n別タブが順次開いて処理されますので、しばらくお待ちください。`);
+                });
+              } else {
+                chrome.storage.local.set({ isSyllabusEnabled: false });
+              }
+            }, 800); // 描画完了を少し待つ
+          }
+        } else if (retryCount >= 10) {
+          clearInterval(waitForTimetable);
+          isPrompting = false; // 時間割が読み込めなかった場合は再度チェック可能にする
+        }
+        retryCount++;
+      }, 1000); // 1秒ごとにチェック（最大10秒）
+    });
+  };
+
   // カスタムリンクの定義
   const currentLinks = isStaffMode ? [
     { name: '教職員ポータル', url: 'https://ritsumei365.sharepoint.com/sites/portal/' },
@@ -447,6 +492,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
   const runFeatures = () => {
     if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+      checkFirstTimePrompt();
       fixMoodleLayout();
       addCustomLinks();
       hideDuplicateLinks();

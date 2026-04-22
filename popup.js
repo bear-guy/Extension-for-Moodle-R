@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (missingCodes.length === 0) {
                 alert("登録されているすべての授業のシラバス情報はすでに取得済みです。\n最新の情報に更新したい場合は、下の「取得したデータを削除」を実行してから再度実行してください。");
               } else {
+                chrome.storage.local.set({ hasPromptedAutoFetch: true });
                 chrome.runtime.sendMessage({ 
                   action: "startAutoFetchSyllabus", 
                   courseCodes: missingCodes, // 未取得の授業コードだけを渡す
@@ -214,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateSyllabusButtons(isEnabled);
 
-      chrome.storage.local.set({ isSyllabusEnabled: isEnabled }, () => {
+      chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, () => {
         if (isEnabled) {
           if (confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
             triggerAutoFetch();
@@ -245,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 拡張機能のリセットボタン
   if (resetExtensionBtn) {
     resetExtensionBtn.addEventListener('click', () => {
-      if (confirm('拡張機能のすべての設定と取得したデータを削除し、ベターレイアウト以外の機能をすべてオフにしますか？\nこの操作は取り消せません。')) {
+      if (confirm('拡張機能のすべての設定と取得したデータを削除し、拡張機能を初期状態に戻しますか？\nこの操作は取り消せません。')) {
         chrome.storage.local.clear(() => {
           // ベターレイアウトのみオンにし、他のすべての機能はオフとして保存し直す
           const resetSettings = {
@@ -254,7 +255,8 @@ document.addEventListener('DOMContentLoaded', () => {
             isSkipHomeEnabled: false,
             isStaffMode: false,
             isSyllabusEnabled: false,
-            isHighlightCurrentClassEnabled: false
+            isHighlightCurrentClassEnabled: false,
+            hasPromptedAutoFetch: false
           };
           chrome.storage.local.set(resetSettings, () => {
             alert('すべてのデータを削除し、設定をリセットしました。\nページを再読み込みします。');
