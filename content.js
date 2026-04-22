@@ -200,8 +200,6 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         for (let i = 1; i <= 5; i++) { // 月(1)〜金(5)列に対して処理
           const dateTh = document.createElement('th');
           dateTh.style.textAlign = 'center';
-          dateTh.style.fontSize = '0.85em';
-          dateTh.style.fontWeight = 'normal';
           
           if (headerRow.cells[i]) {
             const cellDate = new Date(monday);
