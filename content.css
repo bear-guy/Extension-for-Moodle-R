@@ -69,8 +69,9 @@ body.moodle-ext-enabled .timetable-table table {
 /* 時限（1〜7）の列幅とセル内テキストの調整 */
 body.moodle-ext-enabled .timetable-table th:first-child,
 body.moodle-ext-enabled .timetable-table td.time {
-    width: 50px !important;
+    width: 55px !important;
     text-align: center !important;
+    vertical-align: middle !important;
 }
 
 body.moodle-ext-enabled .timetable-table td {

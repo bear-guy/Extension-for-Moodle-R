@@ -91,6 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初期状態の依存する設定の表示を更新
     updateDependentUI(data.isEnabled);
+
+    // 値の適用が完了してからアニメーションを有効にする
+    requestAnimationFrame(() => {
+      setTimeout(() => document.body.classList.remove('preload'), 50);
+    });
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
@@ -248,14 +253,14 @@ document.addEventListener('DOMContentLoaded', () => {
     resetExtensionBtn.addEventListener('click', () => {
       if (confirm('拡張機能のすべての設定と取得したデータを削除し、拡張機能を初期状態に戻しますか？\nこの操作は取り消せません。')) {
         chrome.storage.local.clear(() => {
-          // ベターレイアウトのみオンにし、他のすべての機能はオフとして保存し直す
+          // デフォルト設定を適用する
           const resetSettings = {
             isEnabled: true,
             isDarkMode: false,
-            isSkipHomeEnabled: false,
+            isSkipHomeEnabled: true,
             isStaffMode: false,
-            isSyllabusEnabled: false,
-            isHighlightCurrentClassEnabled: false,
+            isSyllabusEnabled: true,
+            isHighlightCurrentClassEnabled: true,
             hasPromptedAutoFetch: false
           };
           chrome.storage.local.set(resetSettings, () => {

@@ -172,8 +172,30 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // 時間割の表示調整
     const table = document.querySelector('.timetable-table table');
     if (table) {
-      table.querySelectorAll('tr').forEach(row => {
+      const periodTimes = {
+        1: "9:00<br>~<br>10:35",
+        2: "10:45<br>~<br>12:20",
+        3: "13:10<br>~<br>14:45",
+        4: "14:55<br>~<br>16:30",
+        5: "16:40<br>~<br>18:15",
+        6: "18:25<br>~<br>20:00",
+        7: "20:10<br>~<br>21:45"
+      };
+
+      table.querySelectorAll('tr').forEach((row, index) => {
         for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = 'none'; // 土日を隠す
+        
+        // 時限セルに時間を追加
+        if (index > 0 && row.cells.length > 0) {
+          const timeCell = row.cells[0];
+          if (!timeCell.dataset.timeAdded) {
+            const p = timeCell.innerText.trim().match(/^\d/)?.[0];
+            if (p && periodTimes[p]) {
+              timeCell.dataset.timeAdded = "true";
+              timeCell.innerHTML = `<div style="font-weight:bold; font-size:1.1em;">${p}</div><div style="font-size:0.75em; line-height:1.2; margin-top:4px; opacity:0.8; letter-spacing:-0.5px;">${periodTimes[p]}</div>`;
+            }
+          }
+        }
       });
 
       table.querySelectorAll('.subject a:not([data-processed="true"])').forEach(link => {

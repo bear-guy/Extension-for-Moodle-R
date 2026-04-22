@@ -1,5 +1,13 @@
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    chrome.storage.local.set({
+      isEnabled: true,
+      isSkipHomeEnabled: true,
+      isSyllabusEnabled: true,
+      isHighlightCurrentClassEnabled: true,
+      isStaffMode: false,
+      hasPromptedAutoFetch: false
+    });
     chrome.tabs.create({ url: "welcome.html" });
   } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
     // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
