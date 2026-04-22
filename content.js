@@ -3,12 +3,8 @@
 // ==========================================
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getCourseCodes") {
-    const courseCodes = [];
-    const subjects = document.querySelectorAll('.timetable-table table .subject a');
-    subjects.forEach(link => {
-      const match = (link.title || link.innerText).match(/\d{5,}/);
-      if (match && !courseCodes.includes(match[0])) courseCodes.push(match[0]);
-    });
+    const subjects = Array.from(document.querySelectorAll('.timetable-table table .subject a'));
+    const courseCodes = [...new Set(subjects.map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
     sendResponse({ courseCodes });
   } else if (request.action === "autoFetchCompleted") {
     if (confirm("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nページを再読み込みして表示を更新します。")) window.location.reload();
@@ -109,12 +105,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           clearInterval(waitForTimetable);
           chrome.storage.local.set({ hasPromptedAutoFetch: true });
           
-          const courseCodes = [];
-          subjects.forEach(link => {
-            const match = (link.title || link.innerText).match(/\d{5,}/);
-            if (match && !courseCodes.includes(match[0])) courseCodes.push(match[0]);
-          });
-
+          // 授業コードを一意に抽出
+          const courseCodes = [...new Set(Array.from(subjects).map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
           if (courseCodes.length > 0) {
             setTimeout(() => {
               if (confirm(`インストールしていただき、ありがとうございます。\n\n${courseCodes.length}件の登録された授業のシラバス情報を自動で取得しますか？（1分程度かかります）`)) {
@@ -354,12 +346,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     if (currentPeriod === 0) return;
     
     // 行の追加でズレないように、最初のセル（時限の数字）を見て対象の行を特定する
-    let cell = null;
-    Array.from(table.rows).forEach(row => {
-      if (row.cells.length > 0 && row.cells[0].innerText.trim().startsWith(currentPeriod.toString())) {
-        cell = row.cells[day];
-      }
-    });
+    const targetRow = Array.from(table.rows).find(row => row.cells.length > 0 && row.cells[0].innerText.trim().startsWith(currentPeriod.toString()));
+    const cell = targetRow ? targetRow.cells[day] : null;
 
     if (cell && !cell.classList.contains('empty')) cell.classList.add('current-class-highlight');
   };
