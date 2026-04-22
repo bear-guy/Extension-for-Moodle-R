@@ -117,7 +117,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
           if (courseCodes.length > 0) {
             setTimeout(() => {
-              if (confirm(`【Extension for Moodle+R】\nインストールしていただき、ありがとうございます。\n\n${courseCodes.length}件の登録された授業のシラバス情報を自動で取得しますか？（約1分かかります）`)) {
+              if (confirm(`インストールしていただき、ありがとうございます。\n\n${courseCodes.length}件の登録された授業のシラバス情報を自動で取得しますか？（1分程度かかります）`)) {
                 chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
                   chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
                   alert(`シラバスの自動取得を開始しました（${courseCodes.length}件）。\n別タブが順次開いて処理されますので、しばらくお待ちください。`);

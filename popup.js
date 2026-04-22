@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hasPromptedAutoFetch: false
           };
           chrome.storage.local.set(resetSettings, () => {
-            alert('すべてのデータを削除し、設定をリセットしました。\nページを再読み込みします。');
+            alert('すべてのデータを削除し、設定を初期状態にしました。\nページを再読み込みします。');
             reloadTabs();
             window.close(); // 完了後にポップアップを閉じる
           });
