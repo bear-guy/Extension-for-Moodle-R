@@ -236,11 +236,14 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         if (subjectText.length > 6) {
           subjectText = subjectText.substring(6).trim();
         }
+        // 「月4:」や「火2・3:」などの曜日・時限表記を削除
+        subjectText = subjectText.replace(/^[月火水木金土日][\d・]+[：:]\s*/, '');
         link.innerText = subjectText.replace(/\s*§.*/, '');
 
         const roomDiv = link.parentElement.querySelector('.room');
         if (roomDiv) {
-          const roomText = roomDiv.innerText.trim();
+          // 教室名からも同様に曜日・時限表記を削除
+          const roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日][\d・]+[：:]\s*/, '');
           roomDiv.innerText = roomText;
           const match = link.title.match(/\d{5,}/);
           if (match) chrome.storage.local.get(`syllabus_${match[0]}`, (res) => {
