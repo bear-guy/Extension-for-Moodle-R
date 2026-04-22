@@ -295,7 +295,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       
       if (isSyllabusEnabled && courseCode && !isCourseSearch) {
         chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
-          if (res[`syllabus_${courseCode}`]?.url) document.querySelector('.custom-syllabus-link').href = res[`syllabus_${courseCode}`].url;
+          const syllabusBtn = headerContainer.querySelector('.custom-syllabus-link');
+          if (res[`syllabus_${courseCode}`]?.url && syllabusBtn) syllabusBtn.href = res[`syllabus_${courseCode}`].url;
         });
       }
     }
@@ -306,7 +307,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
         const data = res[`syllabus_${courseCode}`];
         const container = document.querySelector('.syllabus-info-container');
-        if (data && container) {
+        if (data && data.schedule && container) {
           const isDark = document.body.classList.contains('dark-mode');
           container.className = 'syllabus-info-container ms-auto me-3 p-2 border rounded d-flex align-items-center';
           Object.assign(container.style, {
@@ -352,6 +353,16 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         hasClicked = true;
         const link = targetLinks[0];
         link.target = '_self';
+
+        // 直接リンク（詳細ページURL）を検索結果から事前に取得して保存
+        const directUrl = link.href.split('?')[0]; 
+        chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
+          const data = res[`syllabus_${courseCode}`] || {};
+          if (data.url !== directUrl) {
+            data.url = directUrl;
+            chrome.storage.local.set({ [`syllabus_${courseCode}`]: data });
+          }
+        });
         
         const params = new URLSearchParams(window.location.search);
         if (params.get('autofetch') === 'true') link.href += (link.href.includes('?') ? '&' : '?') + 'autofetch=true';
@@ -391,9 +402,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       const getLabelNext = (text) => labels.find(el => el.textContent.includes(text))?.nextElementSibling?.textContent.trim();
       const cleanUrl = new URL(location.href);
       cleanUrl.searchParams.delete('autofetch'); cleanUrl.searchParams.delete('nosave');
+      const currentUrlStr = cleanUrl.toString();
 
-      const syllabusData = {
-        url: cleanUrl.toString(),
+      const newSyllabusData = {
         schedule: document.querySelector('td[data-label="開講曜日・時限"]')?.textContent.trim() || "不明",
         teacher: document.querySelector('td[data-label="全担当教員"]')?.textContent.trim() || "不明",
         credits: document.querySelector('td[data-label="単位数"]')?.textContent.trim() || "不明",
@@ -402,18 +413,30 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       };
 
       chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
-        if (res[`syllabus_${courseCode}`]?.url) {
+        const existingData = res[`syllabus_${courseCode}`] || {};
+        
+        // すでに有効な直接リンクURLと詳細データが揃っている場合はスキップ
+        const hasValidUrl = existingData.url && !existingData.url.includes('coursecode=');
+        if (hasValidUrl && existingData.schedule && existingData.schedule !== "不明") {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
           if (new URLSearchParams(window.location.search).get('autofetch') === 'true') chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
           return;
         }
 
-        chrome.storage.local.set({ [`syllabus_${courseCode}`]: syllabusData }, () => {
+        let finalUrl = existingData.url;
+        if (!finalUrl || finalUrl.includes('coursecode=')) {
+          if (currentUrlStr.includes('/syllabuss/') || !currentUrlStr.includes('coursecode=')) {
+            finalUrl = currentUrlStr;
+          }
+        }
+        newSyllabusData.url = finalUrl || currentUrlStr;
+
+        chrome.storage.local.set({ [`syllabus_${courseCode}`]: { ...existingData, ...newSyllabusData } }, () => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          showToast(`シラバス情報${res[`syllabus_${courseCode}`] ? '（リンク）を更新' : 'を取得・保存'}しました！`);
-          if (new URLSearchParams(window.location.search).get('autofetch') === 'true') chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
+          if (new URLSearchParams(window.location.search).get('autofetch') !== 'true') showToast(`シラバス情報を取得・保存しました！`);
+          else chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
         });
       });
     }, 1000);

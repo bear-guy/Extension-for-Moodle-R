@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const highlightCurrentClassWrapper = document.getElementById('highlightCurrentClassWrapper');
   const syllabusWrapper = document.getElementById('syllabusWrapper');
   const clearSyllabusDataBtn = document.getElementById('clearSyllabusDataBtn');
+  const autoFetchSyllabusBtn = document.getElementById('autoFetchSyllabusBtn');
   const resetExtensionBtn = document.getElementById('resetExtensionBtn');
 
   // ベターレイアウトに依存するUI状態を更新する関数
@@ -21,6 +22,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (syllabusToggle && syllabusWrapper) {
       syllabusToggle.disabled = !isEnabled;
       syllabusWrapper.style.opacity = isEnabled ? '1' : '0.4';
+    }
+  };
+
+  // シラバス機能に依存するボタン状態を更新する関数
+  const updateSyllabusButtons = (isSyllabusEnabled) => {
+    if (autoFetchSyllabusBtn && clearSyllabusDataBtn) {
+      const opacity = isSyllabusEnabled ? '1' : '0.4';
+      const pointerEvents = isSyllabusEnabled ? 'auto' : 'none';
+      autoFetchSyllabusBtn.style.opacity = opacity;
+      autoFetchSyllabusBtn.style.pointerEvents = pointerEvents;
+      clearSyllabusDataBtn.style.opacity = opacity;
+      clearSyllabusDataBtn.style.pointerEvents = pointerEvents;
     }
   };
 
@@ -40,6 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // シラバスデータを削除する共通関数
+  const clearSyllabusData = (showAlert, callback) => {
+    chrome.storage.local.get(null, (items) => {
+      const keysToRemove = Object.keys(items).filter(key => key.startsWith('syllabus_'));
+      if (keysToRemove.length > 0) {
+        chrome.storage.local.remove(keysToRemove, () => {
+          if (showAlert) alert('シラバスデータを削除しました。');
+          if (callback) callback();
+        });
+      } else {
+        if (showAlert) alert('削除するデータがありません。');
+        if (callback) callback();
+      }
+    });
+  };
+
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -51,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     staffModeToggle.checked = data.isStaffMode;
     if (syllabusToggle) {
       syllabusToggle.checked = data.isSyllabusEnabled;
+      updateSyllabusButtons(data.isEnabled && data.isSyllabusEnabled);
     }
 
     // 初期状態のダークモード表示を更新
@@ -66,9 +96,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', () => {
     const isEnabled = toggle.checked;
+
+    // シラバスがオンの状態でベターレイアウトをオフにしようとした場合の警告
+    if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
+      if (!confirm('ベターレイアウトをオフにするとシラバス機能も無効になり、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？')) {
+        toggle.checked = true; // キャンセル時はトグルを元に戻す
+        return;
+      }
+    }
+
     updateDependentUI(isEnabled);
+    
+    if (syllabusToggle) {
+      updateSyllabusButtons(isEnabled && syllabusToggle.checked);
+    }
 
     const updates = { isEnabled: isEnabled };
+    let shouldClearSyllabus = false;
+
     // ベターレイアウトがオフになったら、依存する機能も連動してオフにする
     if (!isEnabled && staffModeToggle.checked) {
       staffModeToggle.checked = false;
@@ -77,13 +122,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
       syllabusToggle.checked = false;
       updates.isSyllabusEnabled = false;
+      shouldClearSyllabus = true;
     }
     if (!isEnabled && highlightCurrentClassToggle.checked) {
       highlightCurrentClassToggle.checked = false;
       updates.isHighlightCurrentClassEnabled = false;
     }
     
-    chrome.storage.local.set(updates, reloadTabs);
+    chrome.storage.local.set(updates, () => {
+      if (shouldClearSyllabus) {
+        clearSyllabusData(false, reloadTabs);
+      } else {
+        reloadTabs();
+      }
+    });
   });
 
   // トグル切り替え時の処理 (ダークモード)
@@ -151,18 +203,32 @@ document.addEventListener('DOMContentLoaded', () => {
   if (syllabusToggle) {
     syllabusToggle.addEventListener('change', () => {
       const isEnabled = syllabusToggle.checked;
+
+      // オフにした際の警告
+      if (!isEnabled) {
+        if (!confirm('シラバス情報の自動取得をオフにすると、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？')) {
+          syllabusToggle.checked = true; // キャンセル時はトグルを元に戻す
+          return;
+        }
+      }
+
+      updateSyllabusButtons(isEnabled);
+
       chrome.storage.local.set({ isSyllabusEnabled: isEnabled }, () => {
-        if (isEnabled && confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
-          triggerAutoFetch();
+        if (isEnabled) {
+          if (confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
+            triggerAutoFetch();
+          } else {
+            reloadTabs();
+          }
         } else {
-          reloadTabs();
+          clearSyllabusData(false, reloadTabs);
         }
       }); 
     });
   }
 
   // シラバスデータの自動取得ボタン
-  const autoFetchSyllabusBtn = document.getElementById('autoFetchSyllabusBtn');
   if (autoFetchSyllabusBtn) {
     autoFetchSyllabusBtn.addEventListener('click', triggerAutoFetch);
   }
@@ -171,17 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (clearSyllabusDataBtn) {
     clearSyllabusDataBtn.addEventListener('click', () => {
       if (confirm('取得したシラバスのデータをすべて削除しますか？\n取得したシラバス情報の表示が消え、再度シラバスを開くまで表示されなくなります。')) {
-        chrome.storage.local.get(null, (items) => {
-          const keysToRemove = Object.keys(items).filter(key => key.startsWith('syllabus_'));
-          if (keysToRemove.length > 0) {
-            chrome.storage.local.remove(keysToRemove, () => {
-              alert('シラバスデータを削除しました。');
-              reloadTabs();
-            });
-          } else {
-            alert('削除するデータがありません。');
-          }
-        });
+        clearSyllabusData(true, reloadTabs);
       }
     });
   }
