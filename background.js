@@ -8,12 +8,12 @@ chrome.runtime.onInstalled.addListener((details) => {
       isStaffMode: false,
       hasPromptedAutoFetch: false
     });
-    chrome.tabs.create({ url: "welcome.html" });
+    chrome.tabs.create({ url: "https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html" });
   } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
     // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
     const currentVersion = chrome.runtime.getManifest().version;
     if (details.previousVersion !== currentVersion) {
-      chrome.tabs.create({ url: "welcome.html" });
+      chrome.tabs.create({ url: "https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html" });
     }
   }
 });
