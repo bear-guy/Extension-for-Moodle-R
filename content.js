@@ -59,8 +59,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     style.id = 'moodle-ext-dynamic-style';
     style.textContent = `
       body.dark-mode img[src*="/monologo"] { filter: invert(1) brightness(1.5) !important; }
-      body.dark-mode .btn-secondary, body.dark-mode .custom-syllabus-link { background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #555 !important; }
-      body.dark-mode .btn-secondary:hover, body.dark-mode .custom-syllabus-link:hover { background-color: #3a3a3a !important; color: #ffffff !important; }
+      body.dark-mode .btn-secondary, body.dark-mode .custom-syllabus-link, body.dark-mode .custom-message-teacher-link { background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #555 !important; }
+      body.dark-mode .btn-secondary:hover, body.dark-mode .custom-syllabus-link:hover, body.dark-mode .custom-message-teacher-link:hover { background-color: #3a3a3a !important; color: #ffffff !important; }
       body.dark-mode .activity-header, body.dark-mode .activity-information, body.dark-mode .completion-info { background: transparent !important; box-shadow: none !important; border: none !important; position: relative; z-index: 0; }
       body.dark-mode .completion-info *, body.dark-mode .activity-information * { color: #e0e0e0 !important; position: relative; z-index: 1; }
       body.dark-mode .completion-info .badge { background-color: #444 !important; }
@@ -165,13 +165,13 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const table = document.querySelector('.timetable-table table');
     if (table) {
       const periodTimes = {
-        1: "9:00<br>~<br>10:35",
-        2: "10:45<br>~<br>12:20",
-        3: "13:10<br>~<br>14:45",
-        4: "14:55<br>~<br>16:30",
-        5: "16:40<br>~<br>18:15",
-        6: "18:25<br>~<br>20:00",
-        7: "20:10<br>~<br>21:45"
+        1: "9:00<br>|<br>10:35",
+        2: "10:45<br>|<br>12:20",
+        3: "13:10<br>|<br>14:45",
+        4: "14:55<br>|<br>16:30",
+        5: "16:40<br>|<br>18:15",
+        6: "18:25<br>|<br>20:00",
+        7: "20:10<br>|<br>21:45"
       };
 
       // 曜日ヘッダーにその週の日付を追加
@@ -375,6 +375,33 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     }
   };
 
+  // コースページに「先生へDMする」ボタンを追加
+  const addMessageTeacherButton = () => {
+    if (!window.location.pathname.includes('/course/view.php')) return;
+    
+    const headerContainer = document.querySelector('.header-actions-container');
+    const teacherLinks = document.querySelectorAll('a.messageteacher_link');
+    
+    if (headerContainer && !document.querySelector('.custom-message-teacher-link') && teacherLinks.length > 0) {
+      Array.from(teacherLinks).forEach(link => {
+        const dmButton = document.createElement('a');
+        
+        // 元のリンク先URLをそのまま使用する
+        dmButton.href = link.href;
+        dmButton.target = '_blank';
+        dmButton.rel = 'noopener noreferrer';
+        
+        dmButton.className = 'btn btn-secondary custom-message-teacher-link ms-2';
+        dmButton.style.flexShrink = '0';
+        dmButton.style.whiteSpace = 'nowrap';
+        dmButton.textContent = '先生へDMする';
+        dmButton.title = `${link.textContent.trim() || '先生'} へメッセージを送信`;
+        
+        headerContainer.appendChild(dmButton);
+      });
+    }
+  };
+
   // --- シラバス連携機能 ---
 
   // コースページ等にシラバスリンクと情報を表示
@@ -556,7 +583,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         chrome.storage.local.set({ [`syllabus_${courseCode}`]: { ...existingData, ...newSyllabusData } }, () => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          if (new URLSearchParams(window.location.search).get('autofetch') !== 'true') showToast(`シラバス情報を取得・保存しました！`);
+          if (new URLSearchParams(window.location.search).get('autofetch') !== 'true') showToast(`シラバス情報を取得・保存しました。`);
           else chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
         });
       });
@@ -573,6 +600,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       addCustomLinks();
       hideDuplicateLinks();
       addSyllabusLinkAndInfo();
+      addMessageTeacherButton();
       if (isHighlightCurrentClassEnabled) highlightCurrentClass();
       applySkipHomeLinks();
       addMarkAllReadButton();
