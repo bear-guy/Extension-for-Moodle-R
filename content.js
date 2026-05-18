@@ -394,7 +394,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dmButton.className = 'btn btn-secondary custom-message-teacher-link ms-2';
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
-        dmButton.textContent = '先生へDMする';
+        dmButton.textContent = '先生にDMする';
         dmButton.title = `${link.textContent.trim() || '先生'} へメッセージを送信`;
         
         headerContainer.appendChild(dmButton);
