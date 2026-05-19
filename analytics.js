@@ -1,7 +1,9 @@
-// Google Analytics 4 Measurement Protocol 
-// TODO: GA4の管理画面から取得した以下の値を実際の値に置き換えてください
-const GA_MEASUREMENT_ID = 'G-R2H7719DLS'; 
-const GA_API_SECRET = 'igCX4ORcQ0i3M-MLMlPy8w';
+// analytics.js
+import { config } from './config.js';
+
+// 読み込んだ設定値を変数に割り当て
+const GA_MEASUREMENT_ID = config.GA_MEASUREMENT_ID;
+const GA_API_SECRET = config.GA_API_SECRET;
 
 // ユーザーごとの匿名IDを取得・生成する
 async function getOrCreateClientId() {
@@ -14,10 +16,9 @@ async function getOrCreateClientId() {
   return clientId;
 }
 
-// GA4にイベントを送信する関数
-async function sendGAEvent(eventName, params = {}) {
-  // IDが初期状態のままであれば送信しない
-  if (GA_MEASUREMENT_ID === 'G-XXXXXXXXXX' || GA_API_SECRET === 'XXXXXXXXXXXXXXXXXXXX') {
+// 他のファイルから呼び出せるように export する
+export async function sendGAEvent(eventName, params = {}) {
+  if (!GA_MEASUREMENT_ID || !GA_API_SECRET || GA_MEASUREMENT_ID === 'G-XXXXXXXXXX') {
     console.warn('GA4 Measurement ID or API Secret is not set. Event not sent:', eventName, params);
     return;
   }

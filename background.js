@@ -1,3 +1,5 @@
+import { sendGAEvent } from './analytics.js';
+
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.storage.local.set({
@@ -8,6 +10,10 @@ chrome.runtime.onInstalled.addListener((details) => {
       isStaffMode: false,
       hasPromptedAutoFetch: false
     });
+    
+    // 拡張機能のインストールを計測
+    sendGAEvent('extension_installed', { version: chrome.runtime.getManifest().version });
+
     chrome.tabs.create({ url: "https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html" });
   } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
     // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
