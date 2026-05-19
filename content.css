@@ -50,6 +50,26 @@ body.moodle-ext-enabled .custom-layout-wrapper > .block_rutime_table {
     }
 }
 
+/* --- コースページのヘッダー配置の最適化 --- */
+body.moodle-ext-enabled .header-actions-container {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+    gap: 10px !important;
+}
+
+body.moodle-ext-enabled #page-header .d-flex.align-items-center > .me-auto,
+body.moodle-ext-enabled .page-context-header,
+body.moodle-ext-enabled .page-header-headings {
+    min-width: 0 !important;
+}
+
+body.moodle-ext-enabled .page-header-headings h1 {
+    word-break: break-word !important;
+    white-space: normal !important;
+}
+
 /* --- 時間割の表示調整 --- */
 /* 時間割の縦スクロールを無効化 */
 body.moodle-ext-enabled .block_rutime_table .card-body,

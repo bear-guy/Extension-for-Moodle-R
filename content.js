@@ -391,10 +391,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dmButton.target = '_blank';
         dmButton.rel = 'noopener noreferrer';
         
-        dmButton.className = 'btn btn-secondary custom-message-teacher-link ms-2';
+        dmButton.className = 'btn btn-secondary custom-message-teacher-link';
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
-        dmButton.textContent = '先生にDMする';
+        dmButton.textContent = 'DM';
         dmButton.title = `${link.textContent.trim() || '先生'} へメッセージを送信`;
         
         headerContainer.appendChild(dmButton);
@@ -451,13 +451,13 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
     // シラバス情報の表示
     if (isSyllabusEnabled && courseCode && headerContainer && !document.querySelector('.syllabus-info-container')) {
-      headerContainer.insertAdjacentHTML('beforebegin', `<div class="syllabus-info-container d-none"></div>`); // 重複防止用
+      headerContainer.insertAdjacentHTML('afterbegin', `<div class="syllabus-info-container d-none"></div>`); // 重複防止用
       chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
         const data = res[`syllabus_${courseCode}`];
         const container = document.querySelector('.syllabus-info-container');
         if (data && data.schedule && container) {
           const isDark = document.body.classList.contains('dark-mode');
-          container.className = 'syllabus-info-container ms-auto me-3 p-2 border rounded d-flex align-items-center';
+          container.className = 'syllabus-info-container p-2 border rounded d-flex align-items-center';
           Object.assign(container.style, {
             backgroundColor: isDark ? '#2c2c2c' : '#ffffff', color: isDark ? '#e0e0e0' : '#212529',
             borderColor: isDark ? '#444' : '', boxShadow: isDark ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
