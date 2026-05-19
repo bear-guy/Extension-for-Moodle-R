@@ -27,11 +27,20 @@ export async function sendGAEvent(eventName, params = {}) {
     const clientId = await getOrCreateClientId();
     const fetchUrl = `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${GA_API_SECRET}`;
     
+    // 追加のデータ収集項目 (1: OS/ブラウザ, 2: 言語, 3: 画面解像度)
+    const systemParams = {
+      user_agent: navigator.userAgent || 'unknown',
+      language: navigator.language || 'unknown',
+      screen_resolution: typeof window !== 'undefined' && window.screen ? `${window.screen.width}x${window.screen.height}` : 'unknown'
+    };
+
+    const mergedParams = { ...systemParams, ...params };
+
     const body = {
       client_id: clientId,
       events: [{
         name: eventName,
-        params: params,
+        params: mergedParams,
       }]
     };
 
