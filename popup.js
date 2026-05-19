@@ -96,11 +96,27 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
       setTimeout(() => document.body.classList.remove('preload'), 50);
     });
+
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('popup_opened', {
+        better_layout: data.isEnabled,
+        dark_mode: data.isDarkMode,
+        skip_home: data.isSkipHomeEnabled,
+        staff_mode: data.isStaffMode,
+        highlight_current_class: data.isHighlightCurrentClassEnabled,
+        syllabus_auto_fetch: data.isSyllabusEnabled
+      });
+    }
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', () => {
     const isEnabled = toggle.checked;
+    
+    // イベント送信
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('feature_toggled', { feature_name: 'better_layout', enabled: isEnabled });
+    }
 
     // シラバスがオンの状態でベターレイアウトをオフにしようとした場合の警告
     if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
@@ -146,6 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (ダークモード)
   darkToggle.addEventListener('change', () => {
     const isDarkMode = darkToggle.checked;
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('feature_toggled', { feature_name: 'dark_mode', enabled: isDarkMode });
+    }
     if (isDarkMode) {
       document.body.classList.add('dark-mode');
       document.documentElement.classList.add('dark-mode');
@@ -158,16 +177,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // トグル切り替え時の処理 (ホームスキップ)
   skipHomeToggle.addEventListener('change', () => {
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('feature_toggled', { feature_name: 'skip_home', enabled: skipHomeToggle.checked });
+    }
     chrome.storage.local.set({ isSkipHomeEnabled: skipHomeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (教職員モード)
   staffModeToggle.addEventListener('change', () => {
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('feature_toggled', { feature_name: 'staff_mode', enabled: staffModeToggle.checked });
+    }
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (現在の授業をハイライト)
   highlightCurrentClassToggle.addEventListener('change', () => {
+    if (typeof sendGAEvent === 'function') {
+      sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
+    }
     chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
   });
 
@@ -209,6 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (syllabusToggle) {
     syllabusToggle.addEventListener('change', () => {
       const isEnabled = syllabusToggle.checked;
+      if (typeof sendGAEvent === 'function') {
+        sendGAEvent('feature_toggled', { feature_name: 'syllabus_auto_fetch', enabled: isEnabled });
+      }
 
       // オフにした際の警告
       if (!isEnabled) {
@@ -223,6 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, () => {
         if (isEnabled) {
           if (confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
+            if (typeof sendGAEvent === 'function') {
+              sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
+            }
             triggerAutoFetch();
           } else {
             reloadTabs();
@@ -236,13 +270,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // シラバスデータの自動取得ボタン
   if (autoFetchSyllabusBtn) {
-    autoFetchSyllabusBtn.addEventListener('click', triggerAutoFetch);
+    autoFetchSyllabusBtn.addEventListener('click', () => {
+      if (typeof sendGAEvent === 'function') {
+        sendGAEvent('action_taken', { action_name: 'click_auto_fetch_btn' });
+      }
+      triggerAutoFetch();
+    });
   }
 
   // シラバスデータの削除ボタン
   if (clearSyllabusDataBtn) {
     clearSyllabusDataBtn.addEventListener('click', () => {
       if (confirm('取得したシラバスのデータをすべて削除しますか？\n取得したシラバス情報の表示が消え、再度シラバスを開くまで表示されなくなります。')) {
+        if (typeof sendGAEvent === 'function') {
+          sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
+        }
         clearSyllabusData(true, reloadTabs);
       }
     });
@@ -252,6 +294,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resetExtensionBtn) {
     resetExtensionBtn.addEventListener('click', () => {
       if (confirm('拡張機能のすべての設定と取得したデータを削除し、拡張機能を初期状態に戻しますか？\nこの操作は取り消せません。')) {
+        if (typeof sendGAEvent === 'function') {
+          sendGAEvent('action_taken', { action_name: 'click_reset_extension' });
+        }
         chrome.storage.local.clear(() => {
           // デフォルト設定を適用する
           const resetSettings = {
