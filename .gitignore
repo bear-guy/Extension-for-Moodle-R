@@ -2,3 +2,4 @@ config.js
 .DS_Store
 .cursorrules
 .gitignore
+.env
