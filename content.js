@@ -19,8 +19,26 @@ const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-schem
 // ==========================================
 chrome.storage.local.get({ 
   isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, 
-  isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true 
+  isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true,
+  lastSettingsSentDate: ""
 }, (data) => {
+  // 1日1回の設定状況送信
+  const today = new Date().toDateString();
+  if (data.lastSettingsSentDate !== today && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+    chrome.runtime.sendMessage({
+      action: "sendDailySettings",
+      settings: {
+        isEnabled: data.isEnabled,
+        isDarkMode: data.isDarkMode,
+        isSkipHomeEnabled: data.isSkipHomeEnabled,
+        isStaffMode: data.isStaffMode,
+        isSyllabusEnabled: data.isSyllabusEnabled,
+        isHighlightCurrentClassEnabled: data.isHighlightCurrentClassEnabled
+      }
+    });
+    chrome.storage.local.set({ lastSettingsSentDate: today });
+  }
+
   // ホームスキップ（リダイレクト）
   if (data.isSkipHomeEnabled && window.location.pathname.match(/^\/(index\.php)?$/)) {
     window.location.replace('https://lms.ritsumei.ac.jp/my/');

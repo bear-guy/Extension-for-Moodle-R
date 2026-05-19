@@ -1,3 +1,5 @@
+import { sendGAEvent } from './analytics.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('extensionToggle');
   const darkToggle = document.getElementById('darkModeToggle');

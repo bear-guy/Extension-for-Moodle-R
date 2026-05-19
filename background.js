@@ -36,7 +36,13 @@ let fetchTimeoutId = null;
 let originalTabId = null;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "startAutoFetchSyllabus") {
+  if (request.action === "sendDailySettings") {
+    const stringifiedSettings = {};
+    for (const key in request.settings) {
+      stringifiedSettings[key] = String(request.settings[key]);
+    }
+    sendGAEvent('daily_settings_report', stringifiedSettings);
+  } else if (request.action === "startAutoFetchSyllabus") {
     fetchQueue = request.courseCodes;
     originalTabId = request.originalTabId || (sender.tab ? sender.tab.id : null);
     if (!isFetching) {
