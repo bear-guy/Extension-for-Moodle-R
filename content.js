@@ -25,17 +25,7 @@ chrome.storage.local.get({
   // 1日1回の設定状況送信
   const today = new Date().toDateString();
   if (data.lastSettingsSentDate !== today && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-    chrome.runtime.sendMessage({
-      action: "sendDailySettings",
-      settings: {
-        isEnabled: data.isEnabled,
-        isDarkMode: data.isDarkMode,
-        isSkipHomeEnabled: data.isSkipHomeEnabled,
-        isStaffMode: data.isStaffMode,
-        isSyllabusEnabled: data.isSyllabusEnabled,
-        isHighlightCurrentClassEnabled: data.isHighlightCurrentClassEnabled
-      }
-    });
+    chrome.runtime.sendMessage({ action: "sendDailySettings" });
     chrome.storage.local.set({ lastSettingsSentDate: today });
   }
 
