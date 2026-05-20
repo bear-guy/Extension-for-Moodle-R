@@ -25,7 +25,14 @@ chrome.storage.local.get({
   // 1日1回の設定状況送信
   const today = new Date().toDateString();
   if (data.lastSettingsSentDate !== today && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-    chrome.runtime.sendMessage({ action: "sendDailySettings" });
+    chrome.runtime.sendMessage({
+      action: "sendDailySettings",
+      deviceInfo: {
+        screen_resolution: `${window.screen.width}x${window.screen.height}`,
+        user_agent: navigator.userAgent,
+        language: navigator.language
+      }
+    });
     chrome.storage.local.set({ lastSettingsSentDate: today });
   }
 

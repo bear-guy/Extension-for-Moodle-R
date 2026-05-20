@@ -38,7 +38,7 @@ let originalTabId = null;
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "sendDailySettings") {
     // sendGAEvent は analytics.js 側で設定情報を自動的に付与してくれます
-    sendGAEvent('daily_settings_report');
+    sendGAEvent('daily_settings_report', request.deviceInfo || {});
   } else if (request.action === "startAutoFetchSyllabus") {
     fetchQueue = request.courseCodes;
     originalTabId = request.originalTabId || (sender.tab ? sender.tab.id : null);
