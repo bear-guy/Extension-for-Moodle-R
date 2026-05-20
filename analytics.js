@@ -16,6 +16,44 @@ async function getOrCreateClientId() {
   return clientId;
 }
 
+function getCurrentScreenResolution() {
+  if (typeof window !== 'undefined' && window.screen) {
+    return `${window.screen.width}x${window.screen.height}`;
+  }
+  if (typeof globalThis !== 'undefined' && globalThis.screen) {
+    return `${globalThis.screen.width}x${globalThis.screen.height}`;
+  }
+  return 'unknown';
+}
+
+function getStoredScreenResolution() {
+  return new Promise((resolve) => {
+    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+      resolve('unknown');
+      return;
+    }
+    chrome.storage.local.get('screenResolution', (result) => {
+      resolve(result?.screenResolution || 'unknown');
+    });
+  });
+}
+
+function storeScreenResolution(resolution) {
+  if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+    return;
+  }
+  chrome.storage.local.set({ screenResolution: resolution });
+}
+
+async function getScreenResolution() {
+  const resolution = getCurrentScreenResolution();
+  if (resolution !== 'unknown') {
+    storeScreenResolution(resolution);
+    return resolution;
+  }
+  return await getStoredScreenResolution();
+}
+
 // 他のファイルから呼び出せるように export する
 export async function sendGAEvent(eventName, params = {}) {
   if (!GA_MEASUREMENT_ID || !GA_API_SECRET || GA_MEASUREMENT_ID === 'G-XXXXXXXXXX') {
@@ -29,9 +67,9 @@ export async function sendGAEvent(eventName, params = {}) {
     
     // 追加のデータ収集項目 (1: OS/ブラウザ, 2: 言語, 3: 画面解像度)
     const systemParams = {
-      user_agent: navigator.userAgent || 'unknown',
-      language: navigator.language || 'unknown',
-      screen_resolution: typeof window !== 'undefined' && window.screen ? `${window.screen.width}x${window.screen.height}` : 'unknown'
+      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent || 'unknown' : 'unknown',
+      language: typeof navigator !== 'undefined' ? navigator.language || 'unknown' : 'unknown',
+      screen_resolution: await getScreenResolution()
     };
 
     const mergedParams = { ...systemParams, ...params };
