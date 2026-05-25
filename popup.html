@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
-  <title>拡張機能メニュー</title>
+  <title>extension menu</title>
   <style>
     html {
       background-color: #f8f9fa;
     }
+
     body {
       font-family: sans-serif;
       width: 240px;
@@ -14,63 +16,114 @@
       padding: 15px;
       background-color: #f8f9fa;
     }
+
     .header-container {
       display: flex;
       align-items: center;
       margin-bottom: 15px;
     }
+
     .header-icon {
       width: 24px;
       height: 24px;
       margin-right: 8px;
     }
+
     h1 {
       font-size: 15px;
       margin: 0;
       color: #333;
     }
+
     .toggle-wrapper {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
+
     .toggle-label {
       font-size: 14px;
       color: #555;
     }
-    .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
     .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 20px;
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 20px;
     }
+
     .slider:before {
-      position: absolute; content: ""; height: 16px; width: 16px;
-      left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%;
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
     }
-    input:checked + .slider { background-color: #2196F3; }
-    input:checked + .slider:before { transform: translateX(20px); }
-    
-    .preload .slider, .preload .slider:before {
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .preload .slider,
+    .preload .slider:before {
       transition: none !important;
     }
-    
+
     .links-wrapper {
       margin-top: 20px;
       text-align: center;
       font-size: 12px;
     }
-    .bottom-link { color: #666; text-decoration: none; }
-    .bottom-link:hover { text-decoration: underline; color: #333; }
-    .divider { color: #ccc; margin: 0 8px; }
-    
+
+    .bottom-link {
+      color: #666;
+      text-decoration: none;
+    }
+
+    .bottom-link:hover {
+      text-decoration: underline;
+      color: #333;
+    }
+
+    .divider {
+      color: #ccc;
+      margin: 0 8px;
+    }
+
     .credit-text {
       margin-top: 10px;
       text-align: center;
       font-size: 10px;
       color: #999;
     }
-    
+
     .clear-data-link {
       font-size: 11px;
       color: #888;
@@ -78,25 +131,62 @@
       cursor: pointer;
       display: inline-block;
     }
-    .clear-data-link:hover { color: #d32f2f; }
-    
+
+    .clear-data-link:hover {
+      color: #d32f2f;
+    }
+
     /* --- ダークモード用スタイル --- */
     html.dark-mode,
     body.dark-mode {
       background-color: #1e1e1e;
       color-scheme: dark;
     }
-    body.dark-mode h1 { color: #e0e0e0; }
-    body.dark-mode .toggle-label { color: #bbb; }
-    body.dark-mode .slider { background-color: #555; }
-    body.dark-mode input:checked + .slider { background-color: #2196F3; }
-    body.dark-mode .bottom-link { color: #90caf9; }
-    body.dark-mode .bottom-link:hover { color: #e3f2fd; }
-    body.dark-mode .divider { color: #555; }
-    body.dark-mode .credit-text { color: #777; }
-    body.dark-mode .header-icon { filter: brightness(0.9); }
-    body.dark-mode .clear-data-link { color: #aaa; }
-    body.dark-mode .clear-data-link:hover { color: #ef5350; }
+
+    body.dark-mode h1 {
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .toggle-label {
+      color: #bbb;
+    }
+
+    body.dark-mode .slider {
+      background-color: #555;
+    }
+
+    body.dark-mode input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    body.dark-mode .bottom-link {
+      color: #90caf9;
+    }
+
+    body.dark-mode .bottom-link:hover {
+      color: #e3f2fd;
+    }
+
+    body.dark-mode .divider {
+      color: #555;
+    }
+
+    body.dark-mode .credit-text {
+      color: #777;
+    }
+
+    body.dark-mode .header-icon {
+      filter: brightness(0.9);
+    }
+
+    body.dark-mode .clear-data-link {
+      color: #aaa;
+    }
+
+    body.dark-mode .clear-data-link:hover {
+      color: #ef5350;
+    }
+
     body.dark-mode button {
       background-color: #333 !important;
       color: #e0e0e0 !important;
@@ -108,16 +198,17 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-L0NBJWG24G"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() { dataLayer.push(arguments); }
   gtag('js', new Date());
 
   gtag('config', 'G-L0NBJWG24G');
 </script>
+
 <body class="preload">
-  <div class="header-container">
+  <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container" style="text-decoration: none; color: inherit;">
     <img src="icons/icon128.png" alt="icon" class="header-icon">
     <h1>Extension for Moodle+R</h1>
-  </div>
+  </a>
   <div class="toggle-wrapper">
     <span class="toggle-label">ベターレイアウト</span>
     <label class="switch">
@@ -167,7 +258,7 @@
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div style="text-align: center; margin-top: 15px;">
     <span id="resetExtensionBtn" class="clear-data-link">すべての設定とデータをリセット</span>
   </div>
@@ -175,16 +266,21 @@
   <div class="links-wrapper">
     <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link">GitHub</a>
     <span class="divider">|</span>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank" class="bottom-link">サポート・お問い合わせ</a>
+    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
+      class="bottom-link">サポート・お問い合わせ</a>
     <br>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank" class="bottom-link" style="margin-top: 6px; display: inline-block;">機能の紹介</a>
+    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank"
+      class="bottom-link" style="margin-top: 6px; display: inline-block;">機能の紹介</a>
     <span class="divider">|</span>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link" style="margin-top: 6px; display: inline-block;">プライバシーポリシー</a>
+    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link"
+      style="margin-top: 6px; display: inline-block;">プライバシーポリシー</a>
   </div>
   <div class="credit-text">
-    &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights reserved.
+    &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
+    reserved.
   </div>
   <script type="module" src="analytics.js"></script>
   <script type="module" src="popup.js"></script>
 </body>
+
 </html>
