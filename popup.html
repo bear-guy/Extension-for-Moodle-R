@@ -97,7 +97,7 @@
     }
 
     .links-wrapper {
-      margin-top: 20px;
+      margin-top: 10px;
       text-align: center;
       font-size: 12px;
     }
@@ -127,9 +127,10 @@
     .clear-data-link {
       font-size: 11px;
       color: #888;
-      text-decoration: underline;
+      text-decoration: none;
       cursor: pointer;
       display: inline-block;
+      position: relative;
     }
 
     .clear-data-link:hover {
@@ -192,22 +193,37 @@
       color: #e0e0e0 !important;
       border-color: #555 !important;
     }
+
+    @keyframes rainbow-scroll {
+      0% { background-position: 200% 50%; opacity: 0; }
+      10% { opacity: 1; }
+      70% { background-position: 60% 50%; opacity: 1; }
+      100% { background-position: 0% 50%; opacity: 0; }
+    }
+    .rainbow-animate::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #d48a95, #cba96e, #80b48a, #7899b4, #a084ad, #d48a95);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      pointer-events: none;
+      animation: rainbow-scroll 1.5s ease-out forwards;
+    }
   </style>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-L0NBJWG24G"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
 
-  gtag('config', 'G-L0NBJWG24G');
-</script>
 
 <body class="preload">
   <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container" style="text-decoration: none; color: inherit;">
-    <img src="icons/icon128.png" alt="icon" class="header-icon">
-    <h1>Extension for Moodle+R</h1>
+    <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
+    <h1 id="popupTitleText">Extension for Moodle+R</h1>
   </a>
   <div class="toggle-wrapper">
     <span class="toggle-label">ベターレイアウト</span>
@@ -259,8 +275,9 @@
     </label>
   </div>
 
-  <div style="text-align: center; margin-top: 15px;">
-    <span id="resetExtensionBtn" class="clear-data-link">すべての設定とデータをリセット</span>
+
+  <div style="text-align: center; margin-top: 10px;">
+    <span id="luckyBtn" class="clear-data-link" data-text="I'm feeling lucky" style="margin-top: 4px;">I'm feeling lucky</span>
   </div>
 
   <div class="links-wrapper">

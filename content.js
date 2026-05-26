@@ -17,9 +17,11 @@ const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-schem
 // ==========================================
 // 初期化・設定読み込み
 // ==========================================
-chrome.storage.local.get({ 
-  isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, 
+chrome.storage.local.get({
+  isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true,
   isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true,
+  isLuckyEnabled: false,
+  luckyUniversity: 'kyodai',
   lastSettingsSentDate: ""
 }, (data) => {
   // 1日1回の設定状況送信
@@ -46,9 +48,9 @@ chrome.storage.local.get({
   // 拡張機能のメイン処理開始
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled);
+    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity);
   }
-  
+
   // ダークモードの適用・強制解除（シラバス）
   if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
     document.documentElement.classList.remove('dark-mode');
@@ -64,8 +66,8 @@ chrome.storage.local.get({
 // ==========================================
 // 拡張機能のメイン処理
 // ==========================================
-const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled) => {
-  
+const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, isLuckyEnabled, luckyUniversity) => {
+
   // --- 共通ユーティリティ ---
 
   // 動的スタイルの注入
@@ -108,7 +110,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     if (isPrompting) return;
     // 時間割ブロックが存在するページ（ダッシュボード等）でのみ実行する
     if (!document.querySelector('.block_rutime_table')) return;
-    
+
     isPrompting = true; // 重複実行を即座にロック
     chrome.storage.local.get({ hasPromptedAutoFetch: false }, (res) => {
       if (res.hasPromptedAutoFetch) return;
@@ -119,7 +121,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         if (subjects.length > 0) {
           clearInterval(waitForTimetable);
           chrome.storage.local.set({ hasPromptedAutoFetch: true });
-          
+
           // 授業コードを一意に抽出
           const courseCodes = [...new Set(Array.from(subjects).map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
           if (courseCodes.length > 0) {
@@ -158,6 +160,23 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     { name: 'Campus Web', url: 'https://cw.ritsumei.ac.jp/campusweb/login.html' }
   ];
 
+
+  // I'm feeling lucky ロゴ変更
+  const applyLuckyLogo = () => {
+    if (!isLuckyEnabled) return;
+    const uni = luckyUniversity || 'kyodai';
+    const logo = document.querySelector('img.logo');
+    if (logo) {
+      try {
+        const newLogoUrl = chrome.runtime.getURL(`lucky/${uni}.icon960.png`);
+        if (logo.src !== newLogoUrl) {
+          logo.src = newLogoUrl;
+        }
+      } catch (e) {
+        // 拡張機能が更新されコンテキストが無効になった場合はエラーを無視
+      }
+    }
+  };
 
   // --- Moodle UI 調整機能 ---
 
@@ -207,7 +226,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         for (let i = 1; i <= 5; i++) { // 月(1)〜金(5)列に対して処理
           const dateTh = document.createElement('th');
           dateTh.style.textAlign = 'center';
-          
+
           if (headerRow.cells[i]) {
             const cellDate = new Date(monday);
             cellDate.setDate(monday.getDate() + (i - 1));
@@ -215,7 +234,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           }
           dateRow.appendChild(dateTh);
         }
-        
+
         // 土日の列（非表示列）も数を合わせる
         for (let i = 6; i < headerRow.cells.length; i++) {
           const hiddenTh = document.createElement('th');
@@ -228,7 +247,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       table.querySelectorAll('tr').forEach((row) => {
         if (row.classList.contains('date-row')) return; // 追加した日付の行は処理をスキップ
         for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = 'none'; // 土日を隠す
-        
+
         // 時限セルに時間を追加
         if (row.cells.length > 0) {
           const timeCell = row.cells[0];
@@ -245,7 +264,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       table.querySelectorAll('.subject a:not([data-processed="true"])').forEach(link => {
         link.dataset.processed = "true";
         link.title = link.innerText.trim();
-        
+
         // 授業コードを含めた最初の6文字を削除し、§以降の文字も削除
         let subjectText = link.innerText.trim();
         if (subjectText.length > 6) {
@@ -340,9 +359,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   const highlightCurrentClass = () => {
     document.querySelectorAll('.current-class-highlight').forEach(el => el.classList.remove('current-class-highlight'));
     document.querySelectorAll('.today-column-highlight').forEach(el => el.classList.remove('today-column-highlight'));
-    
+
     const now = new Date(), day = now.getDay(), currentMinutes = now.getHours() * 60 + now.getMinutes();
-    
+
     const table = document.querySelector('.timetable-table table');
     if (!table) return;
 
@@ -362,7 +381,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     ].find(t => currentMinutes >= t.s && currentMinutes <= t.e)?.p || 0;
 
     if (currentPeriod === 0) return;
-    
+
     // 行の追加でズレないように、最初のセル（時限の数字）を見て対象の行を特定する
     const targetRow = Array.from(table.rows).find(row => row.cells.length > 0 && row.cells[0].innerText.trim().startsWith(currentPeriod.toString()));
     const cell = targetRow ? targetRow.cells[day] : null;
@@ -393,25 +412,25 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   // コースページに「先生へDMする」ボタンを追加
   const addMessageTeacherButton = () => {
     if (!window.location.pathname.includes('/course/view.php')) return;
-    
+
     const headerContainer = document.querySelector('.header-actions-container');
     const teacherLinks = document.querySelectorAll('a.messageteacher_link');
-    
+
     if (headerContainer && !document.querySelector('.custom-message-teacher-link') && teacherLinks.length > 0) {
       Array.from(teacherLinks).forEach(link => {
         const dmButton = document.createElement('a');
-        
+
         // 元のリンク先URLをそのまま使用する
         dmButton.href = link.href;
         dmButton.target = '_blank';
         dmButton.rel = 'noopener noreferrer';
-        
+
         dmButton.className = 'btn btn-secondary custom-message-teacher-link';
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
         dmButton.textContent = 'DM';
         dmButton.title = `${link.textContent.trim() || '先生'} へメッセージを送信`;
-        
+
         headerContainer.appendChild(dmButton);
       });
     }
@@ -455,7 +474,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     if (headerContainer && !document.querySelector('.custom-syllabus-link')) {
       const url = `https://syllabus.ritsumei.ac.jp/syllabus/s/${courseCode ? `?coursecode=${courseCode}${isCourseSearch ? '&nosave=true' : ''}` : ''}`;
       headerContainer.insertAdjacentHTML('afterbegin', `<a href="${url}" target="_blank" class="btn btn-secondary custom-syllabus-link" style="flex-shrink:0; white-space:nowrap;">シラバス</a>`);
-      
+
       if (isSyllabusEnabled && courseCode && !isCourseSearch) {
         chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
           const syllabusBtn = headerContainer.querySelector('.custom-syllabus-link');
@@ -510,7 +529,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       if (hasClicked) return;
       const links = Array.from(document.querySelectorAll('.siteforceContentArea a[href], body a[href]'))
         .filter(a => a.offsetParent !== null && !a.href.includes('javascript:') && !a.href.includes('#'));
-      
+
       const targetLinks = links.filter(a => (a.closest('tr, article, li') || a).textContent.includes(courseCode));
       if (targetLinks.length > 0 && new Set(targetLinks.map(a => a.href.split('?')[0])).size === 1) {
         hasClicked = true;
@@ -518,7 +537,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         link.target = '_self';
 
         // 直接リンク（詳細ページURL）を検索結果から事前に取得して保存
-        const directUrl = link.href.split('?')[0]; 
+        const directUrl = link.href.split('?')[0];
         chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
           const data = res[`syllabus_${courseCode}`] || {};
           if (data.url !== directUrl) {
@@ -526,11 +545,11 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
             chrome.storage.local.set({ [`syllabus_${courseCode}`]: data });
           }
         });
-        
+
         const params = new URLSearchParams(window.location.search);
         if (params.get('autofetch') === 'true') link.href += (link.href.includes('?') ? '&' : '?') + 'autofetch=true';
         if (params.get('nosave') === 'true') link.href += (link.href.includes('?') ? '&' : '?') + 'nosave=true';
-        
+
         link.click();
         if (obs) obs.disconnect();
       }
@@ -577,7 +596,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
       chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
         const existingData = res[`syllabus_${courseCode}`] || {};
-        
+
         // すでに有効な直接リンクURLと詳細データが揃っている場合はスキップ
         const hasValidUrl = existingData.url && !existingData.url.includes('coursecode=');
         if (hasValidUrl && existingData.schedule && existingData.schedule !== "不明") {
@@ -611,6 +630,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   const runFeatures = () => {
     if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
       checkFirstTimePrompt();
+      applyLuckyLogo();
       fixMoodleLayout();
       addCustomLinks();
       hideDuplicateLinks();
@@ -634,7 +654,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       clearInterval(window.syllabusExtractInterval);
       window.syllabusExtractInterval = null;
     }
-    
+
     // 画面の連続更新による負荷（フリーズ）を防ぐための遅延処理（ディバウンス）
     if (observerTimeout) clearTimeout(observerTimeout);
     observerTimeout = setTimeout(() => {
@@ -642,7 +662,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     }, 300); // 300ミリ秒待ってから実行
   });
   observer.observe(document.body, { childList: true, subtree: true });
-  
+
   // 初回実行と定期実行
   runFeatures();
   if (isHighlightCurrentClassEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {

@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const syllabusWrapper = document.getElementById('syllabusWrapper');
   const clearSyllabusDataBtn = document.getElementById('clearSyllabusDataBtn');
   const autoFetchSyllabusBtn = document.getElementById('autoFetchSyllabusBtn');
-  const resetExtensionBtn = document.getElementById('resetExtensionBtn');
+  const luckyBtn = document.getElementById('luckyBtn');
+  const popupTitleIcon = document.getElementById('popupTitleIcon');
+  const popupTitleText = document.getElementById('popupTitleText');
 
   // ベターレイアウトに依存するUI状態を更新する関数
   const updateDependentUI = (isEnabled) => {
@@ -74,12 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai' }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     highlightCurrentClassToggle.checked = data.isHighlightCurrentClassEnabled;
     staffModeToggle.checked = data.isStaffMode;
+    if (luckyBtn) {
+      luckyBtn.dataset.enabled = data.isLuckyEnabled;
+      luckyBtn.classList.add('rainbow-animate');
+      setTimeout(() => luckyBtn.classList.remove('rainbow-animate'), 1500);
+    }
+    if (data.isLuckyEnabled) {
+      if (popupTitleIcon) popupTitleIcon.src = `lucky/${data.luckyUniversity}.icon128.png`;
+      if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
+    }
     if (syllabusToggle) {
       syllabusToggle.checked = data.isSyllabusEnabled;
       updateSyllabusButtons(data.isEnabled && data.isSyllabusEnabled);
@@ -176,6 +187,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     chrome.storage.local.set({ isDarkMode: isDarkMode }, reloadTabs);
   });
+
+  // I'm feeling lucky ボタンクリック時の処理
+  if (luckyBtn) {
+    const universities = ['doshisha', 'handai', 'kansai', 'kansaigakuin', 'keio', 'kyodai', 'todai', 'waseda'];
+    luckyBtn.addEventListener('click', () => {
+      const isEnabled = luckyBtn.dataset.enabled === 'true';
+      const newState = !isEnabled;
+      if (typeof sendGAEvent === 'function') {
+        sendGAEvent('feature_toggled', { feature_name: 'im_feeling_lucky', enabled: newState });
+      }
+
+      const selectedUni = newState ? universities[Math.floor(Math.random() * universities.length)] : 'kyodai';
+
+      chrome.storage.local.set({ isLuckyEnabled: newState, luckyUniversity: selectedUni }, () => {
+        luckyBtn.dataset.enabled = newState;
+        if (newState) {
+          if (popupTitleIcon) popupTitleIcon.src = `lucky/${selectedUni}.icon128.png`;
+          if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
+        } else {
+          if (popupTitleIcon) popupTitleIcon.src = 'icons/icon128.png';
+          if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
+        }
+        reloadTabs();
+      });
+    });
+  }
 
   // トグル切り替え時の処理 (ホームスキップ)
   skipHomeToggle.addEventListener('change', () => {
@@ -292,31 +329,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 拡張機能のリセットボタン
-  if (resetExtensionBtn) {
-    resetExtensionBtn.addEventListener('click', () => {
-      if (confirm('拡張機能のすべての設定と取得したデータを削除し、拡張機能を初期状態に戻しますか？\nこの操作は取り消せません。')) {
-        if (typeof sendGAEvent === 'function') {
-          sendGAEvent('action_taken', { action_name: 'click_reset_extension' });
-        }
-        chrome.storage.local.clear(() => {
-          // デフォルト設定を適用する
-          const resetSettings = {
-            isEnabled: true,
-            isDarkMode: false,
-            isSkipHomeEnabled: true,
-            isStaffMode: false,
-            isSyllabusEnabled: true,
-            isHighlightCurrentClassEnabled: true,
-            hasPromptedAutoFetch: false
-          };
-          chrome.storage.local.set(resetSettings, () => {
-            alert('すべてのデータを削除し、設定を初期状態にしました。\nページを再読み込みします。');
-            reloadTabs();
-            window.close(); // 完了後にポップアップを閉じる
-          });
-        });
-      }
-    });
-  }
 });
