@@ -65,9 +65,31 @@ body.moodle-ext-enabled .page-header-headings {
     min-width: 0 !important;
 }
 
-body.moodle-ext-enabled .page-header-headings h1 {
+body.moodle-ext-enabled .header-maxwidth {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 25px !important;
+}
+
+body.moodle-ext-enabled #page-header {
+    text-align: left !important;
+}
+
+body.moodle-ext-enabled #page-header .d-flex.flex-wrap,
+body.moodle-ext-enabled #page-header .d-flex.align-items-center {
+    justify-content: flex-start !important;
+}
+
+body.moodle-ext-enabled .page-header-headings {
+    text-align: left !important;
+}
+
+body.moodle-ext-enabled .page-header-headings h1,
+body.moodle-ext-enabled .page-header-headings h2,
+body.moodle-ext-enabled .page-header-headings h3 {
     word-break: break-word !important;
     white-space: normal !important;
+    text-align: left !important;
 }
 
 /* --- 時間割の表示調整 --- */
