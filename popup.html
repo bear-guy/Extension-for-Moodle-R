@@ -195,11 +195,26 @@
     }
 
     @keyframes rainbow-scroll {
-      0% { background-position: 200% 50%; opacity: 0; }
-      10% { opacity: 1; }
-      70% { background-position: 60% 50%; opacity: 1; }
-      100% { background-position: 0% 50%; opacity: 0; }
+      0% {
+        background-position: 200% 50%;
+        opacity: 0;
+      }
+
+      10% {
+        opacity: 1;
+      }
+
+      70% {
+        background-position: 60% 50%;
+        opacity: 1;
+      }
+
+      100% {
+        background-position: 0% 50%;
+        opacity: 0;
+      }
     }
+
     .rainbow-animate::after {
       content: attr(data-text);
       position: absolute;
@@ -221,7 +236,8 @@
 
 
 <body class="preload">
-  <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container" style="text-decoration: none; color: inherit;">
+  <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container"
+    style="text-decoration: none; color: inherit;">
     <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
     <h1 id="popupTitleText">Extension for Moodle+R</h1>
   </a>
@@ -277,7 +293,8 @@
 
 
   <div style="text-align: center; margin-top: 10px;">
-    <span id="luckyBtn" class="clear-data-link" data-text="I'm feeling lucky" style="margin-top: 4px;">I'm feeling lucky</span>
+    <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;">I'm Feeling
+      Lucky</span>
   </div>
 
   <div class="links-wrapper">

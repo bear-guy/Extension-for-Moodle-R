@@ -10,8 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
     
-    modal.addEventListener("click", function() {
+    const closeModal = () => {
       modal.style.display = "none";
+    };
+
+    modal.addEventListener("click", closeModal);
+
+    // Escキーでモーダルを閉じる
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modal.style.display === "flex") {
+        closeModal();
+      }
     });
   }
 });
