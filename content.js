@@ -66,7 +66,25 @@ chrome.storage.local.get({
 // ==========================================
 // 拡張機能のメイン処理
 // ==========================================
-const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, isLuckyEnabled, luckyUniversity) => {
+const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, initialIsLuckyEnabled, initialLuckyUniversity) => {
+  let isLuckyEnabled = initialIsLuckyEnabled;
+  let luckyUniversity = initialLuckyUniversity;
+  let originalLogoSrc = null;
+
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local') {
+      let changed = false;
+      if (changes.isLuckyEnabled !== undefined) {
+        isLuckyEnabled = changes.isLuckyEnabled.newValue;
+        changed = true;
+      }
+      if (changes.luckyUniversity !== undefined) {
+        luckyUniversity = changes.luckyUniversity.newValue;
+        changed = true;
+      }
+      if (changed) applyLuckyLogo();
+    }
+  });
 
   // --- 共通ユーティリティ ---
 
@@ -163,19 +181,27 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
   // I'm feeling lucky ロゴ変更
   const applyLuckyLogo = () => {
-    if (!isLuckyEnabled) return;
-    const uni = luckyUniversity || 'kyodai';
-    const logo = document.querySelector('img.logo');
-    if (logo) {
+    // クラスが 'logo' の画像、または元のロゴの画像URLが含まれるものをすべて取得
+    const logos = document.querySelectorAll('img.logo, img[src*="Rnormal.png"], img[src*="logocompact"]');
+    
+    logos.forEach(logo => {
+      if (!logo.dataset.originalSrc && !logo.src.includes('chrome-extension://')) {
+        logo.dataset.originalSrc = logo.src;
+      }
       try {
-        const newLogoUrl = chrome.runtime.getURL(`lucky/${uni}.icon960.png`);
-        if (logo.src !== newLogoUrl) {
-          logo.src = newLogoUrl;
+        if (isLuckyEnabled) {
+          const uni = luckyUniversity || 'kyodai';
+          const newLogoUrl = chrome.runtime.getURL(`lucky/${uni}.icon960.png`);
+          if (logo.src !== newLogoUrl) {
+            logo.src = newLogoUrl;
+          }
+        } else if (logo.dataset.originalSrc && logo.src !== logo.dataset.originalSrc) {
+          logo.src = logo.dataset.originalSrc;
         }
       } catch (e) {
         // 拡張機能が更新されコンテキストが無効になった場合はエラーを無視
       }
-    }
+    });
   };
 
   // --- Moodle UI 調整機能 ---

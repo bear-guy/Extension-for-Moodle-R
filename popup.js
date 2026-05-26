@@ -209,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
           if (popupTitleIcon) popupTitleIcon.src = 'icons/icon128.png';
           if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
         }
-        reloadTabs();
       });
     });
   }
