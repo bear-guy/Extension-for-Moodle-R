@@ -64,9 +64,11 @@
     }
 
     /* --- 言語切り替え用 --- */
-    body.lang-en .lang-ja, body.lang-en .lang-zh { display: none !important; }
-    body.lang-ja .lang-en, body.lang-ja .lang-zh { display: none !important; }
-    body.lang-zh .lang-ja, body.lang-zh .lang-en { display: none !important; }
+    body.lang-en .lang-ja, body.lang-en .lang-zh, body.lang-en .lang-ko, body.lang-en .lang-es { display: none !important; }
+    body.lang-ja .lang-en, body.lang-ja .lang-zh, body.lang-ja .lang-ko, body.lang-ja .lang-es { display: none !important; }
+    body.lang-zh .lang-ja, body.lang-zh .lang-en, body.lang-zh .lang-ko, body.lang-zh .lang-es { display: none !important; }
+    body.lang-ko .lang-ja, body.lang-ko .lang-en, body.lang-ko .lang-zh, body.lang-ko .lang-es { display: none !important; }
+    body.lang-es .lang-ja, body.lang-es .lang-en, body.lang-es .lang-zh, body.lang-es .lang-ko { display: none !important; }
 
     .lang-switcher {
       text-align: center;
@@ -102,6 +104,8 @@
         <h1 class="lang-ja">プライバシーポリシー</h1>
         <h1 class="lang-en">Privacy Policy</h1>
         <h1 class="lang-zh">隐私政策</h1>
+        <h1 class="lang-ko">개인정보처리방침</h1>
+        <h1 class="lang-es">Política de Privacidad</h1>
       </div>
     </div>
 
@@ -109,6 +113,8 @@
       <span class="lang-ja">最終更新日: 2026年5月26日</span>
       <span class="lang-en">Last Updated: May 26, 2026</span>
       <span class="lang-zh">最后更新日期: 2026年5月26日</span>
+      <span class="lang-ko">최종 업데이트: 2026년 5월 26일</span>
+      <span class="lang-es">Última actualización: 26 de mayo de 2026</span>
     </div>
 
     <p class="lang-ja" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
@@ -120,18 +126,30 @@
     <p class="lang-zh" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
       适用范围：本隐私政策适用于安装并使用此扩展程序的所有用户。
     </p>
+    <p class="lang-ko" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
+      적용 범위: 본 개인정보처리방침은 이 확장 프로그램을 설치하고 사용하는 모든 사용자에게 적용됩니다.
+    </p>
+    <p class="lang-es" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
+      Ámbito de aplicación: Esta política de privacidad se aplica a todos los usuarios que instalen y utilicen esta extensión.
+    </p>
 
     <p class="lang-ja">Extension for Moodle+R（以下「本拡張機能」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めています。本プライバシーポリシーでは、本拡張機能が取得する情報の種類、利用目的、および取り扱いについて説明します。</p>
     <p class="lang-en">"Extension for Moodle+R" (hereinafter referred to as "this extension") respects user privacy and strives to protect personal information. This privacy policy explains the types of information this extension collects, its purpose of use, and its handling.</p>
     <p class="lang-zh">“Extension for Moodle+R”（以下简称“本扩展程序”）尊重用户隐私，并致力于保护个人信息。本隐私政策说明了本扩展程序收集的信息类型、使用目的及处理方式。</p>
+    <p class="lang-ko">"Extension for Moodle+R" (이하 "본 확장 프로그램")는 사용자의 개인정보를 존중하며 보호하기 위해 노력합니다. 본 개인정보처리방침은 본 확장 프로그램이 수집하는 정보의 종류, 이용 목적 및 취급 방법에 대해 설명합니다.</p>
+    <p class="lang-es">"Extension for Moodle+R" (en adelante "esta extensión") respeta la privacidad del usuario y se esfuerza por proteger la información personal. Esta política de privacidad explica los tipos de información que recopila esta extensión, su propósito de uso y su manejo.</p>
 
     <h2 class="lang-ja">1. 取得する情報と利用目的</h2>
     <h2 class="lang-en">1. Information Collected and Purpose of Use</h2>
     <h2 class="lang-zh">1. 收集的信息及使用目的</h2>
+    <h2 class="lang-ko">1. 수집하는 정보 및 이용 목적</h2>
+    <h2 class="lang-es">1. Información Recopilada y Propósito de Uso</h2>
     
     <p class="lang-ja">本拡張機能は、機能の提供および品質向上のために以下の情報を取得します。</p>
     <p class="lang-en">This extension collects the following information to provide features and improve quality.</p>
     <p class="lang-zh">本扩展程序为了提供功能及提升质量，会收集以下信息。</p>
+    <p class="lang-ko">본 확장 프로그램은 기능 제공 및 품질 향상을 위해 다음 정보를 수집합니다.</p>
+    <p class="lang-es">Esta extensión recopila la siguiente información para proporcionar funciones y mejorar la calidad.</p>
     
     <ul class="lang-ja">
       <li><strong>拡張機能の設定情報:</strong> ダークモードのオン/オフ、各機能の有効/無効などの設定状態。これらは機能の切り替えを記憶するために利用されます。</li>
@@ -148,10 +166,22 @@
       <li><strong>教学大纲信息:</strong> 访问课程页面或大纲详情页面时，会获取课程代码、上课时间、授课教师、学分、教室等信息。这些信息仅用于在 Moodle 页面上自动显示。</li>
       <li><strong>使用统计及运行环境数据 (Google Analytics):</strong> 为了改善服务，我们使用 Google Analytics (GA4) 收集匿名信息。</li>
     </ul>
+    <ul class="lang-ko">
+      <li><strong>확장 프로그램 설정 정보:</strong> 다크 모드 켜기/끄기, 각 기능의 활성화/비활성화 등의 설정 상태. 이는 기능 전환을 기억하는 데 사용됩니다.</li>
+      <li><strong>강의 계획서 정보:</strong> 수업 페이지나 강의 계획서 상세 페이지에 접속할 때 수업 코드, 요일 및 시간, 담당 교수, 학점, 강의실 등의 정보를 수집합니다. 이는 Moodle 화면에 정보를 자동으로 표시하는 데만 사용됩니다.</li>
+      <li><strong>이용 통계 및 환경 데이터 (Google Analytics):</strong> 서비스 개선을 목적으로 Google Analytics(GA4)를 사용하여 익명의 정보를 수집합니다.</li>
+    </ul>
+    <ul class="lang-es">
+      <li><strong>Configuración de la Extensión:</strong> Ajustes como activar/desactivar el modo oscuro y funciones. Se utilizan para recordar tus preferencias.</li>
+      <li><strong>Información del Temario:</strong> Al acceder a las páginas de cursos o temarios, se recopila información como el código del curso, horario, profesor, créditos y aula. Esto se usa estrictamente para mostrar información automáticamente en la pantalla de Moodle.</li>
+      <li><strong>Estadísticas de Uso y Datos del Entorno (Google Analytics):</strong> Para mejorar el servicio, se recopila información anónima utilizando Google Analytics (GA4).</li>
+    </ul>
 
     <h2 class="lang-ja">2. 情報の保存場所と外部送信について</h2>
     <h2 class="lang-en">2. Data Storage and External Transmission</h2>
     <h2 class="lang-zh">2. 信息保存位置及对外发送</h2>
+    <h2 class="lang-ko">2. 정보의 저장 위치 및 외부 전송</h2>
+    <h2 class="lang-es">2. Almacenamiento de Datos y Transmisión Externa</h2>
     
     <p class="lang-ja">
       「拡張機能の設定情報」および「シラバスの情報」などの個人設定や学業に関するデータは、すべてユーザーの利用している端末のブラウザ内（<code>chrome.storage.local</code>）にのみローカル保存され、外部へ送信されることは一切ありません。<br><br>
@@ -168,34 +198,58 @@
       关于使用统计数据，会在进行匿名化处理以确保无法识别个人身份后，发送至 Google Analytics 服务器。该数据绝不包含用户的个人信息、所选课程名称或 Moodle 上的成绩。<br><br>
       关于 Google Analytics 收集及处理数据的机制，请参阅 Google 的<a href="https://policies.google.com/technologies/partner-sites" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">隐私权与条款</a>。
     </p>
+    <p class="lang-ko">
+      "확장 프로그램 설정 정보" 및 "강의 계획서 정보"와 같은 개인 설정이나 학업 관련 데이터는 모두 사용자가 이용 중인 기기의 브라우저 내부(<code>chrome.storage.local</code>)에만 로컬로 저장되며, 외부로 전송되는 일은 전혀 없습니다.<br><br>
+      이용 통계 데이터의 경우, 개인을 식별할 수 없도록 익명화한 후 Google Analytics 서버로 전송됩니다. 이 데이터에는 사용자의 개인정보, 수강 중인 수업명, Moodle의 성적 등은 일절 포함되지 않습니다.<br><br>
+      Google Analytics의 데이터 수집 및 처리 메커니즘에 대해서는 Google의 <a href="https://policies.google.com/technologies/partner-sites?hl=ko" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">개인정보처리방침 및 약관</a>을 참조하십시오.
+    </p>
+    <p class="lang-es">
+      La configuración personal y los datos académicos como la "Configuración de la Extensión" y la "Información del Temario" se almacenan todos localmente dentro del navegador de su dispositivo (<code>chrome.storage.local</code>) y nunca se transmiten externamente.<br><br>
+      Los datos de estadísticas de uso se anonimizan para que las personas no puedan ser identificadas y luego se transmiten a los servidores de Google Analytics. Estos datos nunca incluyen información personal del usuario, nombres de cursos registrados o calificaciones en Moodle.<br><br>
+      Para obtener información sobre cómo Google Analytics recopila y procesa datos, consulte los <a href="https://policies.google.com/technologies/partner-sites?hl=es" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">Términos y Privacidad</a> de Google.
+    </p>
 
     <h2 class="lang-ja">3. 第三者へのデータ提供・共有について</h2>
     <h2 class="lang-en">3. Provision and Sharing of Data to Third Parties</h2>
     <h2 class="lang-zh">3. 向第三方提供或共享数据</h2>
+    <h2 class="lang-ko">3. 제3자에 대한 데이터 제공 및 공유</h2>
+    <h2 class="lang-es">3. Provisión y Compartición de Datos a Terceros</h2>
     
     <p class="lang-ja">本拡張機能は、取得した情報を第三者に対して開示、提供、または販売することは一切ありません。ただし、法令に基づく要請がある場合を除きます。</p>
     <p class="lang-en">This extension will never disclose, provide, or sell the collected information to third parties, except when requested based on laws and regulations.</p>
     <p class="lang-zh">本扩展程序绝不会向第三方披露、提供或出售收集到的信息。因法律法规要求的情况除外。</p>
+    <p class="lang-ko">본 확장 프로그램은 수집한 정보를 제3자에게 공개, 제공 또는 판매하지 않습니다. 단, 법령에 따른 요청이 있는 경우는 예외로 합니다.</p>
+    <p class="lang-es">Esta extensión nunca revelará, proporcionará ni venderá la información recopilada a terceros, excepto cuando se solicite con base en leyes y regulaciones.</p>
 
     <h2 class="lang-ja">4. データの削除</h2>
     <h2 class="lang-en">4. Deletion of Data</h2>
     <h2 class="lang-zh">4. 数据删除</h2>
+    <h2 class="lang-ko">4. 데이터 삭제</h2>
+    <h2 class="lang-es">4. Eliminación de Datos</h2>
     
     <p class="lang-ja">ユーザーは拡張機能のポップアップメニューから、取得・保存したシラバスのデータをいつでも任意に削除することができます。また、本拡張機能をブラウザからアンインストールすることで、保存されていたすべてのデータは自動的に消去されます。</p>
     <p class="lang-en">Users can voluntarily delete the fetched and stored syllabus data at any time from the extension's popup menu. Additionally, uninstalling this extension from the browser will automatically delete all stored data.</p>
     <p class="lang-zh">用户可以随时通过扩展程序的弹出菜单，主动删除已获取并保存的教学大纲数据。此外，从浏览器中卸载本扩展程序将自动清除所有已保存的数据。</p>
+    <p class="lang-ko">사용자는 확장 프로그램의 팝업 메뉴에서 언제든지 수집 및 저장된 강의 계획서 데이터를 임의로 삭제할 수 있습니다. 또한 브라우저에서 본 확장 프로그램을 제거하면 저장된 모든 데이터가 자동으로 삭제됩니다.</p>
+    <p class="lang-es">Los usuarios pueden eliminar voluntariamente los datos del temario obtenidos y almacenados en cualquier momento desde el menú emergente de la extensión. Además, al desinstalar esta extensión del navegador se eliminarán automáticamente todos los datos almacenados.</p>
 
     <h2 class="lang-ja">5. プライバシーポリシーの変更</h2>
     <h2 class="lang-en">5. Changes to the Privacy Policy</h2>
     <h2 class="lang-zh">5. 隐私政策的变更</h2>
+    <h2 class="lang-ko">5. 개인정보처리방침의 변경</h2>
+    <h2 class="lang-es">5. Cambios en la Política de Privacidad</h2>
     
     <p class="lang-ja">本プライバシーポリシーは、機能の追加や改善に伴い、必要に応じて予告なく変更される場合があります。</p>
     <p class="lang-en">This privacy policy may be changed without notice as necessary along with the addition or improvement of features.</p>
     <p class="lang-zh">随着功能的增加或改进，本隐私政策可能会在必要时作未经通知的变更。</p>
+    <p class="lang-ko">본 개인정보처리방침은 기능 추가나 개선에 따라 필요 시 예고 없이 변경될 수 있습니다.</p>
+    <p class="lang-es">Esta política de privacidad puede ser modificada sin previo aviso según sea necesario junto con la adición o mejora de características.</p>
 
     <h2 class="lang-ja">6. お問い合わせ</h2>
     <h2 class="lang-en">6. Contact</h2>
     <h2 class="lang-zh">6. 联系我们</h2>
+    <h2 class="lang-ko">6. 문의하기</h2>
+    <h2 class="lang-es">6. Contacto</h2>
     
     <p class="lang-ja">本拡張機能に関する不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりご連絡ください。<br>
       <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">お問い合わせフォーム (Google Forms)</a>
@@ -206,15 +260,23 @@
     <p class="lang-zh">如果您有关于本扩展程序的错误报告、功能请求或其他疑问，请通过以下表单联系我们。<br>
       <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">联系表单 (Google Forms)</a>
     </p>
+    <p class="lang-ko">본 확장 프로그램에 관한 버그 신고, 기능 요청, 기타 질문이 있으시면 아래 양식을 통해 문의해 주십시오.<br>
+      <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">문의 양식 (Google Forms)</a>
+    </p>
+    <p class="lang-es">Si tiene informes de errores, solicitudes de funciones o cualquier otra pregunta sobre esta extensión, contáctenos a través del siguiente formulario.<br>
+      <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">Formulario de Contacto (Google Forms)</a>
+    </p>
 
     <div class="lang-switcher">
-      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a> <span style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a>
+      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a> <span style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a> <span style="color: #ccc;">|</span> <a id="langBtnKo">KO</a> <span style="color: #ccc;">|</span> <a id="langBtnEs">ES</a>
     </div>
 
     <div class="footer">
       <a href="welcome.html" class="lang-ja" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← ウェルカムページに戻る</a><br class="lang-ja">
       <a href="welcome.html" class="lang-en" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← Back to Welcome Page</a><br class="lang-en">
       <a href="welcome.html" class="lang-zh" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← 返回欢迎页面</a><br class="lang-zh">
+      <a href="welcome.html" class="lang-ko" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← 시작 페이지로 돌아가기</a><br class="lang-ko">
+      <a href="welcome.html" class="lang-es" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← Volver a la página de bienvenida</a><br class="lang-es">
       &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
       reserved.
     </div>

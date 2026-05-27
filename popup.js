@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   chrome.storage.local.get(['displayLanguage'], (result) => {
-    if (result.displayLanguage && ['ja', 'en', 'zh'].includes(result.displayLanguage)) {
+    if (result.displayLanguage && ['ja', 'en', 'zh', 'ko', 'es'].includes(result.displayLanguage)) {
       if (languageSelect) languageSelect.value = result.displayLanguage;
     } else {
       if (languageSelect) languageSelect.value = 'auto';

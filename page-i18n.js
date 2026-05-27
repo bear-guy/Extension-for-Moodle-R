@@ -3,17 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
   let browserLang = 'en';
   if (navigator.language.startsWith('ja')) browserLang = 'ja';
   else if (navigator.language.startsWith('zh')) browserLang = 'zh';
+  else if (navigator.language.startsWith('ko')) browserLang = 'ko';
+  else if (navigator.language.startsWith('es')) browserLang = 'es';
   document.body.classList.add(`lang-${browserLang}`);
 
-  // JA / EN / ZH のリンククリックイベント
+  // JA / EN / ZH / KO / ES のリンククリックイベント
   const jaBtn = document.getElementById('langBtnJa');
   const enBtn = document.getElementById('langBtnEn');
   const zhBtn = document.getElementById('langBtnZh');
+  const koBtn = document.getElementById('langBtnKo');
+  const esBtn = document.getElementById('langBtnEs');
 
-  if (jaBtn && enBtn && zhBtn) {
+  if (jaBtn && enBtn && zhBtn && koBtn && esBtn) {
     // 現在の言語に応じて見た目を少し変える
     const updateBtnStyles = (lang) => {
-      [jaBtn, enBtn, zhBtn].forEach(btn => {
+      [jaBtn, enBtn, zhBtn, koBtn, esBtn].forEach(btn => {
         btn.style.fontWeight = 'normal';
         btn.style.color = '#888';
       });
@@ -23,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (lang === 'zh') {
         zhBtn.style.fontWeight = 'bold';
         zhBtn.style.color = '#333';
+      } else if (lang === 'ko') {
+        koBtn.style.fontWeight = 'bold';
+        koBtn.style.color = '#333';
+      } else if (lang === 'es') {
+        esBtn.style.fontWeight = 'bold';
+        esBtn.style.color = '#333';
       } else {
         enBtn.style.fontWeight = 'bold';
         enBtn.style.color = '#333';
@@ -33,23 +43,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     jaBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      document.body.classList.remove('lang-en', 'lang-zh');
+      document.body.classList.remove('lang-en', 'lang-zh', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-ja');
       updateBtnStyles('ja');
     });
 
     enBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      document.body.classList.remove('lang-ja', 'lang-zh');
+      document.body.classList.remove('lang-ja', 'lang-zh', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-en');
       updateBtnStyles('en');
     });
 
     zhBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      document.body.classList.remove('lang-ja', 'lang-en');
+      document.body.classList.remove('lang-ja', 'lang-en', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-zh');
       updateBtnStyles('zh');
+    });
+
+    koBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.remove('lang-ja', 'lang-en', 'lang-zh', 'lang-es');
+      document.body.classList.add('lang-ko');
+      updateBtnStyles('ko');
+    });
+
+    esBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.body.classList.remove('lang-ja', 'lang-en', 'lang-zh', 'lang-ko');
+      document.body.classList.add('lang-es');
+      updateBtnStyles('es');
     });
   }
 });
