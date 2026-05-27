@@ -62,6 +62,24 @@
       font-size: 14px;
       color: #888;
     }
+
+    /* --- 言語切り替え用 --- */
+    body.lang-en .lang-ja { display: none !important; }
+    body.lang-ja .lang-en { display: none !important; }
+
+    .lang-switcher {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    .lang-switcher a {
+      cursor: pointer;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+    .lang-switcher a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <!-- Google tag (gtag.js) -->
@@ -80,67 +98,98 @@
     <div class="header-wrapper">
       <img src="icons/icon128.png" alt="Extension for Moodle+R" class="top-icon">
       <div style="text-align: center;">
-        <h1>プライバシーポリシー</h1>
+        <h1 class="lang-ja">プライバシーポリシー</h1>
+        <h1 class="lang-en">Privacy Policy</h1>
       </div>
     </div>
 
     <div style="text-align: right; font-size: 14px; color: #888; margin-top: 10px; margin-bottom: 20px;">
-      最終更新日: 2026年5月26日
+      <span class="lang-ja">最終更新日: 2026年5月26日</span>
+      <span class="lang-en">Last Updated: May 26, 2026</span>
     </div>
 
-    <p style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
+    <p class="lang-ja" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
       適用範囲：本プライバシーポリシーは、本拡張機能をインストールし、利用するすべてのユーザーに適用されます。
     </p>
+    <p class="lang-en" style="font-weight: bold; color: #333; border-left: 4px solid #2196F3; padding-left: 10px;">
+      Scope of Application: This privacy policy applies to all users who install and use this extension.
+    </p>
 
-    <p>Extension for
-      Moodle+R（以下「本拡張機能」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めています。本プライバシーポリシーでは、本拡張機能が取得する情報の種類、利用目的、および取り扱いについて説明します。</p>
+    <p class="lang-ja">Extension for Moodle+R（以下「本拡張機能」）は、ユーザーのプライバシーを尊重し、個人情報の保護に努めています。本プライバシーポリシーでは、本拡張機能が取得する情報の種類、利用目的、および取り扱いについて説明します。</p>
+    <p class="lang-en">"Extension for Moodle+R" (hereinafter referred to as "this extension") respects user privacy and strives to protect personal information. This privacy policy explains the types of information this extension collects, its purpose of use, and its handling.</p>
 
-    <h2>1. 取得する情報と利用目的</h2>
-    <p>本拡張機能は、機能の提供および品質向上のために以下の情報を取得します。</p>
-    <ul>
+    <h2 class="lang-ja">1. 取得する情報と利用目的</h2>
+    <h2 class="lang-en">1. Information Collected and Purpose of Use</h2>
+    
+    <p class="lang-ja">本拡張機能は、機能の提供および品質向上のために以下の情報を取得します。</p>
+    <p class="lang-en">This extension collects the following information to provide features and improve quality.</p>
+    
+    <ul class="lang-ja">
       <li><strong>拡張機能の設定情報:</strong> ダークモードのオン/オフ、各機能の有効/無効などの設定状態。これらは機能の切り替えを記憶するために利用されます。</li>
-      <li><strong>シラバスの情報:</strong>
-        授業ページやシラバス詳細ページにアクセスした際、授業コード、開講曜日・時限、担当教員、単位数、教室などの情報を取得します。これらはMoodleの画面上に情報を自動表示するためにのみ利用されます。</li>
-      <li><strong>利用統計および利用環境データ (Google Analytics):</strong> サービスの改善を目的として、Google Analytics (GA4) を用いて匿名の情報を収集しています。
-      </li>
+      <li><strong>シラバスの情報:</strong> 授業ページやシラバス詳細ページにアクセスした際、授業コード、開講曜日・時限、担当教員、単位数、教室などの情報を取得します。これらはMoodleの画面上に情報を自動表示するためにのみ利用されます。</li>
+      <li><strong>利用統計および利用環境データ (Google Analytics):</strong> サービスの改善を目的として、Google Analytics (GA4) を用いて匿名の情報を収集しています。</li>
+    </ul>
+    <ul class="lang-en">
+      <li><strong>Extension Settings:</strong> Settings such as dark mode on/off and feature toggles. These are used to remember your preferences.</li>
+      <li><strong>Syllabus Information:</strong> When accessing course or syllabus pages, information such as course code, schedule, teacher, credits, and room is collected. This is strictly used to automatically display information on the Moodle screen.</li>
+      <li><strong>Usage Statistics and Environment Data (Google Analytics):</strong> To improve the service, anonymous information is collected using Google Analytics (GA4).</li>
     </ul>
 
-    <h2>2. 情報の保存場所と外部送信について</h2>
-    <p>
+    <h2 class="lang-ja">2. 情報の保存場所と外部送信について</h2>
+    <h2 class="lang-en">2. Data Storage and External Transmission</h2>
+    
+    <p class="lang-ja">
       「拡張機能の設定情報」および「シラバスの情報」などの個人設定や学業に関するデータは、すべてユーザーの利用している端末のブラウザ内（<code>chrome.storage.local</code>）にのみローカル保存され、外部へ送信されることは一切ありません。<br><br>
-      利用統計データについては、個人を特定できないよう匿名化した上で、Google
-      Analyticsのサーバーに送信されます。このデータには、ユーザーの個人情報、受講している授業名、Moodle上の成績などは一切含まれません。<br><br>
-      Google Analyticsによるデータの収集および処理の仕組みについては、Googleの<a
-        href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank"
-        style="color: #2196F3; text-decoration: none; font-weight: bold;">ポリシーと規約</a>をご覧ください。
+      利用統計データについては、個人を特定できないよう匿名化した上で、Google Analyticsのサーバーに送信されます。このデータには、ユーザーの個人情報、受講している授業名、Moodle上の成績などは一切含まれません。<br><br>
+      Google Analyticsによるデータの収集および処理の仕組みについては、Googleの<a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">ポリシーと規約</a>をご覧ください。
+    </p>
+    <p class="lang-en">
+      Personal settings and academic data such as "Extension Settings" and "Syllabus Information" are all stored locally within your device's browser (<code>chrome.storage.local</code>) and are never transmitted externally.<br><br>
+      Usage statistics data is anonymized so that individuals cannot be identified, and then transmitted to Google Analytics servers. This data never includes user personal information, names of registered courses, or grades on Moodle.<br><br>
+      For information on how Google Analytics collects and processes data, please see Google's <a href="https://policies.google.com/technologies/partner-sites" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">Privacy & Terms</a>.
     </p>
 
-    <h2>3. 第三者へのデータ提供・共有について</h2>
-    <p>
-      本拡張機能は、取得した情報を第三者に対して開示、提供、または販売することは一切ありません。ただし、法令に基づく要請がある場合を除きます。
+    <h2 class="lang-ja">3. 第三者へのデータ提供・共有について</h2>
+    <h2 class="lang-en">3. Provision and Sharing of Data to Third Parties</h2>
+    
+    <p class="lang-ja">本拡張機能は、取得した情報を第三者に対して開示、提供、または販売することは一切ありません。ただし、法令に基づく要請がある場合を除きます。</p>
+    <p class="lang-en">This extension will never disclose, provide, or sell the collected information to third parties, except when requested based on laws and regulations.</p>
+
+    <h2 class="lang-ja">4. データの削除</h2>
+    <h2 class="lang-en">4. Deletion of Data</h2>
+    
+    <p class="lang-ja">ユーザーは拡張機能のポップアップメニューから、取得・保存したシラバスのデータをいつでも任意に削除することができます。また、本拡張機能をブラウザからアンインストールすることで、保存されていたすべてのデータは自動的に消去されます。</p>
+    <p class="lang-en">Users can voluntarily delete the fetched and stored syllabus data at any time from the extension's popup menu. Additionally, uninstalling this extension from the browser will automatically delete all stored data.</p>
+
+    <h2 class="lang-ja">5. プライバシーポリシーの変更</h2>
+    <h2 class="lang-en">5. Changes to the Privacy Policy</h2>
+    
+    <p class="lang-ja">本プライバシーポリシーは、機能の追加や改善に伴い、必要に応じて予告なく変更される場合があります。</p>
+    <p class="lang-en">This privacy policy may be changed without notice as necessary along with the addition or improvement of features.</p>
+
+    <h2 class="lang-ja">6. お問い合わせ</h2>
+    <h2 class="lang-en">6. Contact</h2>
+    
+    <p class="lang-ja">本拡張機能に関する不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりご連絡ください。<br>
+      <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">お問い合わせフォーム (Google Forms)</a>
+    </p>
+    <p class="lang-en">If you have bug reports, feature requests, or any other questions regarding this extension, please contact us via the following form.<br>
+      <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: none;">Contact Form (Google Forms)</a>
     </p>
 
-    <h2>4. データの削除</h2>
-    <p>ユーザーは拡張機能のポップアップメニューから、取得・保存したシラバスのデータをいつでも任意に削除することができます。また、本拡張機能をブラウザからアンインストールすることで、保存されていたすべてのデータは自動的に消去されます。
-    </p>
-
-    <h2>5. プライバシーポリシーの変更</h2>
-    <p>本プライバシーポリシーは、機能の追加や改善に伴い、必要に応じて予告なく変更される場合があります。</p>
-
-    <h2>6. お問い合わせ</h2>
-    <p>本拡張機能に関する不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりご連絡ください。<br>
-      <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">お問い合わせフォーム (Google Forms)</a>
-    </p>
+    <div class="lang-switcher">
+      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a>
+    </div>
 
     <div class="footer">
-      <a href="welcome.html"
-        style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">←
-        ウェルカムページに戻る</a><br>
+      <a href="welcome.html" class="lang-ja" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← ウェルカムページに戻る</a><br class="lang-ja">
+      <a href="welcome.html" class="lang-en" style="color: #2196F3; text-decoration: none; font-weight: bold; margin-bottom: 20px; display: inline-block;">← Back to Welcome Page</a><br class="lang-en">
       &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
       reserved.
     </div>
   </div>
+
+  <script src="page-i18n.js"></script>
 </body>
 
 </html>

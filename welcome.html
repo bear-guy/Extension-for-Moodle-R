@@ -3,7 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Extension for Moodle+R へようこそ！</title>
+  <title class="lang-ja">Extension for Moodle+R へようこそ！</title>
+  <title class="lang-en">Welcome to Extension for Moodle+R!</title>
   <link rel="icon" type="image/png" href="https://bear-guy.github.io/Extension-for-Moodle-R/icons/icon128.png">
   <style>
     body {
@@ -146,6 +147,24 @@
       border-radius: 8px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
+
+    /* --- 言語切り替え用 --- */
+    body.lang-en .lang-ja { display: none !important; }
+    body.lang-ja .lang-en { display: none !important; }
+
+    .lang-switcher {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+    }
+    .lang-switcher a {
+      cursor: pointer;
+      text-decoration: none;
+      margin: 0 5px;
+    }
+    .lang-switcher a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <!-- Google tag (gtag.js) -->
@@ -163,20 +182,27 @@
     <div class="header-wrapper">
       <img src="icons/icon128.png" alt="Extension for Moodle+R" class="top-icon">
       <div style="text-align: center;">
-        <h1>インストールしていただきありがとうございます！</h1>
-        <p style="margin: 8px 0 0 0; color: #555;">「Extension for
-          Moodle+R」は、2026年度から「manaba+R」に代わって立命館大学に新しく導入されたLMS「Moodle+R」をより使いやすくするための拡張機能です。</p>
+        <h1 class="lang-ja">インストールしていただきありがとうございます！</h1>
+        <h1 class="lang-en">Thank you for installing!</h1>
+        <p class="lang-ja" style="margin: 8px 0 0 0; color: #555;">「Extension for Moodle+R」は、2026年度から「manaba+R」に代わって立命館大学に新しく導入されたLMS「Moodle+R」をより使いやすくするための拡張機能です。</p>
+        <p class="lang-en" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" is an extension designed to improve the usability of "Moodle+R", the new LMS introduced at Ritsumeikan University starting in the 2026 academic year, replacing "manaba+R".</p>
       </div>
     </div>
 
-    <h2>使い方</h2>
-    <ul>
+    <h2 class="lang-ja">使い方</h2>
+    <h2 class="lang-en">How to Use</h2>
+    <ul class="lang-ja">
       <li>画面右上の <strong>パズルアイコン</strong> をクリックし、この拡張機能を右クリックしてピン留めしてください。</li>
       <li>ツールバーに追加されたアイコンをクリックするとメニューが開き、各機能をオン・オフできます。</li>
     </ul>
+    <ul class="lang-en">
+      <li>Click the <strong>puzzle icon</strong> in the top right corner of your browser, then right-click this extension to pin it.</li>
+      <li>Click the pinned icon in your toolbar to open the menu, where you can toggle each feature on or off.</li>
+    </ul>
 
-    <h2 id="features">機能の紹介</h2>
-    <ul>
+    <h2 id="features" class="lang-ja">機能の紹介</h2>
+    <h2 id="features" class="lang-en">Features</h2>
+    <ul class="lang-ja">
       <li>
         <strong>ベターレイアウト:</strong> 時間割を見やすくし、画面を広く使えます。
         <div class="before-after-container">
@@ -216,23 +242,75 @@
       </li>
     </ul>
 
-    <h2>免責事項</h2>
-    <p>
+    <ul class="lang-en">
+      <li>
+        <strong>Better Layout:</strong> Makes the timetable easier to read and utilizes screen space more effectively.
+        <div class="before-after-container">
+          <div class="image-wrapper">
+            <span class="image-label">Before</span>
+            <img src="assets/layout-before.png" alt="Before Better Layout" class="feature-img">
+          </div>
+          <div class="image-wrapper">
+            <span class="image-label">After</span>
+            <img src="assets/layout-after.png" alt="After Better Layout" class="feature-img">
+          </div>
+        </div>
+      </li>
+      <li>
+        <strong>Staff Mode:</strong> Adds direct links to the ribbon for staff (Staff Portal, Respon, Timeclock, etc.).
+        <img src="assets/staff-ribbon.png" alt="Staff Mode Example" class="feature-img">
+      </li>
+      <li><strong>Home Skip:</strong> Skips the unused top page and redirects directly to the dashboard.</li>
+      <li>
+        <strong>Highlight Current Class:</strong> The current class slot is highlighted on the timetable, making it easy to see which class you are currently taking.
+      </li>
+      <li>
+        <strong>Auto-fetch Syllabus Information:</strong>
+        Adds a "Syllabus" button to Moodle course pages for one-click access. Furthermore, simply opening a syllabus once will automatically fetch the <strong>schedule, teacher, credits, and room</strong> data, allowing you to check them anytime from the Moodle course page or dashboard.<br>
+        You can also access the campus map from the fetched room location on the course page.
+        <img src="assets/syllabus.png" alt="Syllabus Integration Example" class="feature-img">
+      </li>
+      <li>
+        <strong>Dark Mode:</strong> Changes to a darker color scheme that is easier on the eyes.
+        <img src="assets/dark-mode-welcome.png" alt="Dark Mode Example" class="feature-img">
+      </li>
+      <li>
+        <strong>Mark Forum as Read:</strong> Adds a "Mark all as read" button to forum screens, allowing you to mark all unread posts as read with a single click.
+      </li>
+      <li>
+        <strong>Direct Message (DM) Button:</strong> Places a "DM" button on the course page header. Clicking it opens the message composition screen for the instructor of that class.
+      </li>
+    </ul>
+
+    <h2 class="lang-ja">免責事項</h2>
+    <h2 class="lang-en">Disclaimer</h2>
+    <p class="lang-ja">
       本拡張機能は個人が開発した非公式なツールであり、立命館大学およびMoodleとは一切関係ありません。本拡張機能について大学側に問い合わせることがないようにお願いいたします。<br>
       本拡張機能の利用によって生じたいかなる直接的・間接的なトラブル、不利益、または損害（例: 課題の提出遅延、データの未反映など）について、開発者は一切の責任を負いません。すべて自己責任でのご利用をお願いいたします。<br>
       また、大学側のシステム（Moodleやシラバスなど）のアップデートや仕様変更により、本拡張機能が正常に動作しなくなる、あるいは画面表示が崩れる場合があるほか、開発者の裁量により予告なく機能の追加・変更・アップデート、または本拡張機能の提供を停止することがあります。あらかじめご了承ください。<br>
       なお、本拡張機能をインストールした時点で、免責事項に同意したものとみなします。
     </p>
-
-    <h2>プライバシーポリシー</h2>
-    <p>
-      本拡張機能における個人情報の取り扱いについては、こちらの<a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">プライバシーポリシー</a>をご確認ください。<br>
-      なお、本拡張機能をインストールした時点で、プライバシーポリシーに同意したものとみなします。
+    <p class="lang-en">
+      This extension is an unofficial tool developed by an individual and is not affiliated with Ritsumeikan University or Moodle. Please do not contact the university regarding this extension.<br>
+      The developer assumes no responsibility for any direct or indirect trouble, disadvantage, or damage (e.g., delayed assignment submissions, unreflected data) caused by the use of this extension. Please use it entirely at your own risk.<br>
+      In addition, due to updates or specification changes in the university's systems (such as Moodle or Syllabus), this extension may stop working properly or the display may become distorted. Furthermore, the developer may add, change, update features, or discontinue the provision of this extension without notice. Please be aware of this in advance.<br>
+      By installing this extension, you are deemed to have agreed to this disclaimer.
     </p>
 
-    <h2 id="contact">サポートと連絡先</h2>
-    <div class="contact-links">
+    <h2 class="lang-ja">プライバシーポリシー</h2>
+    <h2 class="lang-en">Privacy Policy</h2>
+    <p class="lang-ja">
+      本拡張機能における個人情報の取り扱いについては、こちらの<a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">プライバシーポリシー</a>をご確認ください。<br>
+      なお、本拡張機能をインストールした時点で、プライバシーポリシーに同意したものとみなします。
+    </p>
+    <p class="lang-en">
+      For the handling of personal information in this extension, please check this <a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">Privacy Policy</a>.<br>
+      By installing this extension, you are deemed to have agreed to the privacy policy.
+    </p>
+
+    <h2 id="contact" class="lang-ja">サポートと連絡先</h2>
+    <h2 id="contact" class="lang-en">Support and Contact</h2>
+    <div class="contact-links lang-ja">
       <p>不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりお気軽にご連絡ください。<br>
         <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">お問い合わせフォーム (Google Forms)</a>
       </p>
@@ -241,13 +319,29 @@
         <a href="mailto:potatogamer1023@gmail.com">Email (potatogamer1023@gmail.com)</a>
       <p>もしこの拡張機能が役に立ったと感じていただけたら、開発のサポートをしていただけると嬉しいです。<br>
         PayPayからのサポートをこちらのQRコードから受け付けております。<br>
-        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QRコード"
-          class="feature-img" style="max-width: 200px;">
+        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QRコード" class="feature-img" style="max-width: 200px;">
+      </p>
+    </div>
+    <div class="contact-links lang-en">
+      <p>If you have any bug reports, feature requests, or other questions, please feel free to contact us via the form below.<br>
+        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">Contact Form (Google Forms)</a>
+      </p>
+      <p>Alternatively, you can reach out via the following SNS or email.<br>
+        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
+        <a href="mailto:potatogamer1023@gmail.com">Email (potatogamer1023@gmail.com)</a>
+      <p>If you find this extension useful, I would appreciate your support for its development.<br>
+        Donations via PayPay are accepted using the QR code below.<br>
+        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QR Code" class="feature-img" style="max-width: 200px;">
       </p>
     </div>
 
     <div style="text-align: center; margin-top: 30px;">
-      <a href="privacy.html" style="color: #666; text-decoration: underline; font-size: 14px;">プライバシーポリシー</a>
+      <a href="privacy.html" class="lang-ja" style="color: #666; text-decoration: underline; font-size: 14px;">プライバシーポリシー</a>
+      <a href="privacy.html" class="lang-en" style="color: #666; text-decoration: underline; font-size: 14px;">Privacy Policy</a>
+    </div>
+
+    <div class="lang-switcher">
+      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a>
     </div>
 
     <div class="footer">
@@ -261,6 +355,7 @@
     <img class="modal-content" id="modalImage">
   </div>
 
+  <script src="page-i18n.js"></script>
   <script src="welcome.js"></script>
 </body>
 
