@@ -12,7 +12,7 @@ const translations = {
   "skip_home": { "ja": "ホームスキップ", "en": "Skip Home", "zh": "跳过首页", "ko": "홈 건너뛰기", "es": "Omitir Inicio" },
   "highlight_current": { "ja": "今日の時間割をハイライト", "en": "Highlight Today's Timetable", "zh": "高亮显示今日课表", "ko": "오늘의 시간표 강조", "es": "Resaltar el Horario de Hoy" },
   "dark_mode": { "ja": "ダークモード（ベータ）", "en": "Dark Mode (Beta)", "zh": "深色模式 (Beta)", "ko": "다크 모드 (베타)", "es": "Modo Oscuro (Beta)" },
-  "feeling_lucky": { "ja": "I'm Feeling Lucky", "en": "I'm Feeling Lucky", "zh": "手气不错", "ko": "I'm Feeling Lucky", "es": "Voy a tener suerte" },
+  "feeling_lucky": { "ja": "I'm Feeling Lucky", "en": "I'm Feeling Lucky", "zh": "I'm Feeling Lucky", "ko": "I'm Feeling Lucky", "es": "I'm Feeling Lucky" },
   "support_contact": { "ja": "サポート・お問い合わせ", "en": "Support / Contact", "zh": "支持与联系", "ko": "지원 / 문의", "es": "Soporte / Contacto" },
   "feature_intro": { "ja": "機能の紹介", "en": "Features", "zh": "功能介绍", "ko": "기능 소개", "es": "Características" },
   "privacy_policy": { "ja": "プライバシーポリシー", "en": "Privacy Policy", "zh": "隐私政策", "ko": "개인정보처리방침", "es": "Política de Privacidad" },
