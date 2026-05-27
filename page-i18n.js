@@ -1,10 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
   // 自動検知してクラスを付与
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  
   let browserLang = 'en';
-  if (navigator.language.startsWith('ja')) browserLang = 'ja';
-  else if (navigator.language.startsWith('zh')) browserLang = 'zh';
-  else if (navigator.language.startsWith('ko')) browserLang = 'ko';
-  else if (navigator.language.startsWith('es')) browserLang = 'es';
+  if (urlLang && ['ja', 'en', 'zh', 'ko', 'es'].includes(urlLang)) {
+    browserLang = urlLang;
+  } else {
+    if (navigator.language.startsWith('ja')) browserLang = 'ja';
+    else if (navigator.language.startsWith('zh')) browserLang = 'zh';
+    else if (navigator.language.startsWith('ko')) browserLang = 'ko';
+    else if (navigator.language.startsWith('es')) browserLang = 'es';
+  }
+  
   document.body.classList.add(`lang-${browserLang}`);
 
   // JA / EN / ZH / KO / ES のリンククリックイベント

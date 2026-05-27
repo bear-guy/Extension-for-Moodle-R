@@ -32,6 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     });
+
+    // 動的にフッターリンクのURL言語パラメータを更新
+    const supportLink = document.querySelector('a[data-i18n="support_contact"]');
+    if (supportLink) supportLink.href = `https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html?lang=${currentLang}#contact`;
+
+    const featureLink = document.querySelector('a[data-i18n="feature_intro"]');
+    if (featureLink) featureLink.href = `https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html?lang=${currentLang}#features`;
+
+    const privacyLink = document.querySelector('a[data-i18n="privacy_policy"]');
+    if (privacyLink) privacyLink.href = `https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html?lang=${currentLang}`;
   });
 
   chrome.storage.local.get(['displayLanguage'], (result) => {
