@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title class="lang-ja">Extension for Moodle+R へようこそ！</title>
   <title class="lang-en">Welcome to Extension for Moodle+R!</title>
+  <title class="lang-zh">欢迎使用 Extension for Moodle+R！</title>
   <link rel="icon" type="image/png" href="https://bear-guy.github.io/Extension-for-Moodle-R/icons/icon128.png">
   <style>
     body {
@@ -149,8 +150,9 @@
     }
 
     /* --- 言語切り替え用 --- */
-    body.lang-en .lang-ja { display: none !important; }
-    body.lang-ja .lang-en { display: none !important; }
+    body.lang-en .lang-ja, body.lang-en .lang-zh { display: none !important; }
+    body.lang-ja .lang-en, body.lang-ja .lang-zh { display: none !important; }
+    body.lang-zh .lang-ja, body.lang-zh .lang-en { display: none !important; }
 
     .lang-switcher {
       text-align: center;
@@ -184,13 +186,16 @@
       <div style="text-align: center;">
         <h1 class="lang-ja">インストールしていただきありがとうございます！</h1>
         <h1 class="lang-en">Thank you for installing!</h1>
+        <h1 class="lang-zh">感谢您的安装！</h1>
         <p class="lang-ja" style="margin: 8px 0 0 0; color: #555;">「Extension for Moodle+R」は、2026年度から「manaba+R」に代わって立命館大学に新しく導入されたLMS「Moodle+R」をより使いやすくするための拡張機能です。</p>
         <p class="lang-en" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" is an extension designed to improve the usability of "Moodle+R", the new LMS introduced at Ritsumeikan University starting in the 2026 academic year, replacing "manaba+R".</p>
+        <p class="lang-zh" style="margin: 8px 0 0 0; color: #555;">“Extension for Moodle+R” 是一款旨在改善“Moodle+R”易用性的扩展程序。该系统是立命馆大学从2026学年开始取代“manaba+R”引入的新学习管理系统（LMS）。</p>
       </div>
     </div>
 
     <h2 class="lang-ja">使い方</h2>
     <h2 class="lang-en">How to Use</h2>
+    <h2 class="lang-zh">使用方法</h2>
     <ul class="lang-ja">
       <li>画面右上の <strong>パズルアイコン</strong> をクリックし、この拡張機能を右クリックしてピン留めしてください。</li>
       <li>ツールバーに追加されたアイコンをクリックするとメニューが開き、各機能をオン・オフできます。</li>
@@ -199,9 +204,14 @@
       <li>Click the <strong>puzzle icon</strong> in the top right corner of your browser, then right-click this extension to pin it.</li>
       <li>Click the pinned icon in your toolbar to open the menu, where you can toggle each feature on or off.</li>
     </ul>
+    <ul class="lang-zh">
+      <li>点击浏览器右上角的 <strong>拼图图标</strong>，然后右键单击此扩展程序将其固定。</li>
+      <li>点击工具栏中固定的图标即可打开菜单，您可以在其中开启或关闭各项功能。</li>
+    </ul>
 
     <h2 id="features" class="lang-ja">機能の紹介</h2>
     <h2 id="features" class="lang-en">Features</h2>
+    <h2 id="features" class="lang-zh">功能介绍</h2>
     <ul class="lang-ja">
       <li>
         <strong>ベターレイアウト:</strong> 時間割を見やすくし、画面を広く使えます。
@@ -282,8 +292,49 @@
       </li>
     </ul>
 
+    <ul class="lang-zh">
+      <li>
+        <strong>优化布局:</strong> 让课表更易读，更有效地利用屏幕空间。
+        <div class="before-after-container">
+          <div class="image-wrapper">
+            <span class="image-label">应用前</span>
+            <img src="assets/layout-before.png" alt="应用优化布局前" class="feature-img">
+          </div>
+          <div class="image-wrapper">
+            <span class="image-label">应用后</span>
+            <img src="assets/layout-after.png" alt="应用优化布局后" class="feature-img">
+          </div>
+        </div>
+      </li>
+      <li>
+        <strong>教职工模式:</strong> 在功能区添加教职工专用链接（如教职工门户、Respon、打卡等）。
+        <img src="assets/staff-ribbon.png" alt="教职工模式示例" class="feature-img">
+      </li>
+      <li><strong>跳过首页:</strong> 跳过未使用的首页，直接跳转至仪表板。</li>
+      <li>
+        <strong>高亮显示当前课程:</strong> 在课表上高亮显示正在进行的课程时段，让您一眼就能看出当前正在上的课。
+      </li>
+      <li>
+        <strong>自动获取教学大纲信息:</strong>
+        在 Moodle 的课程页面添加“教学大纲”按钮，一键直达大纲。此外，只需打开一次大纲，即可自动获取<strong>上课时间、授课教师、学分、教室</strong>数据，让您随时能从 Moodle 的课程页面或仪表板查看。<br>
+        您还可以通过课程页面上获取的教室位置访问校园地图。
+        <img src="assets/syllabus.png" alt="教学大纲整合示例" class="feature-img">
+      </li>
+      <li>
+        <strong>深色模式:</strong> 切换至较暗的配色方案，减轻眼部疲劳。
+        <img src="assets/dark-mode-welcome.png" alt="深色模式示例" class="feature-img">
+      </li>
+      <li>
+        <strong>一键已读论坛:</strong> 在论坛屏幕添加“全部标记为已读”按钮，一键即可将所有未读帖子标记为已读。
+      </li>
+      <li>
+        <strong>发送消息 (DM) 按钮:</strong> 在课程页面顶部添加一个“DM”按钮。点击它即可打开向该课程讲师发送消息的编辑界面。
+      </li>
+    </ul>
+
     <h2 class="lang-ja">免責事項</h2>
     <h2 class="lang-en">Disclaimer</h2>
+    <h2 class="lang-zh">免责声明</h2>
     <p class="lang-ja">
       本拡張機能は個人が開発した非公式なツールであり、立命館大学およびMoodleとは一切関係ありません。本拡張機能について大学側に問い合わせることがないようにお願いいたします。<br>
       本拡張機能の利用によって生じたいかなる直接的・間接的なトラブル、不利益、または損害（例: 課題の提出遅延、データの未反映など）について、開発者は一切の責任を負いません。すべて自己責任でのご利用をお願いいたします。<br>
@@ -296,9 +347,16 @@
       In addition, due to updates or specification changes in the university's systems (such as Moodle or Syllabus), this extension may stop working properly or the display may become distorted. Furthermore, the developer may add, change, update features, or discontinue the provision of this extension without notice. Please be aware of this in advance.<br>
       By installing this extension, you are deemed to have agreed to this disclaimer.
     </p>
+    <p class="lang-zh">
+      本扩展程序为个人开发的非官方工具，与立命馆大学及 Moodle 没有任何关系。请勿向大学方面咨询有关本扩展程序的问题。<br>
+      对于因使用本扩展程序而造成的任何直接或间接麻烦、不利或损害（例如：作业提交延迟、数据未反映等），开发者不承担任何责任。请完全自行承担风险使用。<br>
+      此外，由于大学系统（如 Moodle 或教学大纲）的更新或规格变更，本扩展程序可能会无法正常工作，或者画面显示可能会崩溃。此外，开发者可能会自行决定在不另行通知的情况下添加、更改、更新功能或停止提供本扩展程序。请事先知悉。<br>
+      另外，在您安装本扩展程序时，即视为您已同意本免责声明。
+    </p>
 
     <h2 class="lang-ja">プライバシーポリシー</h2>
     <h2 class="lang-en">Privacy Policy</h2>
+    <h2 class="lang-zh">隐私政策</h2>
     <p class="lang-ja">
       本拡張機能における個人情報の取り扱いについては、こちらの<a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">プライバシーポリシー</a>をご確認ください。<br>
       なお、本拡張機能をインストールした時点で、プライバシーポリシーに同意したものとみなします。
@@ -307,9 +365,14 @@
       For the handling of personal information in this extension, please check this <a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">Privacy Policy</a>.<br>
       By installing this extension, you are deemed to have agreed to the privacy policy.
     </p>
+    <p class="lang-zh">
+      关于本扩展程序中对个人信息的处理方式，请查看此 <a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">隐私政策</a>。<br>
+      在您安装本扩展程序时，即视为您已同意该隐私政策。
+    </p>
 
     <h2 id="contact" class="lang-ja">サポートと連絡先</h2>
     <h2 id="contact" class="lang-en">Support and Contact</h2>
+    <h2 id="contact" class="lang-zh">支持与联系</h2>
     <div class="contact-links lang-ja">
       <p>不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりお気軽にご連絡ください。<br>
         <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">お問い合わせフォーム (Google Forms)</a>
@@ -334,14 +397,27 @@
         <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QR Code" class="feature-img" style="max-width: 200px;">
       </p>
     </div>
+    <div class="contact-links lang-zh">
+      <p>如果您有任何错误报告、功能请求或其他问题，请随时通过以下表单联系我们。<br>
+        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">联系表单 (Google Forms)</a>
+      </p>
+      <p>或者，您也可以通过以下社交媒体或电子邮件与我们取得联系。<br>
+        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
+        <a href="mailto:potatogamer1023@gmail.com">电子邮件 (potatogamer1023@gmail.com)</a>
+      <p>如果您觉得这个扩展程序有用，希望能得到您的支持，以帮助我们继续开发。<br>
+        您可以通过扫描下方的二维码，使用 PayPay 进行赞助。<br>
+        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay 二维码" class="feature-img" style="max-width: 200px;">
+      </p>
+    </div>
 
     <div style="text-align: center; margin-top: 30px;">
       <a href="privacy.html" class="lang-ja" style="color: #666; text-decoration: underline; font-size: 14px;">プライバシーポリシー</a>
       <a href="privacy.html" class="lang-en" style="color: #666; text-decoration: underline; font-size: 14px;">Privacy Policy</a>
+      <a href="privacy.html" class="lang-zh" style="color: #666; text-decoration: underline; font-size: 14px;">隐私政策</a>
     </div>
 
     <div class="lang-switcher">
-      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a>
+      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a> <span style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a>
     </div>
 
     <div class="footer">
