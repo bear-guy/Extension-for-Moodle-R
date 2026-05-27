@@ -239,10 +239,10 @@
   <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container"
     style="text-decoration: none; color: inherit;">
     <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
-    <h1 id="popupTitleText">Extension for Moodle+R</h1>
+    <h1 id="popupTitleText" data-i18n="popup_title">Extension for Moodle+R</h1>
   </a>
   <div class="toggle-wrapper">
-    <span class="toggle-label">ベターレイアウト</span>
+    <span class="toggle-label" data-i18n="better_layout">ベターレイアウト</span>
     <label class="switch">
       <input type="checkbox" id="extensionToggle">
       <span class="slider"></span>
@@ -250,69 +250,77 @@
   </div>
   <div style="margin-top: 10px;" id="syllabusWrapper">
     <div class="toggle-wrapper">
-      <span class="toggle-label">シラバス情報の自動取得</span>
+      <span class="toggle-label" data-i18n="syllabus_auto_fetch">シラバス情報の自動取得</span>
       <label class="switch">
         <input type="checkbox" id="syllabusToggle" checked>
         <span class="slider"></span>
       </label>
     </div>
     <div style="text-align: right; margin-top: 8px;">
-      <span id="autoFetchSyllabusBtn" class="clear-data-link" style="margin-bottom: 6px;">登録された授業のシラバスを全て取得</span>
+      <span id="autoFetchSyllabusBtn" class="clear-data-link" style="margin-bottom: 6px;" data-i18n="fetch_all_syllabus">登録された授業のシラバスを全て取得</span>
       <br>
-      <span id="clearSyllabusDataBtn" class="clear-data-link">取得したデータを削除</span>
+      <span id="clearSyllabusDataBtn" class="clear-data-link" data-i18n="clear_syllabus_data">取得したデータを削除</span>
     </div>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;" id="staffModeWrapper">
-    <span class="toggle-label">教職員モード</span>
+    <span class="toggle-label" data-i18n="staff_mode">教職員モード</span>
     <label class="switch">
       <input type="checkbox" id="staffModeToggle">
       <span class="slider"></span>
     </label>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
-    <span class="toggle-label">ホームスキップ</span>
+    <span class="toggle-label" data-i18n="skip_home">ホームスキップ</span>
     <label class="switch">
       <input type="checkbox" id="skipHomeToggle">
       <span class="slider"></span>
     </label>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;" id="highlightCurrentClassWrapper">
-    <span class="toggle-label">今日の時間割をハイライト</span>
+    <span class="toggle-label" data-i18n="highlight_current">今日の時間割をハイライト</span>
     <label class="switch">
       <input type="checkbox" id="highlightCurrentClassToggle" checked>
       <span class="slider"></span>
     </label>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
-    <span class="toggle-label">ダークモード（ベータ）</span>
+    <span class="toggle-label" data-i18n="dark_mode">ダークモード（ベータ）</span>
     <label class="switch">
       <input type="checkbox" id="darkModeToggle">
       <span class="slider"></span>
     </label>
   </div>
+  <div class="toggle-wrapper" style="margin-top: 10px;">
+    <span class="toggle-label">言語 (Language)</span>
+    <select id="languageSelect" style="font-size: 12px; padding: 2px 4px; border-radius: 4px; border: 1px solid #ccc; background-color: #fff; color: #333; cursor: pointer;">
+      <option value="auto">Auto</option>
+      <option value="ja">日本語</option>
+      <option value="en">English</option>
+    </select>
+  </div>
 
 
   <div style="text-align: center; margin-top: 10px;">
-    <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;">I'm Feeling
-      Lucky</span>
+    <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;" data-i18n="feeling_lucky">I'm Feeling Lucky</span>
   </div>
 
   <div class="links-wrapper">
     <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link">GitHub</a>
     <span class="divider">|</span>
     <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
-      class="bottom-link">サポート・お問い合わせ</a>
+      class="bottom-link" data-i18n="support_contact">サポート・お問い合わせ</a>
     <br>
     <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank"
-      class="bottom-link" style="margin-top: 6px; display: inline-block;">機能の紹介</a>
+      class="bottom-link" style="margin-top: 6px; display: inline-block;" data-i18n="feature_intro">機能の紹介</a>
     <span class="divider">|</span>
     <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link"
-      style="margin-top: 6px; display: inline-block;">プライバシーポリシー</a>
+      style="margin-top: 6px; display: inline-block;" data-i18n="privacy_policy">プライバシーポリシー</a>
   </div>
   <div class="credit-text">
     &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
     reserved.
   </div>
+  <script src="i18n.js"></script>
   <script type="module" src="analytics.js"></script>
   <script type="module" src="popup.js"></script>
 </body>

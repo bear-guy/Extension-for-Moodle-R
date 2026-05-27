@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const courseCodes = [...new Set(subjects.map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
     sendResponse({ courseCodes });
   } else if (request.action === "autoFetchCompleted") {
-    if (confirm("登録されたすべての授業のシラバス情報の自動取得が完了しました。\nページを再読み込みして表示を更新します。")) window.location.reload();
+    if (confirm(window.MoodleExtI18n.getMessage('content_syllabus_auto_fetch_done', window.currentMoodleLang || 'ja'))) window.location.reload();
   }
 });
 
@@ -22,8 +22,15 @@ chrome.storage.local.get({
   isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true,
   isLuckyEnabled: false,
   luckyUniversity: 'kyodai',
-  lastSettingsSentDate: ""
+  lastSettingsSentDate: "",
+  displayLanguage: ""
 }, (data) => {
+  let currentLang = data.displayLanguage;
+  if (!currentLang || currentLang === 'auto') {
+    currentLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
+  }
+  window.currentMoodleLang = currentLang;
+
   // 1日1回の設定状況送信
   const today = new Date().toDateString();
   if (data.lastSettingsSentDate !== today && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
@@ -48,7 +55,7 @@ chrome.storage.local.get({
   // 拡張機能のメイン処理開始
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity);
+    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity, currentLang);
   }
 
   // ダークモードの適用・強制解除（シラバス）
@@ -66,7 +73,7 @@ chrome.storage.local.get({
 // ==========================================
 // 拡張機能のメイン処理
 // ==========================================
-const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, initialIsLuckyEnabled, initialLuckyUniversity) => {
+const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, initialIsLuckyEnabled, initialLuckyUniversity, currentLang) => {
   let isLuckyEnabled = initialIsLuckyEnabled;
   let luckyUniversity = initialLuckyUniversity;
   let originalLogoSrc = null;
@@ -144,10 +151,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           const courseCodes = [...new Set(Array.from(subjects).map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
           if (courseCodes.length > 0) {
             setTimeout(() => {
-              if (confirm(`インストールしていただき、ありがとうございます。\n\n${courseCodes.length}件の登録された授業のシラバス情報を自動で取得しますか？（1分程度かかります）`)) {
+              if (confirm(window.MoodleExtI18n.getMessage('content_prompt_install_thanks', currentLang, {count: courseCodes.length}))) {
                 chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
                   chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
-                  alert(`シラバスの自動取得を開始しました（${courseCodes.length}件）。\n別タブが順次開いて処理されますので、しばらくお待ちください。`);
+                  alert(window.MoodleExtI18n.getMessage('content_prompt_fetch_started', currentLang, {count: courseCodes.length}));
                 });
               } else {
                 chrome.storage.local.set({ isSyllabusEnabled: false });
@@ -430,7 +437,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       btn.href = markAllReadLink.href;
       btn.className = 'btn btn-secondary custom-mark-all-read-btn';
       btn.style.marginRight = '8px';
-      btn.innerHTML = '<i class="icon fa fa-check fa-fw" aria-hidden="true"></i>すべて既読にする';
+      btn.innerHTML = `<i class="icon fa fa-check fa-fw" aria-hidden="true"></i>${window.MoodleExtI18n.getMessage('content_mark_all_read', currentLang)}`;
       actionContainer.insertBefore(btn, actionContainer.firstChild);
     }
   };
@@ -455,7 +462,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
         dmButton.textContent = 'DM';
-        dmButton.title = `${link.textContent.trim() || '先生'} へメッセージを送信`;
+        dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, {teacher: link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher')});
 
         headerContainer.appendChild(dmButton);
       });
@@ -499,7 +506,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const headerContainer = document.querySelector('.header-actions-container');
     if (headerContainer && !document.querySelector('.custom-syllabus-link')) {
       const url = `https://syllabus.ritsumei.ac.jp/syllabus/s/${courseCode ? `?coursecode=${courseCode}${isCourseSearch ? '&nosave=true' : ''}` : ''}`;
-      headerContainer.insertAdjacentHTML('afterbegin', `<a href="${url}" target="_blank" class="btn btn-secondary custom-syllabus-link" style="flex-shrink:0; white-space:nowrap;">シラバス</a>`);
+      headerContainer.insertAdjacentHTML('afterbegin', `<a href="${url}" target="_blank" class="btn btn-secondary custom-syllabus-link" style="flex-shrink:0; white-space:nowrap;">${window.MoodleExtI18n.getMessage('content_btn_syllabus', currentLang)}</a>`);
 
       if (isSyllabusEnabled && courseCode && !isCourseSearch) {
         chrome.storage.local.get(`syllabus_${courseCode}`, (res) => {
@@ -524,13 +531,13 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
             fontSize: '0.9rem', fontWeight: 'bold', gap: '15px', flexShrink: '0', whiteSpace: 'nowrap'
           });
 
-          let roomHTML = `<strong>教室:</strong> ${data.room || '不明'}`;
+          let roomHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_room', currentLang)}</strong> ${data.room || window.MoodleExtI18n.getMessage('content_info_unknown', currentLang)}`;
           if (data.campus && data.room && data.room !== '不明') {
             const mapUrls = { '衣笠': '227619', 'BKC': '227632', 'OIC': '229844' };
             const matchedCampus = Object.keys(mapUrls).find(k => data.campus.includes(k));
-            if (matchedCampus) roomHTML = `<strong>教室:</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
+            if (matchedCampus) roomHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_room', currentLang)}</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
           }
-          container.innerHTML = `<div><strong>開講曜日・時限:</strong> ${data.schedule}</div><div><strong>担当教員:</strong> ${data.teacher}</div><div><strong>単位:</strong> ${data.credits}</div><div>${roomHTML}</div>`;
+          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${data.schedule}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> ${data.teacher}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
         }
       });
     }
@@ -643,7 +650,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         chrome.storage.local.set({ [`syllabus_${courseCode}`]: { ...existingData, ...newSyllabusData } }, () => {
           document.body.dataset.syllabusExtracted = "true";
           clearInterval(window.syllabusExtractInterval);
-          if (new URLSearchParams(window.location.search).get('autofetch') !== 'true') showToast(`シラバス情報を取得・保存しました。`);
+          if (new URLSearchParams(window.location.search).get('autofetch') !== 'true') showToast(window.MoodleExtI18n.getMessage('content_toast_syllabus_saved', currentLang));
           else chrome.runtime.sendMessage({ action: "syllabusFetchComplete" });
         });
       });

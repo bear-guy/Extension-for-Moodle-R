@@ -15,6 +15,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const luckyBtn = document.getElementById('luckyBtn');
   const popupTitleIcon = document.getElementById('popupTitleIcon');
   const popupTitleText = document.getElementById('popupTitleText');
+  const languageSelect = document.getElementById('languageSelect');
+
+  // 言語設定の初期化と適用
+  let currentLang = 'ja';
+  window.MoodleExtI18n.getLanguage((lang) => {
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      const text = window.MoodleExtI18n.getMessage(key, currentLang);
+      if (text) {
+        if (el.tagName === 'INPUT' && el.type === 'button') {
+          el.value = text;
+        } else {
+          el.textContent = text;
+        }
+      }
+    });
+  });
+
+  chrome.storage.local.get(['displayLanguage'], (result) => {
+    if (result.displayLanguage && (result.displayLanguage === 'ja' || result.displayLanguage === 'en')) {
+      if (languageSelect) languageSelect.value = result.displayLanguage;
+    } else {
+      if (languageSelect) languageSelect.value = 'auto';
+    }
+  });
+
+  if (languageSelect) {
+    languageSelect.addEventListener('change', (e) => {
+      const selected = e.target.value;
+      if (selected === 'auto') {
+        chrome.storage.local.remove('displayLanguage', () => { reloadTabs(); window.location.reload(); });
+      } else {
+        chrome.storage.local.set({ displayLanguage: selected }, () => { reloadTabs(); window.location.reload(); });
+      }
+    });
+  }
 
   // ベターレイアウトに依存するUI状態を更新する関数
   const updateDependentUI = (isEnabled) => {
@@ -63,11 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const keysToRemove = Object.keys(items).filter(key => key.startsWith('syllabus_'));
       if (keysToRemove.length > 0) {
         chrome.storage.local.remove(keysToRemove, () => {
-          if (showAlert) alert('シラバスデータを削除しました。');
+          if (showAlert) alert(window.MoodleExtI18n.getMessage('alert_syllabus_cleared', currentLang));
           if (callback) callback();
         });
       } else {
-        if (showAlert) alert('削除するデータがありません。');
+        if (showAlert) alert(window.MoodleExtI18n.getMessage('alert_no_data_to_clear', currentLang));
         if (callback) callback();
       }
     });
@@ -133,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // シラバスがオンの状態でベターレイアウトをオフにしようとした場合の警告
     if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
-      if (!confirm('ベターレイアウトをオフにするとシラバス機能も無効になり、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？')) {
+      if (!confirm(window.MoodleExtI18n.getMessage('confirm_disable_better_layout', currentLang))) {
         toggle.checked = true; // キャンセル時はトグルを元に戻す
         return;
       }
@@ -244,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (activeTab && activeTab.url.includes('lms.ritsumei.ac.jp')) {
         chrome.tabs.sendMessage(activeTab.id, { action: "getCourseCodes" }, (response) => {
           if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
-            alert("時間割から授業コードが見つかりませんでした。\nMoodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。\nまた、すでに登録されている可能性があります。");
+            alert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
           } else {
             // 取得済みのシラバスデータをストレージから確認する
             const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
@@ -252,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
               
               if (missingCodes.length === 0) {
-                alert("登録されているすべての授業のシラバス情報はすでに取得済みです。\n最新の情報に更新したい場合は、下の「取得したデータを削除」を実行してから再度実行してください。");
+                alert(window.MoodleExtI18n.getMessage('syllabus_fetch_all_done', currentLang));
               } else {
                 chrome.storage.local.set({ hasPromptedAutoFetch: true });
                 chrome.runtime.sendMessage({ 
@@ -260,13 +297,13 @@ document.addEventListener('DOMContentLoaded', () => {
                   courseCodes: missingCodes, // 未取得の授業コードだけを渡す
                   originalTabId: activeTab.id
                 });
-                alert(`未取得の ${missingCodes.length} 件の授業のシラバス自動取得を開始します。\n別タブが順次開いて処理されますので、しばらくお待ちください。`);
+                alert(window.MoodleExtI18n.getMessage('syllabus_fetch_start', currentLang, { count: missingCodes.length }));
               }
             });
           }
         });
       } else {
-        alert("Moodleのダッシュボード（時間割が表示されているページ）を開いた状態で実行してください。");
+        alert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
       }
     });
   };
@@ -281,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // オフにした際の警告
       if (!isEnabled) {
-        if (!confirm('シラバス情報の自動取得をオフにすると、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？')) {
+        if (!confirm(window.MoodleExtI18n.getMessage('confirm_disable_syllabus', currentLang))) {
           syllabusToggle.checked = true; // キャンセル時はトグルを元に戻す
           return;
         }
@@ -291,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, () => {
         if (isEnabled) {
-          if (confirm("シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。")) {
+          if (confirm(window.MoodleExtI18n.getMessage('confirm_enable_syllabus', currentLang))) {
             if (typeof sendGAEvent === 'function') {
               sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
             }
@@ -319,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // シラバスデータの削除ボタン
   if (clearSyllabusDataBtn) {
     clearSyllabusDataBtn.addEventListener('click', () => {
-      if (confirm('取得したシラバスのデータをすべて削除しますか？\n取得したシラバス情報の表示が消え、再度シラバスを開くまで表示されなくなります。')) {
+      if (confirm(window.MoodleExtI18n.getMessage('confirm_clear_syllabus', currentLang))) {
         if (typeof sendGAEvent === 'function') {
           sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
         }
