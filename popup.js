@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentLang = 'ja';
   window.MoodleExtI18n.getLanguage((lang) => {
     currentLang = lang;
+    if (languageSelect) languageSelect.value = currentLang;
+    
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const text = window.MoodleExtI18n.getMessage(key, currentLang);
@@ -44,22 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (privacyLink) privacyLink.href = `https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html?lang=${currentLang}`;
   });
 
-  chrome.storage.local.get(['displayLanguage'], (result) => {
-    if (result.displayLanguage && ['ja', 'en', 'zh', 'ko', 'es'].includes(result.displayLanguage)) {
-      if (languageSelect) languageSelect.value = result.displayLanguage;
-    } else {
-      if (languageSelect) languageSelect.value = 'auto';
-    }
-  });
-
   if (languageSelect) {
     languageSelect.addEventListener('change', (e) => {
       const selected = e.target.value;
-      if (selected === 'auto') {
-        chrome.storage.local.remove('displayLanguage', () => { reloadTabs(); window.location.reload(); });
-      } else {
-        chrome.storage.local.set({ displayLanguage: selected }, () => { reloadTabs(); window.location.reload(); });
-      }
+      chrome.storage.local.set({ displayLanguage: selected }, () => { reloadTabs(); window.location.reload(); });
     });
   }
 
