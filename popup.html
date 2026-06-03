@@ -11,7 +11,9 @@
 
     body {
       font-family: sans-serif;
-      width: 280px;
+      width: 100%;
+      min-width: 320px;
+      box-sizing: border-box;
       margin: 0;
       padding: 15px;
       background-color: #f8f9fa;
@@ -201,6 +203,14 @@
       color: #ef5350;
     }
 
+    body.dark-mode .close-btn {
+      color: #aaa !important;
+    }
+
+    body.dark-mode .close-btn:hover {
+      color: #fff !important;
+    }
+
     body.dark-mode button {
       background-color: #333 !important;
       color: #e0e0e0 !important;
@@ -255,11 +265,13 @@
 
 
 <body class="preload">
-  <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" class="header-container"
-    style="text-decoration: none; color: inherit;">
-    <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
-    <h1 id="popupTitleText" data-i18n="popup_title">Extension for Moodle+R</h1>
-  </a>
+  <div class="header-container" style="position: relative; justify-content: center;">
+    <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+      <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
+      <h1 id="popupTitleText" data-i18n="popup_title">Extension for Moodle+R</h1>
+    </a>
+    <button id="closeDrawerBtn" class="close-btn" aria-label="Close" style="position: absolute; right: 0; background: none; border: none; font-size: 20px; cursor: pointer; color: #555; padding: 0 4px; line-height: 1;">&times;</button>
+  </div>
   <div class="toggle-wrapper">
     <span class="toggle-label" data-i18n="better_layout">ベターレイアウト</span>
     <label class="switch">

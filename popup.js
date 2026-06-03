@@ -16,6 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupTitleIcon = document.getElementById('popupTitleIcon');
   const popupTitleText = document.getElementById('popupTitleText');
   const languageSelect = document.getElementById('languageSelect');
+  const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+
+  // iframe内でない場合（直接ポップアップを開いた場合）は閉じるボタンを非表示にする
+  if (closeDrawerBtn) {
+    let isIframe = false;
+    try {
+      isIframe = window.self !== window.top;
+    } catch (e) {
+      isIframe = true;
+    }
+    if (!isIframe) {
+      closeDrawerBtn.style.display = 'none';
+    } else {
+      closeDrawerBtn.addEventListener('click', () => {
+        window.parent.postMessage({ action: 'closeSettingsDrawer' }, '*');
+      });
+    }
+  }
 
   // 言語設定の初期化と適用
   let currentLang = 'ja';

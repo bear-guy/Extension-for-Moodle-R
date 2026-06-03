@@ -692,27 +692,6 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // 初期状態は画面外
     drawer.style.right = '-350px';
 
-    // 閉じるボタン付きのヘッダー
-    const drawerHeader = document.createElement('div');
-    drawerHeader.className = 'custom-settings-drawer-header';
-    
-    const titleSpan = document.createElement('span');
-    titleSpan.textContent = btn.title;
-    titleSpan.style.fontWeight = 'bold';
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'btn btn-sm custom-settings-drawer-close';
-    closeBtn.innerHTML = '<i class="icon fa fa-times fa-fw" aria-hidden="true"></i>';
-    closeBtn.onclick = () => {
-      drawer.style.right = '-350px';
-      const page = document.getElementById('page');
-      if (page) page.classList.remove('show-custom-drawer-right');
-    };
-
-    drawerHeader.appendChild(titleSpan);
-    drawerHeader.appendChild(closeBtn);
-    drawer.appendChild(drawerHeader);
-
     // iframeの作成
     const iframe = document.createElement('iframe');
     iframe.src = chrome.runtime.getURL('popup.html');
@@ -720,6 +699,15 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     iframe.style.flexGrow = '1';
     iframe.style.border = 'none';
     drawer.appendChild(iframe);
+
+    // iframeからの閉じるメッセージを受け取る
+    window.addEventListener('message', (event) => {
+      if (event.data && event.data.action === 'closeSettingsDrawer') {
+        drawer.style.right = '-350px';
+        const page = document.getElementById('page');
+        if (page) page.classList.remove('show-custom-drawer-right');
+      }
+    });
 
     document.body.appendChild(drawer);
 

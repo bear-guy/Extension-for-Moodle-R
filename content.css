@@ -580,7 +580,6 @@ body.moodle-ext-enabled .custom-settings-drawer {
     width: 350px;
     height: calc(100vh - 60px);
     background-color: #f8f9fa;
-    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
     z-index: 1040;
     transition: right 0.3s ease;
     display: flex;
