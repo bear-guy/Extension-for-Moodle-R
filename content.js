@@ -315,7 +315,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           const match = link.title.match(/\d{5,}/);
           if (match) chrome.storage.local.get(`syllabus_${match[0]}`, (res) => {
             if (res[`syllabus_${match[0]}`]?.teacher && res[`syllabus_${match[0]}`].teacher !== "不明") {
-              roomDiv.innerText = `${roomText} ${res[`syllabus_${match[0]}`].teacher}`;
+              const firstTeacher = res[`syllabus_${match[0]}`].teacher.split(/[、,・\n]+/)[0].trim();
+              roomDiv.innerText = `${roomText} ${firstTeacher}`;
             }
           });
         }
@@ -449,23 +450,89 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const headerContainer = document.querySelector('.header-actions-container');
     const teacherLinks = document.querySelectorAll('a.messageteacher_link');
 
-    if (headerContainer && !document.querySelector('.custom-message-teacher-link') && teacherLinks.length > 0) {
-      Array.from(teacherLinks).forEach(link => {
+    if (headerContainer && !document.querySelector('.custom-message-teacher-wrapper') && teacherLinks.length > 0) {
+      if (teacherLinks.length === 1) {
+        const link = teacherLinks[0];
         const dmButton = document.createElement('a');
-
-        // 元のリンク先URLをそのまま使用する
         dmButton.href = link.href;
         dmButton.target = '_blank';
         dmButton.rel = 'noopener noreferrer';
-
-        dmButton.className = 'btn btn-secondary custom-message-teacher-link';
+        dmButton.className = 'btn btn-secondary custom-message-teacher-link custom-message-teacher-wrapper';
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
         dmButton.textContent = 'DM';
         dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, {teacher: link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher')});
-
         headerContainer.appendChild(dmButton);
-      });
+      } else {
+        const isDark = document.body.classList.contains('dark-mode');
+        const bgColor = isDark ? '#3a3a3a' : '#ffffff';
+        const borderColor = isDark ? '#555' : '#ccc';
+        const textColor = isDark ? '#e0e0e0' : '#212529';
+        const hoverColor = isDark ? '#444' : '#f0f0f0';
+
+        const wrapper = document.createElement('details');
+        wrapper.className = 'custom-message-teacher-wrapper';
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.flexShrink = '0';
+
+        const summary = document.createElement('summary');
+        summary.className = 'btn btn-secondary custom-message-teacher-link';
+        summary.style.whiteSpace = 'nowrap';
+        summary.style.outline = 'none';
+        summary.style.cursor = 'pointer';
+        summary.style.listStyle = 'none';
+        summary.innerHTML = 'DM <span style="font-size: 0.8em; margin-left: 4px;">▼</span>';
+
+        const dropdown = document.createElement('div');
+        dropdown.style.position = 'absolute';
+        dropdown.style.top = '100%';
+        dropdown.style.right = '0';
+        dropdown.style.backgroundColor = bgColor;
+        dropdown.style.border = `1px solid ${borderColor}`;
+        dropdown.style.borderRadius = '4px';
+        dropdown.style.padding = '4px 0';
+        dropdown.style.marginTop = '4px';
+        dropdown.style.zIndex = '1000';
+        dropdown.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        dropdown.style.minWidth = '160px';
+
+        Array.from(teacherLinks).forEach(link => {
+          const teacherName = link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher');
+          const item = document.createElement('a');
+          item.href = link.href;
+          item.target = '_blank';
+          item.rel = 'noopener noreferrer';
+          item.textContent = currentLang === 'ja' ? `${teacherName}へDM` : `DM to ${teacherName}`;
+          item.style.display = 'block';
+          item.style.padding = '8px 16px';
+          item.style.color = textColor;
+          item.style.textDecoration = 'none';
+          item.style.whiteSpace = 'nowrap';
+          item.style.fontSize = '0.9rem';
+          item.style.textAlign = 'left';
+          item.onmouseover = () => item.style.backgroundColor = hoverColor;
+          item.onmouseout = () => item.style.backgroundColor = 'transparent';
+          // Close details when a link is clicked
+          item.onclick = () => wrapper.removeAttribute('open');
+          dropdown.appendChild(item);
+        });
+
+        wrapper.appendChild(summary);
+        wrapper.appendChild(dropdown);
+
+        // Hide summary marker for webkit browsers
+        const style = document.createElement('style');
+        style.textContent = '.custom-message-teacher-wrapper > summary::-webkit-details-marker { display: none; }';
+        wrapper.appendChild(style);
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (!wrapper.contains(e.target)) wrapper.removeAttribute('open');
+        });
+
+        headerContainer.appendChild(wrapper);
+      }
     }
   };
 
@@ -537,7 +604,25 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
             const matchedCampus = Object.keys(mapUrls).find(k => data.campus.includes(k));
             if (matchedCampus) roomHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_room', currentLang)}</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
           }
-          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${data.schedule}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> ${data.teacher}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
+          let teacherHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> ${data.teacher}`;
+          if (data.teacher) {
+            const teachers = data.teacher.split(/[、,・\n]+/).map(t => t.trim()).filter(Boolean);
+            if (teachers.length > 1) {
+              const listText = currentLang === 'ja' ? '担当教員一覧' : 'Instructors List';
+              const bgColor = isDark ? '#3a3a3a' : '#ffffff';
+              const borderColor = isDark ? '#555' : '#ccc';
+              const textColor = isDark ? '#e0e0e0' : '#212529';
+              const linkColor = isDark ? '#66b2ff' : '#0056b3';
+              teacherHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> 
+                <details style="display: inline-block; position: relative; margin-left: 2px;">
+                  <summary style="cursor: pointer; color: ${linkColor}; font-weight: normal; text-decoration: underline; outline: none;">${listText}</summary>
+                  <div style="position: absolute; top: 100%; left: 0; background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; padding: 8px 12px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; white-space: nowrap; margin-top: 8px; font-weight: normal; line-height: 1.5;">
+                    ${teachers.join('<br>')}
+                  </div>
+                </details>`;
+            }
+          }
+          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${data.schedule}</div><div>${teacherHTML}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
         }
       });
     }
