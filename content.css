@@ -463,11 +463,33 @@ body.dark-mode .btn-outline-secondary {
     border-color: #555 !important;
 }
 
-/* ファイルアイコン（PDF等）の視認性確保 */
-body.dark-mode img.icon[src*="/f/"] {
+/* --- アイコンの視認性確保（ダークモード） --- */
+/* フォントアイコン（FontAwesomeなど） */
+body.dark-mode i.icon,
+body.dark-mode i.fa {
+    color: #e0e0e0 !important;
+}
+
+/* SVG等の画像アイコンの色を反転して視認性を高める */
+body.dark-mode img.icon:not([src*="/f/"]):not([src*="pdf"]),
+body.dark-mode img.favouriteicon,
+body.dark-mode img.newsicon,
+body.dark-mode img.assignicon,
+body.dark-mode img.forumicon,
+body.dark-mode .dir-rtl-hide img,
+body.dark-mode .dir-ltr-hide img,
+body.dark-mode img[src*="activities.svg"],
+body.dark-mode img[src*="monologo"] {
+    filter: invert(0.85) brightness(1.2) hue-rotate(180deg) !important;
+}
+
+/* ファイルアイコン（PDF等）は元の色を活かすため背景を明色化 */
+body.dark-mode img.icon[src*="/f/"],
+body.dark-mode img.icon[src*="pdf"] {
     background-color: #e0e0e0 !important;
     border-radius: 4px !important;
     padding: 2px !important;
+    filter: none !important;
 }
 
 
@@ -526,9 +548,16 @@ body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn .icon {
 }
 
 /* ダークモード対応 */
-body.moodle-ext-enabled.dark-mode .custom-settings-toggler-wrapper .btn {
-    background-color: #343a40;
-    color: #e0e0e0;
+body.moodle-ext-enabled.dark-mode .custom-settings-toggler-wrapper .btn,
+body.moodle-ext-enabled.dark-mode .drawer-toggles .drawer-right-toggle .btn,
+body.moodle-ext-enabled.dark-mode .btn-footer-popover {
+    background-color: #343a40 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+}
+body.moodle-ext-enabled.dark-mode .btn-footer-popover i,
+body.moodle-ext-enabled.dark-mode .btn-footer-popover .icon {
+    color: #e0e0e0 !important;
 }
 
 /* --- カスタムドロワ開閉時のコンテンツ圧縮（ネイティブのブロックドロワと同じ仕組み） --- */
