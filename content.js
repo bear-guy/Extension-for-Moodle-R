@@ -658,6 +658,88 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   };
 
 
+  // --- 拡張機能の設定ドロワ ---
+  const addSettingsDrawer = () => {
+    if (!window.location.hostname.includes('lms.ritsumei.ac.jp')) return;
+    if (document.querySelector('.custom-settings-drawer-btn')) return; // 重複防止
+
+
+    // Moodleの要素を改変せず、完全に独立したラッパーを作成する
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-settings-toggler-wrapper d-print-none';
+    
+    const btn = document.createElement('button');
+    btn.className = 'btn icon-no-margin custom-settings-drawer-btn';
+    btn.title = window.MoodleExtI18n.getMessage('content_settings_drawer_title', currentLang) || '拡張機能の設定';
+    btn.setAttribute('data-toggle', 'tooltip');
+    btn.setAttribute('data-placement', 'right');
+    // Moodleの純正アイコンと全く同じ構造（width/height 24px）にする
+    btn.innerHTML = `
+      <span class="sr-only">${btn.title}</span>
+      <span class="dir-rtl-hide">
+        <i class="icon fa-fw" style="-webkit-mask-image: url('${chrome.runtime.getURL('icons/icon48.png')}'); -webkit-mask-size: 16px; -webkit-mask-position: center; -webkit-mask-repeat: no-repeat; background-color: currentColor; width: 24px; height: 24px; margin: 0; display: inline-block; vertical-align: middle;"></i>
+      </span>
+    `;
+
+    // 独立したラッパーに追加し、bodyにマウント
+    wrapper.appendChild(btn);
+    document.body.appendChild(wrapper);
+
+
+    // ドロワコンテナの作成
+    const drawer = document.createElement('div');
+    drawer.className = 'custom-settings-drawer';
+    // 初期状態は画面外
+    drawer.style.right = '-350px';
+
+    // 閉じるボタン付きのヘッダー
+    const drawerHeader = document.createElement('div');
+    drawerHeader.className = 'custom-settings-drawer-header';
+    
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = btn.title;
+    titleSpan.style.fontWeight = 'bold';
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'btn btn-sm custom-settings-drawer-close';
+    closeBtn.innerHTML = '<i class="icon fa fa-times fa-fw" aria-hidden="true"></i>';
+    closeBtn.onclick = () => {
+      drawer.style.right = '-350px';
+      const page = document.getElementById('page');
+      if (page) page.classList.remove('show-custom-drawer-right');
+    };
+
+    drawerHeader.appendChild(titleSpan);
+    drawerHeader.appendChild(closeBtn);
+    drawer.appendChild(drawerHeader);
+
+    // iframeの作成
+    const iframe = document.createElement('iframe');
+    iframe.src = chrome.runtime.getURL('popup.html');
+    iframe.style.width = '100%';
+    iframe.style.flexGrow = '1';
+    iframe.style.border = 'none';
+    drawer.appendChild(iframe);
+
+    document.body.appendChild(drawer);
+
+    // トグルボタンのクリックイベント
+    btn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation(); // Moodle側のクリックイベント（ブロックドロワの開閉など）が誤爆するのを防ぐ
+
+      const isClosed = drawer.style.right === '-350px' || drawer.style.right === '';
+      const page = document.getElementById('page');
+      if (isClosed) {
+        drawer.style.right = '0';
+        if (page) page.classList.add('show-custom-drawer-right');
+      } else {
+        drawer.style.right = '-350px';
+        if (page) page.classList.remove('show-custom-drawer-right');
+      }
+    };
+  };
+
   // --- 監視と実行 ---
 
   const runFeatures = () => {
@@ -669,6 +751,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       hideDuplicateLinks();
       addSyllabusLinkAndInfo();
       addMessageTeacherButton();
+      addSettingsDrawer();
       if (isHighlightCurrentClassEnabled) highlightCurrentClass();
       applySkipHomeLinks();
       addMarkAllReadButton();

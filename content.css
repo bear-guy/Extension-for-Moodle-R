@@ -1,3 +1,24 @@
+/*
+=##############*-                  
+=################+.                
+=###-.......:-*###*                
+=###:          +###-               
+=###:          :###=               
+=###:          -###=               
+=###:         -####.               
+=###*++++++++#####-                
+=###############*:                 
+=########****+=:                   
+=###-*###+                         
+=###:.*###+                        
+=###: .*###+                       
+=###:  .*###+                      
+=###:   .*###+                     
+=###:     +###*.                   
+=###:      +###*.                  
+=###:       +###*.                 
+=###:        +###*.                
+=###:         +###*.
 /* ==========================================
    Moodle UI 調整機能
    ========================================== */
@@ -29,12 +50,12 @@ body.moodle-ext-enabled .custom-layout-wrapper {
 }
 
 /* タイムライン(左)と時間割(右)の比率 */
-body.moodle-ext-enabled .custom-layout-wrapper > .block_timeline {
+body.moodle-ext-enabled .custom-layout-wrapper>.block_timeline {
     flex: 1 !important;
     min-width: 350px !important;
 }
 
-body.moodle-ext-enabled .custom-layout-wrapper > .block_rutime_table {
+body.moodle-ext-enabled .custom-layout-wrapper>.block_rutime_table {
     flex: 2 !important;
     min-width: 0 !important;
 }
@@ -44,8 +65,9 @@ body.moodle-ext-enabled .custom-layout-wrapper > .block_rutime_table {
     body.moodle-ext-enabled .custom-layout-wrapper {
         flex-direction: column !important;
     }
-    body.moodle-ext-enabled .custom-layout-wrapper > .block_timeline,
-    body.moodle-ext-enabled .custom-layout-wrapper > .block_rutime_table {
+
+    body.moodle-ext-enabled .custom-layout-wrapper>.block_timeline,
+    body.moodle-ext-enabled .custom-layout-wrapper>.block_rutime_table {
         min-width: 0 !important;
     }
 }
@@ -59,7 +81,7 @@ body.moodle-ext-enabled .header-actions-container {
     gap: 10px !important;
 }
 
-body.moodle-ext-enabled #page-header .d-flex.align-items-center > .me-auto,
+body.moodle-ext-enabled #page-header .d-flex.align-items-center>.me-auto,
 body.moodle-ext-enabled .page-context-header,
 body.moodle-ext-enabled .page-header-headings {
     min-width: 0 !important;
@@ -104,7 +126,7 @@ body.moodle-ext-enabled .timetable-table {
 /* テーブルを横いっぱいに広げる */
 body.moodle-ext-enabled .timetable-table table {
     width: 100% !important;
-    table-layout: fixed !important; 
+    table-layout: fixed !important;
     border-collapse: collapse !important;
 }
 
@@ -241,6 +263,7 @@ body.moodle-ext-enabled.dark-mode .badge.alert-danger {
     position: relative !important;
     z-index: 10 !important;
 }
+
 body.moodle-ext-enabled.dark-mode .badge.rounded-pill.bg-light.text-dark *,
 body.moodle-ext-enabled.dark-mode .badge.alert-danger * {
     color: #ffb3b3 !important;
@@ -252,6 +275,7 @@ body.moodle-ext-enabled.dark-mode .badge.rounded-pill.alert-success {
     border: 1px solid #236c42 !important;
     color: #a8e4b6 !important;
 }
+
 body.moodle-ext-enabled.dark-mode .badge.rounded-pill.alert-success * {
     color: #a8e4b6 !important;
 }
@@ -375,9 +399,11 @@ body.dark-mode .notification-area table th {
     color: #e0e0e0 !important;
     border-color: #333 !important;
 }
+
 body.dark-mode .notification-area table h3 {
     color: #e0e0e0 !important;
 }
+
 body.dark-mode .notification-area table h4 {
     background-color: #331111 !important;
     color: #ff5252 !important;
@@ -443,24 +469,121 @@ body.dark-mode img.icon[src*="/f/"] {
     border-radius: 4px !important;
     padding: 2px !important;
 }
-/*
-=##############*-                  
-=################+.                
-=###-.......:-*###*                
-=###:          +###-               
-=###:          :###=               
-=###:          -###=               
-=###:         -####.               
-=###*++++++++#####-                
-=###############*:                 
-=########****+=:                   
-=###-*###+                         
-=###:.*###+                        
-=###: .*###+                       
-=###:  .*###+                      
-=###:   .*###+                     
-=###:     +###*.                   
-=###:      +###*.                  
-=###:       +###*.                 
-=###:        +###*.                
-=###:         +###*.
+
+
+/* --- カスタム設定ドロワ・ボタン（ネイティブのブロックドロワと完全一致） --- */
+/* ヘッダー → カスタムメニュー → ブロックドロワ の順に配置 */
+/* ネイティブのブロックドロワボタンをカスタムボタンの下にずらす */
+body.moodle-ext-enabled .drawer-toggles .drawer-right-toggle {
+    top: calc(60px + 0.7rem + 56px + 20px) !important;
+}
+
+/* 両ボタンの左端を揃える */
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn,
+body.moodle-ext-enabled .drawer-toggles .drawer-right-toggle .btn {
+    min-width: 50px;
+}
+
+body.moodle-ext-enabled .custom-settings-toggler-wrapper {
+    position: fixed;
+    right: 0;
+    top: calc(60px + 0.7rem);
+    z-index: 2;
+    transition: right 0.3s ease;
+}
+
+/* ネイティブ完全一致: ボタン基本スタイル */
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn {
+    border-radius: 200px;
+    padding: 16px;
+    background-color: #dee2e6;
+    box-shadow: 0 .125rem .25rem rgb(0 0 0 / .075);
+    transition: padding 200ms;
+    border: none;
+    color: #343a40;
+    /* 右側のみ角丸を解除（右端に吸着） */
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-right: 10px;
+    padding-left: 14px;
+    box-sizing: border-box;
+}
+
+/* ネイティブ完全一致: ホバー時に左に伸びるアニメーション */
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:hover {
+    padding-right: 20px;
+}
+
+/* ネイティブ完全一致: フォーカスリング */
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:focus {
+    box-shadow: 0 0 0 .2rem rgb(153 0 0 / .75);
+}
+
+/* ネイティブ完全一致: アイコンサイズ */
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn .icon {
+    width: auto;
+    height: auto;
+}
+
+/* ダークモード対応 */
+body.moodle-ext-enabled.dark-mode .custom-settings-toggler-wrapper .btn {
+    background-color: #343a40;
+    color: #e0e0e0;
+}
+
+/* --- カスタムドロワ開閉時のコンテンツ圧縮（ネイティブのブロックドロワと同じ仕組み） --- */
+#page.show-custom-drawer-right {
+    margin-right: 350px;
+    padding-right: 1rem;
+    transition: margin-right 0.3s ease;
+}
+
+/* ドロワが閉じたときもスムーズにアニメーション */
+#page.drawers {
+    transition: margin-right 0.3s ease;
+}
+
+/* --- カスタム設定ドロワ --- */
+body.moodle-ext-enabled .custom-settings-drawer {
+    position: fixed;
+    top: 60px;
+    /* navbarの高さを考慮 */
+    width: 350px;
+    height: calc(100vh - 60px);
+    background-color: #f8f9fa;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1040;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+body.moodle-ext-enabled.dark-mode .custom-settings-drawer {
+    background-color: #1e1e1e;
+    border-left: 1px solid #333;
+}
+
+body.moodle-ext-enabled .custom-settings-drawer-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+}
+
+body.moodle-ext-enabled.dark-mode .custom-settings-drawer-header {
+    border-bottom: 1px solid #333;
+    color: #e0e0e0;
+}
+
+body.moodle-ext-enabled .custom-settings-drawer-close {
+    color: #333;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+body.moodle-ext-enabled.dark-mode .custom-settings-drawer-close {
+    color: #e0e0e0;
+}

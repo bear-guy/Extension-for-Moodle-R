@@ -48,7 +48,9 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "lucky/*.png"
+        "lucky/*.png",
+        "popup.html",
+        "icons/*.png"
       ],
       "matches": [
         "https://lms.ritsumei.ac.jp/*"

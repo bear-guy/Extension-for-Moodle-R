@@ -117,6 +117,7 @@ const translations = {
   "content_info_room": { "ja": "教室:", "en": "Room:", "zh": "教室:", "ko": "강의실:", "es": "Aula:" },
   "content_info_unknown": { "ja": "不明", "en": "Unknown", "zh": "未知", "ko": "알 수 없음", "es": "Desconocido" },
   "content_toast_syllabus_saved": { "ja": "シラバス情報を取得・保存しました。", "en": "Syllabus information fetched and saved.", "zh": "已获取并保存教学大纲信息。", "ko": "강의 계획서 정보를 가져와 저장했습니다.", "es": "Información del temario obtenida y guardada." },
+  "content_settings_drawer_title": { "ja": "拡張機能の設定", "en": "Extension Settings", "zh": "扩展程序设置", "ko": "확장 프로그램 설정", "es": "Configuración de la extensión" }
 };
 
 window.MoodleExtI18n = {
