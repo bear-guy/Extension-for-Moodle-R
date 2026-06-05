@@ -117,7 +117,16 @@ const translations = {
   "content_info_room": { "ja": "教室:", "en": "Room:", "zh": "教室:", "ko": "강의실:", "es": "Aula:" },
   "content_info_unknown": { "ja": "不明", "en": "Unknown", "zh": "未知", "ko": "알 수 없음", "es": "Desconocido" },
   "content_toast_syllabus_saved": { "ja": "シラバス情報を取得・保存しました。", "en": "Syllabus information fetched and saved.", "zh": "已获取并保存教学大纲信息。", "ko": "강의 계획서 정보를 가져와 저장했습니다.", "es": "Información del temario obtenida y guardada." },
-  "content_settings_drawer_title": { "ja": "拡張機能の設定", "en": "Extension Settings", "zh": "扩展程序设置", "ko": "확장 프로그램 설정", "es": "Configuración de la extensión" }
+  "content_settings_drawer_title": { "ja": "拡張機能の設定", "en": "Extension Settings", "zh": "扩展程序设置", "ko": "확장 프로그램 설정", "es": "Configuración de la extensión" },
+
+  // --- 曜日の翻訳（シラバス表示用） ---
+  "day_mon": { "ja": "月", "en": "Mon", "zh": "周一", "ko": "월", "es": "Lun" },
+  "day_tue": { "ja": "火", "en": "Tue", "zh": "周二", "ko": "화", "es": "Mar" },
+  "day_wed": { "ja": "水", "en": "Wed", "zh": "周三", "ko": "수", "es": "Mié" },
+  "day_thu": { "ja": "木", "en": "Thu", "zh": "周四", "ko": "목", "es": "Jue" },
+  "day_fri": { "ja": "金", "en": "Fri", "zh": "周五", "ko": "금", "es": "Vie" },
+  "day_sat": { "ja": "土", "en": "Sat", "zh": "周六", "ko": "토", "es": "Sáb" },
+  "day_sun": { "ja": "日", "en": "Sun", "zh": "周日", "ko": "일", "es": "Dom" }
 };
 
 window.MoodleExtI18n = {
@@ -148,5 +157,29 @@ window.MoodleExtI18n = {
     }
 
     return text;
+  },
+
+  // ストレージ保存済みの日本語曜日文字列（例: "月4" "火2・3"）を現在の言語に変換する
+  translateSchedule: function (schedule, langCode) {
+    // 日本語の場合はそのまま返す
+    if (!schedule || langCode === 'ja') return schedule;
+
+    // 日本語曜日文字と翻訳キーのマッピング
+    const dayMap = {
+      '月': 'day_mon',
+      '火': 'day_tue',
+      '水': 'day_wed',
+      '木': 'day_thu',
+      '金': 'day_fri',
+      '土': 'day_sat',
+      '日': 'day_sun'
+    };
+
+    // 「月4」「火2・3」「月・木2」などのパターンを変換
+    // 日本語曜日文字（1文字以上、・区切りも含む）を対象言語に置換する
+    return schedule.replace(/[月火水木金土日]/g, (dayChar) => {
+      const key = dayMap[dayChar];
+      return key ? (translations[key]?.[langCode] || dayChar) : dayChar;
+    });
   }
 };

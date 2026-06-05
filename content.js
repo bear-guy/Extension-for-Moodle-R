@@ -622,7 +622,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
                 </details>`;
             }
           }
-          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${data.schedule}</div><div>${teacherHTML}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
+          // 表示用に曜日を現在の言語へ変換（ストレージのデータは変更しない）
+          const translatedSchedule = window.MoodleExtI18n.translateSchedule(data.schedule, currentLang);
+          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${translatedSchedule}</div><div>${teacherHTML}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
         }
       });
     }
