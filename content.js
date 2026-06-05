@@ -772,6 +772,35 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     wrapper.appendChild(btn);
     document.body.appendChild(wrapper);
 
+    // 紹介吹き出しの表示判定と作成
+    chrome.storage.local.get(['drawerIntroDismissed'], (result) => {
+      if (!result.drawerIntroDismissed) {
+        const bubble = document.createElement('div');
+        bubble.className = 'custom-drawer-intro-bubble';
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'custom-drawer-intro-text';
+        textSpan.textContent = window.MoodleExtI18n.getMessage('content_settings_drawer_intro', currentLang);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'custom-drawer-intro-close';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.setAttribute('aria-label', 'Close');
+
+        closeBtn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          chrome.storage.local.set({ drawerIntroDismissed: true }, () => {
+            bubble.remove();
+          });
+        };
+
+        bubble.appendChild(textSpan);
+        bubble.appendChild(closeBtn);
+        wrapper.appendChild(bubble);
+      }
+    });
+
 
     // ドロワコンテナの作成
     const drawer = document.createElement('div');

@@ -621,3 +621,90 @@ body.moodle-ext-enabled.dark-mode .custom-settings-drawer-close {
 body.custom-drawer-is-open .tooltip {
     display: none !important;
 }
+
+/* --- ドロワー紹介吹き出し（新機能通知） --- */
+body.moodle-ext-enabled .custom-drawer-intro-bubble {
+    position: absolute;
+    right: 58px; /* ボタンの左側に配置（ボタンの横幅50px + 余白8px） */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1050; /* ツールチップやドロワーの下、かつ通常の要素より上 */
+    background: #990000;
+    color: #ffffff;
+    padding: 8px 12px 8px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: auto;
+    animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 吹き出しの矢印（右向きの三角形） */
+body.moodle-ext-enabled .custom-drawer-intro-bubble::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent #990000;
+}
+
+/* 吹き出しテキスト */
+body.moodle-ext-enabled .custom-drawer-intro-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.5px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 吹き出しの閉じるボタン（×） */
+body.moodle-ext-enabled .custom-drawer-intro-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+    margin: 0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+body.moodle-ext-enabled .custom-drawer-intro-close:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+body.moodle-ext-enabled .custom-drawer-intro-close:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+/* ダークモード時の微調整 */
+body.moodle-ext-enabled.dark-mode .custom-drawer-intro-bubble {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* アニメーション定義 */
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}

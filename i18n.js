@@ -118,6 +118,13 @@ const translations = {
   "content_info_unknown": { "ja": "不明", "en": "Unknown", "zh": "未知", "ko": "알 수 없음", "es": "Desconocido" },
   "content_toast_syllabus_saved": { "ja": "シラバス情報を取得・保存しました。", "en": "Syllabus information fetched and saved.", "zh": "已获取并保存教学大纲信息。", "ko": "강의 계획서 정보를 가져와 저장했습니다.", "es": "Información del temario obtenida y guardada." },
   "content_settings_drawer_title": { "ja": "拡張機能の設定", "en": "Extension Settings", "zh": "扩展程序设置", "ko": "확장 프로그램 설정", "es": "Configuración de la extensión" },
+  "content_settings_drawer_intro": {
+    "ja": "ここから拡張機能の設定ができます。",
+    "en": "You can configure the extension settings from here.",
+    "zh": "您可以在这里配置扩展程序设置。",
+    "ko": "여기서 확장 프로그램 설정을 구성할 수 있습니다.",
+    "es": "Puedes configurar los ajustes de la extensión desde aquí."
+  },
 
   // --- 曜日の翻訳（シラバス表示用） ---
   "day_mon": { "ja": "月", "en": "Mon", "zh": "周一", "ko": "월", "es": "Lun" },
