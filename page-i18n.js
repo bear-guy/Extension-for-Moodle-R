@@ -6,11 +6,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let browserLang = 'ja';
   if (urlLang && ['ja', 'en', 'zh', 'ko', 'es'].includes(urlLang)) {
     browserLang = urlLang;
+    localStorage.setItem('preferredLanguage', browserLang);
   } else {
-    if (navigator.language.startsWith('en')) browserLang = 'en';
-    else if (navigator.language.startsWith('zh')) browserLang = 'zh';
-    else if (navigator.language.startsWith('ko')) browserLang = 'ko';
-    else if (navigator.language.startsWith('es')) browserLang = 'es';
+    const savedLang = localStorage.getItem('preferredLanguage');
+    if (savedLang && ['ja', 'en', 'zh', 'ko', 'es'].includes(savedLang)) {
+      browserLang = savedLang;
+    } else {
+      if (navigator.language.startsWith('en')) browserLang = 'en';
+      else if (navigator.language.startsWith('zh')) browserLang = 'zh';
+      else if (navigator.language.startsWith('ko')) browserLang = 'ko';
+      else if (navigator.language.startsWith('es')) browserLang = 'es';
+      localStorage.setItem('preferredLanguage', browserLang);
+    }
   }
   
   document.body.classList.add(`lang-${browserLang}`);
@@ -54,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('lang-en', 'lang-zh', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-ja');
       updateBtnStyles('ja');
+      localStorage.setItem('preferredLanguage', 'ja');
     });
 
     enBtn.addEventListener('click', (e) => {
@@ -61,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('lang-ja', 'lang-zh', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-en');
       updateBtnStyles('en');
+      localStorage.setItem('preferredLanguage', 'en');
     });
 
     zhBtn.addEventListener('click', (e) => {
@@ -68,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('lang-ja', 'lang-en', 'lang-ko', 'lang-es');
       document.body.classList.add('lang-zh');
       updateBtnStyles('zh');
+      localStorage.setItem('preferredLanguage', 'zh');
     });
 
     koBtn.addEventListener('click', (e) => {
@@ -75,6 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('lang-ja', 'lang-en', 'lang-zh', 'lang-es');
       document.body.classList.add('lang-ko');
       updateBtnStyles('ko');
+      localStorage.setItem('preferredLanguage', 'ko');
     });
 
     esBtn.addEventListener('click', (e) => {
@@ -82,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('lang-ja', 'lang-en', 'lang-zh', 'lang-ko');
       document.body.classList.add('lang-es');
       updateBtnStyles('es');
+      localStorage.setItem('preferredLanguage', 'es');
     });
   }
 });
