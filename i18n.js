@@ -128,8 +128,8 @@ window.MoodleExtI18n = {
         callback(result.displayLanguage);
       } else {
         // 'auto' または設定がない場合はブラウザの言語を判定
-        let browserLang = 'en';
-        if (navigator.language.startsWith('ja')) browserLang = 'ja';
+        let browserLang = 'ja';
+        if (navigator.language.startsWith('en')) browserLang = 'en';
         else if (navigator.language.startsWith('zh')) browserLang = 'zh';
         else if (navigator.language.startsWith('ko')) browserLang = 'ko';
         else if (navigator.language.startsWith('es')) browserLang = 'es';

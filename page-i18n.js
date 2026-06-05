@@ -3,11 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
   const urlLang = urlParams.get('lang');
   
-  let browserLang = 'en';
+  let browserLang = 'ja';
   if (urlLang && ['ja', 'en', 'zh', 'ko', 'es'].includes(urlLang)) {
     browserLang = urlLang;
   } else {
-    if (navigator.language.startsWith('ja')) browserLang = 'ja';
+    if (navigator.language.startsWith('en')) browserLang = 'en';
     else if (navigator.language.startsWith('zh')) browserLang = 'zh';
     else if (navigator.language.startsWith('ko')) browserLang = 'ko';
     else if (navigator.language.startsWith('es')) browserLang = 'es';
