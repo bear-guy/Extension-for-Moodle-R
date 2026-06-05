@@ -799,7 +799,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // トグルボタンのクリックイベント
     btn.onclick = (e) => {
       e.preventDefault();
-      e.stopPropagation(); // Moodle側のクリックイベント（ブロックドロワの開閉など）が誤爆するのを防ぐ
+      e.stopPropagation(); // Moodle側のクリックイベント（ブロックドロワの開閉など）が誤動作するのを防ぐ
 
       const isClosed = drawer.style.right === '-350px' || drawer.style.right === '';
       const page = document.getElementById('page');

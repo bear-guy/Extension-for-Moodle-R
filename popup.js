@@ -1,5 +1,13 @@
 import { sendGAEvent } from './analytics.js';
 
+// iframe内（ドロワー）で動作しているかを検出
+let isInIframe = false;
+try {
+  isInIframe = window.self !== window.top;
+} catch (e) {
+  isInIframe = true;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('extensionToggle');
   const darkToggle = document.getElementById('darkModeToggle');
@@ -20,13 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // iframe内でない場合（直接ポップアップを開いた場合）は閉じるボタンを非表示にする
   if (closeDrawerBtn) {
-    let isIframe = false;
-    try {
-      isIframe = window.self !== window.top;
-    } catch (e) {
-      isIframe = true;
-    }
-    if (!isIframe) {
+    if (!isInIframe) {
       closeDrawerBtn.style.display = 'none';
     } else {
       closeDrawerBtn.addEventListener('click', () => {
@@ -110,6 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Moodle のタブをリロードして変更を反映する共通関数
   const reloadTabs = () => {
+    if (isInIframe) {
+      // iframe内ではchrome.tabs APIが使えないため、バックグラウンドに委譲する
+      chrome.runtime.sendMessage({ action: 'reloadMoodleTabs' });
+      return;
+    }
     // 現在開いているアクティブなタブを確実に再読み込みする
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length > 0) {
@@ -124,17 +131,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // iframe内でも動作するalert代替関数（トースト通知を表示）
+  const safeAlert = (message) => {
+    if (!isInIframe) {
+      alert(message);
+      return;
+    }
+    // iframe内ではカスタムトースト通知を表示
+    const existing = document.querySelector('.popup-toast-notification');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'popup-toast-notification';
+    toast.textContent = message;
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
+      backgroundColor: document.body.classList.contains('dark-mode') ? '#444' : '#323232',
+      color: '#fff', padding: '10px 16px', borderRadius: '8px', fontSize: '13px',
+      zIndex: '10000', maxWidth: '90%', textAlign: 'center', wordBreak: 'break-word',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.3)', opacity: '0', transition: 'opacity 0.3s'
+    });
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.opacity = '1'; });
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.remove(), 300);
+    }, 3500);
+  };
+
+  // iframe内でも動作するconfirm代替関数（カスタムダイアログを表示）
+  const safeConfirm = (message) => {
+    if (!isInIframe) {
+      return Promise.resolve(confirm(message));
+    }
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      Object.assign(overlay.style, {
+        position: 'fixed', top: '0', left: '0', width: '100%', height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)', zIndex: '10001',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      });
+      const isDark = document.body.classList.contains('dark-mode');
+      const dialog = document.createElement('div');
+      Object.assign(dialog.style, {
+        backgroundColor: isDark ? '#2c2c2c' : '#fff', color: isDark ? '#e0e0e0' : '#333',
+        borderRadius: '12px', padding: '20px', maxWidth: '85%', width: '280px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.3)', textAlign: 'center'
+      });
+      const msg = document.createElement('p');
+      msg.textContent = message;
+      Object.assign(msg.style, { fontSize: '13px', lineHeight: '1.5', margin: '0 0 16px 0' });
+
+      const btnContainer = document.createElement('div');
+      Object.assign(btnContainer.style, { display: 'flex', gap: '8px', justifyContent: 'center' });
+
+      const cancelBtn = document.createElement('button');
+      cancelBtn.textContent = currentLang === 'ja' ? 'キャンセル' : 'Cancel';
+      Object.assign(cancelBtn.style, {
+        padding: '8px 16px', borderRadius: '6px', border: `1px solid ${isDark ? '#555' : '#ccc'}`,
+        backgroundColor: isDark ? '#3a3a3a' : '#f5f5f5', color: isDark ? '#e0e0e0' : '#333',
+        cursor: 'pointer', fontSize: '13px', flex: '1'
+      });
+
+      const okBtn = document.createElement('button');
+      okBtn.textContent = 'OK';
+      Object.assign(okBtn.style, {
+        padding: '8px 16px', borderRadius: '6px', border: 'none',
+        backgroundColor: '#2196F3', color: '#fff',
+        cursor: 'pointer', fontSize: '13px', flex: '1'
+      });
+
+      cancelBtn.onclick = () => { overlay.remove(); resolve(false); };
+      okBtn.onclick = () => { overlay.remove(); resolve(true); };
+
+      btnContainer.append(cancelBtn, okBtn);
+      dialog.append(msg, btnContainer);
+      overlay.appendChild(dialog);
+      document.body.appendChild(overlay);
+    });
+  };
+
   // シラバスデータを削除する共通関数
   const clearSyllabusData = (showAlert, callback) => {
     chrome.storage.local.get(null, (items) => {
       const keysToRemove = Object.keys(items).filter(key => key.startsWith('syllabus_'));
       if (keysToRemove.length > 0) {
         chrome.storage.local.remove(keysToRemove, () => {
-          if (showAlert) alert(window.MoodleExtI18n.getMessage('alert_syllabus_cleared', currentLang));
+          if (showAlert) safeAlert(window.MoodleExtI18n.getMessage('alert_syllabus_cleared', currentLang));
           if (callback) callback();
         });
       } else {
-        if (showAlert) alert(window.MoodleExtI18n.getMessage('alert_no_data_to_clear', currentLang));
+        if (showAlert) safeAlert(window.MoodleExtI18n.getMessage('alert_no_data_to_clear', currentLang));
         if (callback) callback();
       }
     });
@@ -190,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
-  toggle.addEventListener('change', () => {
+  toggle.addEventListener('change', async () => {
     const isEnabled = toggle.checked;
 
     // イベント送信
@@ -200,7 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // シラバスがオンの状態でベターレイアウトをオフにしようとした場合の警告
     if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
-      if (!confirm(window.MoodleExtI18n.getMessage('confirm_disable_better_layout', currentLang))) {
+      const confirmed = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_disable_better_layout', currentLang));
+      if (!confirmed) {
         toggle.checked = true; // キャンセル時はトグルを元に戻す
         return;
       }
@@ -306,12 +393,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // シラバス自動取得の実行関数
   const triggerAutoFetch = () => {
+    if (isInIframe) {
+      // iframe内ではchrome.tabs APIが使えないため、バックグラウンドに委譲する
+      chrome.runtime.sendMessage({ action: 'triggerAutoFetchFromDrawer' }, (response) => {
+        if (chrome.runtime.lastError || !response) {
+          safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
+          return;
+        }
+        if (response.status === 'no_codes') {
+          safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
+        } else if (response.status === 'all_done') {
+          safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_all_done', currentLang));
+        } else if (response.status === 'started') {
+          safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_start', currentLang, { count: response.count }));
+        }
+      });
+      return;
+    }
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const activeTab = tabs[0];
       if (activeTab && activeTab.url.includes('lms.ritsumei.ac.jp')) {
         chrome.tabs.sendMessage(activeTab.id, { action: "getCourseCodes" }, (response) => {
           if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
-            alert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
+            safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
           } else {
             // 取得済みのシラバスデータをストレージから確認する
             const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
@@ -319,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
 
               if (missingCodes.length === 0) {
-                alert(window.MoodleExtI18n.getMessage('syllabus_fetch_all_done', currentLang));
+                safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_all_done', currentLang));
               } else {
                 chrome.storage.local.set({ hasPromptedAutoFetch: true });
                 chrome.runtime.sendMessage({
@@ -327,20 +431,20 @@ document.addEventListener('DOMContentLoaded', () => {
                   courseCodes: missingCodes, // 未取得の授業コードだけを渡す
                   originalTabId: activeTab.id
                 });
-                alert(window.MoodleExtI18n.getMessage('syllabus_fetch_start', currentLang, { count: missingCodes.length }));
+                safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_start', currentLang, { count: missingCodes.length }));
               }
             });
           }
         });
       } else {
-        alert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
+        safeAlert(window.MoodleExtI18n.getMessage('syllabus_fetch_no_course_codes', currentLang));
       }
     });
   };
 
   // トグル切り替え時の処理 (シラバス連携)
   if (syllabusToggle) {
-    syllabusToggle.addEventListener('change', () => {
+    syllabusToggle.addEventListener('change', async () => {
       const isEnabled = syllabusToggle.checked;
       if (typeof sendGAEvent === 'function') {
         sendGAEvent('feature_toggled', { feature_name: 'syllabus_auto_fetch', enabled: isEnabled });
@@ -348,7 +452,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // オフにした際の警告
       if (!isEnabled) {
-        if (!confirm(window.MoodleExtI18n.getMessage('confirm_disable_syllabus', currentLang))) {
+        const confirmed = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_disable_syllabus', currentLang));
+        if (!confirmed) {
           syllabusToggle.checked = true; // キャンセル時はトグルを元に戻す
           return;
         }
@@ -356,9 +461,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       updateSyllabusButtons(isEnabled);
 
-      chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, () => {
+      chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, async () => {
         if (isEnabled) {
-          if (confirm(window.MoodleExtI18n.getMessage('confirm_enable_syllabus', currentLang))) {
+          const shouldFetch = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_enable_syllabus', currentLang));
+          if (shouldFetch) {
             if (typeof sendGAEvent === 'function') {
               sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
             }
@@ -385,8 +491,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // シラバスデータの削除ボタン
   if (clearSyllabusDataBtn) {
-    clearSyllabusDataBtn.addEventListener('click', () => {
-      if (confirm(window.MoodleExtI18n.getMessage('confirm_clear_syllabus', currentLang))) {
+    clearSyllabusDataBtn.addEventListener('click', async () => {
+      const confirmed = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_clear_syllabus', currentLang));
+      if (confirmed) {
         if (typeof sendGAEvent === 'function') {
           sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
         }
