@@ -35,12 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ドロワーが開かれたときに虹色アニメーションを再実行する
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.action === 'drawerOpened') {
+      if (luckyBtn) {
+        luckyBtn.classList.remove('rainbow-animate');
+        void luckyBtn.offsetWidth; // リフローを強制してアニメーションをリセット
+        luckyBtn.classList.add('rainbow-animate');
+        setTimeout(() => luckyBtn.classList.remove('rainbow-animate'), 1500);
+      }
+    }
+  });
+
   // 言語設定の初期化と適用
   let currentLang = 'ja';
   window.MoodleExtI18n.getLanguage((lang) => {
     currentLang = lang;
     if (languageSelect) languageSelect.value = currentLang;
-    
+
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       const text = window.MoodleExtI18n.getMessage(key, currentLang);
@@ -77,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     highlightCurrentClassToggle.disabled = !isEnabled;
     staffModeWrapper.style.opacity = isEnabled ? '1' : '0.4';
     highlightCurrentClassWrapper.style.opacity = isEnabled ? '1' : '0.4';
-    
+
     if (syllabusToggle && syllabusWrapper) {
       syllabusToggle.disabled = !isEnabled;
       syllabusWrapper.style.opacity = isEnabled ? '1' : '0.4';
@@ -180,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', () => {
     const isEnabled = toggle.checked;
-    
+
     // イベント送信
     if (typeof sendGAEvent === 'function') {
       sendGAEvent('feature_toggled', { feature_name: 'better_layout', enabled: isEnabled });
@@ -195,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateDependentUI(isEnabled);
-    
+
     if (syllabusToggle) {
       updateSyllabusButtons(isEnabled && syllabusToggle.checked);
     }
@@ -217,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       highlightCurrentClassToggle.checked = false;
       updates.isHighlightCurrentClassEnabled = false;
     }
-    
+
     chrome.storage.local.set(updates, () => {
       if (shouldClearSyllabus) {
         clearSyllabusData(false, reloadTabs);
@@ -305,13 +317,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
             chrome.storage.local.get(storageKeys, (result) => {
               const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
-              
+
               if (missingCodes.length === 0) {
                 alert(window.MoodleExtI18n.getMessage('syllabus_fetch_all_done', currentLang));
               } else {
                 chrome.storage.local.set({ hasPromptedAutoFetch: true });
-                chrome.runtime.sendMessage({ 
-                  action: "startAutoFetchSyllabus", 
+                chrome.runtime.sendMessage({
+                  action: "startAutoFetchSyllabus",
                   courseCodes: missingCodes, // 未取得の授業コードだけを渡す
                   originalTabId: activeTab.id
                 });
@@ -357,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           clearSyllabusData(false, reloadTabs);
         }
-      }); 
+      });
     });
   }
 

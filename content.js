@@ -151,10 +151,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           const courseCodes = [...new Set(Array.from(subjects).map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
           if (courseCodes.length > 0) {
             setTimeout(() => {
-              if (confirm(window.MoodleExtI18n.getMessage('content_prompt_install_thanks', currentLang, {count: courseCodes.length}))) {
+              if (confirm(window.MoodleExtI18n.getMessage('content_prompt_install_thanks', currentLang, { count: courseCodes.length }))) {
                 chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
                   chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
-                  alert(window.MoodleExtI18n.getMessage('content_prompt_fetch_started', currentLang, {count: courseCodes.length}));
+                  alert(window.MoodleExtI18n.getMessage('content_prompt_fetch_started', currentLang, { count: courseCodes.length }));
                 });
               } else {
                 chrome.storage.local.set({ isSyllabusEnabled: false });
@@ -190,7 +190,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   const applyLuckyLogo = () => {
     // クラスが 'logo' の画像、または元のロゴの画像URLが含まれるものをすべて取得
     const logos = document.querySelectorAll('img.logo, img[src*="Rnormal.png"], img[src*="logocompact"]');
-    
+
     logos.forEach(logo => {
       if (!logo.dataset.originalSrc && !logo.src.includes('chrome-extension://')) {
         logo.dataset.originalSrc = logo.src;
@@ -461,7 +461,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
         dmButton.textContent = 'DM';
-        dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, {teacher: link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher')});
+        dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, { teacher: link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher') });
         headerContainer.appendChild(dmButton);
       } else {
         const isDark = document.body.classList.contains('dark-mode');
@@ -752,7 +752,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // Moodleの要素を改変せず、完全に独立したラッパーを作成する
     const wrapper = document.createElement('div');
     wrapper.className = 'custom-settings-toggler-wrapper d-print-none';
-    
+
     const btn = document.createElement('button');
     btn.className = 'btn icon-no-margin custom-settings-drawer-btn';
     btn.title = window.MoodleExtI18n.getMessage('content_settings_drawer_title', currentLang) || '拡張機能の設定';
@@ -806,6 +806,10 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       if (isClosed) {
         drawer.style.right = '0';
         if (page) page.classList.add('show-custom-drawer-right');
+        // ドロワーが開いたことをiframeに通知
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage({ action: 'drawerOpened' }, '*');
+        }
       } else {
         drawer.style.right = '-350px';
         if (page) page.classList.remove('show-custom-drawer-right');
