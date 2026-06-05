@@ -793,6 +793,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         drawer.style.right = '-350px';
         const page = document.getElementById('page');
         if (page) page.classList.remove('show-custom-drawer-right');
+        // ドロワーが閉じたらツールチップを再表示できるようクラスを除去
+        document.body.classList.remove('custom-drawer-is-open');
       }
     });
 
@@ -808,6 +810,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       if (isClosed) {
         drawer.style.right = '0';
         if (page) page.classList.add('show-custom-drawer-right');
+        // ドロワーが開いている間はBootstrapのツールチップDOMをCSSで非表示にする
+        document.body.classList.add('custom-drawer-is-open');
         // ドロワーが開いたことをiframeに通知
         if (iframe && iframe.contentWindow) {
           iframe.contentWindow.postMessage({ action: 'drawerOpened' }, '*');
@@ -815,6 +819,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       } else {
         drawer.style.right = '-350px';
         if (page) page.classList.remove('show-custom-drawer-right');
+        // ドロワーが閉じたらツールチップを再表示できるようクラスを除去
+        document.body.classList.remove('custom-drawer-is-open');
       }
     };
   };
