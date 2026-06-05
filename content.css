@@ -514,13 +514,12 @@ body.moodle-ext-enabled .custom-settings-toggler-wrapper {
     transition: right 0.3s ease;
 }
 
-/* ネイティブ完全一致: ボタン基本スタイル */
+/* ボタン基本スタイル */
 body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn {
     border-radius: 200px;
     padding: 16px;
     background-color: #dee2e6;
     box-shadow: 0 .125rem .25rem rgb(0 0 0 / .075);
-    transition: padding 200ms;
     border: none;
     color: #343a40;
     /* 右側のみ角丸を解除（右端に吸着） */
@@ -531,20 +530,20 @@ body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn {
     box-sizing: border-box;
 }
 
-/* ネイティブ完全一致: ホバー時に左に伸びるアニメーション */
-body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:hover {
-    padding-right: 20px;
-}
-
 /* ネイティブ完全一致: フォーカスリング */
 body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:focus {
     box-shadow: 0 0 0 .2rem rgb(153 0 0 / .75);
 }
 
-/* ネイティブ完全一致: アイコンサイズ */
+/* アイコンスタイルとホバーアニメーション */
 body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn .icon {
     width: auto;
     height: auto;
+    transition: transform 0.2s ease;
+}
+
+body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:hover .icon {
+    transform: translateX(-4px);
 }
 
 /* ダークモード対応 */
