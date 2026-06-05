@@ -121,7 +121,7 @@ const translations = {
 };
 
 window.MoodleExtI18n = {
-  // 現在設定されている言語 ('ja' または 'en') を取得する
+  // 現在設定されている言語 ('ja', 'en', 'zh', 'ko', 'es' のいずれか) を取得する
   getLanguage: function(callback) {
     chrome.storage.local.get(['displayLanguage'], function(result) {
       if (result.displayLanguage && ['ja', 'en', 'zh', 'ko', 'es'].includes(result.displayLanguage)) {
