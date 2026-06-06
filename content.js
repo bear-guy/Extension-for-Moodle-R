@@ -889,13 +889,16 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     if (window.hasCheckedAcademicStatus) return;
     window.hasCheckedAcademicStatus = true;
 
-    fetch('https://www.ritsumei.ac.jp/academic-affairs/status/')
-      .then(response => response.text())
-      .then(html => {
+    chrome.runtime.sendMessage({ action: "fetchAcademicStatus" }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.success) {
+        console.error('Failed to fetch academic status:', chrome.runtime.lastError || response?.error);
+        return;
+      }
+      const html = response.html;
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
         const diary = doc.querySelector('.diary');
-        if (!diary) return; // 通常時
+        if (!diary) return; // 通常時は何も表示しない
 
         // 「休講」テキストがあるかチェック
         let isCanceled = false;
@@ -916,14 +919,15 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         banner.className = `extension-status-banner ${status}`;
         banner.textContent = bannerText;
 
-        const header = document.querySelector('#page-header');
-        if (header && header.parentNode) {
-          header.parentNode.insertBefore(banner, header);
-        } else {
-          document.body.insertBefore(banner, document.body.firstChild);
+        document.body.appendChild(banner);
+
+        // バナーの高さ（48px）分だけページ全体を押し下げる
+        const page = document.querySelector('#page');
+        if (page) {
+          const currentMargin = parseInt(window.getComputedStyle(page).marginTop) || 60;
+          page.style.marginTop = (currentMargin + 48) + 'px';
         }
-      })
-      .catch(err => console.error('Failed to fetch academic status:', err));
+    });
   };
 
   const runFeatures = () => {

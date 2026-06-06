@@ -711,20 +711,20 @@ body.moodle-ext-enabled.dark-mode .custom-drawer-intro-bubble {
 
 /* --- 休講情報・警戒レベルの通知バナー --- */
 body.moodle-ext-enabled .extension-status-banner {
-    display: block;
-    width: auto !important;
-    margin-left: -10px !important;
-    margin-right: -10px !important;
-    margin-top: -15px !important; /* Navbar下の余白を埋める */
-    margin-bottom: 15px !important;
-    text-align: center;
-    padding: 12px 20px;
+    position: absolute;
+    top: 60px; /* Navbarのすぐ下 */
+    left: 0;
+    right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 1rem;
     font-weight: bold;
     color: #fff;
     text-decoration: none;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1040;
+    z-index: 1020; /* Navbar(1030)より下に設定し、スクロール時に裏へ隠れるようにする */
     transition: background-color 0.2s, opacity 0.2s;
 }
 

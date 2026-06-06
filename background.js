@@ -88,6 +88,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     });
     return true; // 非同期レスポンスのために必要
+  } else if (request.action === "fetchAcademicStatus") {
+    // コンテンツスクリプトのCORS回避のため、バックグラウンドでフェッチを実行
+    fetch('https://www.ritsumei.ac.jp/academic-affairs/status/')
+      .then(res => res.text())
+      .then(html => sendResponse({ success: true, html: html }))
+      .catch(err => sendResponse({ success: false, error: err.toString() }));
+    return true; // 非同期レスポンスのために必要
   }
 });
 
