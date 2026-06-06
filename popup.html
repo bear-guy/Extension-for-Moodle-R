@@ -7,6 +7,7 @@
   <style>
     html {
       background-color: #f8f9fa;
+      height: 100%;
     }
 
     body {
@@ -17,6 +18,9 @@
       margin: 0;
       padding: 15px;
       background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
     }
 
     .header-container {
@@ -99,6 +103,11 @@
     .preload .slider,
     .preload .slider:before {
       transition: none !important;
+    }
+
+    .popup-footer {
+      margin-top: auto;
+      padding-top: 15px;
     }
 
     .links-wrapper {
@@ -337,21 +346,23 @@
     <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;" data-i18n="feeling_lucky">I'm Feeling Lucky</span>
   </div>
 
-  <div class="links-wrapper">
-    <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link">GitHub</a>
-    <span class="divider">|</span>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
-      class="bottom-link" data-i18n="support_contact">サポート・お問い合わせ</a>
-    <br>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank"
-      class="bottom-link" style="margin-top: 6px; display: inline-block;" data-i18n="feature_intro">機能の紹介</a>
-    <span class="divider">|</span>
-    <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link"
-      style="margin-top: 6px; display: inline-block;" data-i18n="privacy_policy">プライバシーポリシー</a>
-  </div>
-  <div class="credit-text">
-    &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
-    reserved.
+  <div class="popup-footer">
+    <div class="links-wrapper">
+      <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link">GitHub</a>
+      <span class="divider">|</span>
+      <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
+        class="bottom-link" data-i18n="support_contact">サポート・お問い合わせ</a>
+      <br>
+      <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank"
+        class="bottom-link" style="margin-top: 6px; display: inline-block;" data-i18n="feature_intro">機能の紹介</a>
+      <span class="divider">|</span>
+      <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link"
+        style="margin-top: 6px; display: inline-block;" data-i18n="privacy_policy">プライバシーポリシー</a>
+    </div>
+    <div class="credit-text">
+      &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
+      reserved.
+    </div>
   </div>
   <script src="i18n.js"></script>
   <script type="module" src="analytics.js"></script>
