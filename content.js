@@ -879,6 +879,53 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
   // --- 監視と実行 ---
 
+  // --- 休講情報・警戒レベルの通知バナー表示 ---
+  const checkAcademicStatus = () => {
+    // ダッシュボード（/my/ や /）でのみ実行
+    if (!window.location.pathname.match(/^\/(my\/)?(index\.php)?$/)) return;
+    if (document.querySelector('.extension-status-banner')) return; // 既に表示されている場合
+
+    // 一度だけフェッチするためのフラグ
+    if (window.hasCheckedAcademicStatus) return;
+    window.hasCheckedAcademicStatus = true;
+
+    fetch('https://www.ritsumei.ac.jp/academic-affairs/status/')
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const diary = doc.querySelector('.diary');
+        if (!diary) return; // 通常時
+
+        // 「休講」テキストがあるかチェック
+        let isCanceled = false;
+        const markLists = doc.querySelectorAll('.markList span.jp');
+        for (const span of markLists) {
+          if (span.textContent.includes('休講')) {
+            isCanceled = true;
+            break;
+          }
+        }
+
+        const status = isCanceled ? 'canceled' : 'caution';
+        const bannerText = window.MoodleExtI18n.getMessage(`status_${status}`, currentLang);
+
+        const banner = document.createElement('a');
+        banner.href = 'https://www.ritsumei.ac.jp/academic-affairs/status/';
+        banner.target = '_blank';
+        banner.className = `extension-status-banner ${status}`;
+        banner.textContent = bannerText;
+
+        const header = document.querySelector('#page-header');
+        if (header && header.parentNode) {
+          header.parentNode.insertBefore(banner, header);
+        } else {
+          document.body.insertBefore(banner, document.body.firstChild);
+        }
+      })
+      .catch(err => console.error('Failed to fetch academic status:', err));
+  };
+
   const runFeatures = () => {
     if (window.location.hostname.includes('lms.ritsumei.ac.jp')) {
       checkFirstTimePrompt();
@@ -889,6 +936,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       addSyllabusLinkAndInfo();
       addMessageTeacherButton();
       addSettingsDrawer();
+      checkAcademicStatus();
       if (isHighlightCurrentClassEnabled) highlightCurrentClass();
       applySkipHomeLinks();
       addMarkAllReadButton();

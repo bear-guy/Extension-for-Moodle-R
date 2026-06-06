@@ -708,3 +708,45 @@ body.moodle-ext-enabled.dark-mode .custom-drawer-intro-bubble {
         transform: translateY(-50%) translateX(0);
     }
 }
+
+/* --- 休講情報・警戒レベルの通知バナー --- */
+body.moodle-ext-enabled .extension-status-banner {
+    display: block;
+    width: auto !important;
+    margin-left: -10px !important;
+    margin-right: -10px !important;
+    margin-top: -15px !important; /* Navbar下の余白を埋める */
+    margin-bottom: 15px !important;
+    text-align: center;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1040;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+body.moodle-ext-enabled .extension-status-banner:hover {
+    color: #fff;
+    text-decoration: none;
+    opacity: 0.9;
+}
+
+body.moodle-ext-enabled .extension-status-banner.canceled {
+    background-color: #dc3545; /* Bootstrap danger red */
+}
+
+body.moodle-ext-enabled .extension-status-banner.caution {
+    background-color: #fd7e14; /* Bootstrap orange */
+}
+
+/* ダークモード対応 */
+body.moodle-ext-enabled.dark-mode .extension-status-banner.canceled {
+    background-color: #b02a37;
+}
+
+body.moodle-ext-enabled.dark-mode .extension-status-banner.caution {
+    background-color: #cc6000;
+}

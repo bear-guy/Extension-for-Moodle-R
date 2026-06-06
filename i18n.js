@@ -125,6 +125,20 @@ const translations = {
     "ko": "여기서 확장 프로그램 설정을 구성할 수 있습니다.",
     "es": "Puedes configurar los ajustes de la extensión desde aquí."
   },
+  "status_canceled": {
+    "ja": "【休講情報】休講情報あり",
+    "en": "[Class Status] Classes are canceled",
+    "zh": "【停课通知】有停课信息",
+    "ko": "[휴강 정보] 휴강 정보 있음",
+    "es": "[Estado de clases] Hay información de cancelación"
+  },
+  "status_caution": {
+    "ja": "【休講情報】休講の可能性あり",
+    "en": "[Class Status] Possible class cancellations",
+    "zh": "【停课通知】可能有停课",
+    "ko": "[휴강 정보] 휴강 가능성 있음",
+    "es": "[Estado de clases] Posible cancelación de clases"
+  },
 
   // --- 曜日の翻訳（シラバス表示用） ---
   "day_mon": { "ja": "月", "en": "Mon", "zh": "周一", "ko": "월", "es": "Lun" },

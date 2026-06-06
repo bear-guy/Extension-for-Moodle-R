@@ -15,7 +15,8 @@
   ],
   "host_permissions": [
     "*://lms.ritsumei.ac.jp/*",
-    "*://syllabus.ritsumei.ac.jp/*"
+    "*://syllabus.ritsumei.ac.jp/*",
+    "*://www.ritsumei.ac.jp/*"
   ],
   "action": {
     "default_popup": "popup.html",
