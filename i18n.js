@@ -141,6 +141,13 @@ const translations = {
   },
 
   // --- テーマカラーカスタマイズ用設定 ---
+  "color_feature_intro": {
+    "ja": "時間割の色が変更できます。",
+    "en": "You can change timetable colors.",
+    "zh": "可以更改课程表颜色。",
+    "ko": "시간표 색상을 변경할 수 있습니다.",
+    "es": "Puedes cambiar los colores del horario."
+  },
   "setting_base_color": { "ja": "時間割の色", "en": "Timetable Color", "zh": "课表颜色", "ko": "시간표 색상", "es": "Color del horario" },
   "setting_today_color": { "ja": "今日の曜日の色", "en": "Today's Column Color", "zh": "今日列颜色", "ko": "오늘 열 색상", "es": "Color de columna de hoy" },
   "setting_current_color": { "ja": "現在のコマの色", "en": "Current Class Color", "zh": "当前课程颜色", "ko": "현재 수업 색상", "es": "Color de clase actual" },

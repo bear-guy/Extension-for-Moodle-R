@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentLang = 'ja';
   window.MoodleExtI18n.getLanguage((lang) => {
     currentLang = lang;
+    document.documentElement.lang = currentLang;
     if (languageSelect) languageSelect.value = currentLang;
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -633,6 +634,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         clearSyllabusData(true, reloadTabs);
       }
+    });
+  }
+
+  // 新機能（カラー設定）のお知らせ吹き出しの表示制御
+  const colorFeatureBubble = document.getElementById('colorFeatureBubble');
+  const closeColorFeatureBubble = document.getElementById('closeColorFeatureBubble');
+
+  chrome.storage.local.get(['colorFeatureIntroDismissed'], (result) => {
+    if (!result.colorFeatureIntroDismissed && colorFeatureBubble) {
+      colorFeatureBubble.style.display = 'flex';
+    }
+  });
+
+  if (closeColorFeatureBubble) {
+    closeColorFeatureBubble.addEventListener('click', () => {
+      chrome.storage.local.set({ colorFeatureIntroDismissed: true }, () => {
+        colorFeatureBubble.style.display = 'none';
+      });
     });
   }
 

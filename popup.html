@@ -161,11 +161,67 @@
       cursor: pointer;
     }
 
+    .feature-bubble {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      margin-top: 8px;
+      margin-left: 10px;
+      margin-right: 10px;
+      background: #990000;
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      animation: fadeInDown 0.4s ease forwards;
+    }
+    
+    .feature-bubble::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 65px;
+      border-width: 0 6px 6px 6px;
+      border-style: solid;
+      border-color: transparent transparent #990000 transparent;
+    }
+    
+    .close-bubble-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    
+    .close-bubble-btn:hover {
+      color: #ffffff;
+    }
+    
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* --- ダークモード用スタイル --- */
     html.dark-mode,
     body.dark-mode {
       background-color: #1e1e1e;
       color-scheme: dark;
+    }
+
+    body.dark-mode .feature-bubble {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     body.dark-mode h1 {
@@ -368,9 +424,15 @@
       <span class="slider"></span>
     </label>
   </div>
-  <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="baseColorWrapper">
-    <span class="toggle-label" data-i18n="setting_base_color" style="font-size: 13px;">時間割の色</span>
-    <div id="baseColorSelect" class="custom-select" data-type="color-select" data-allow-default="true"></div>
+  <div style="position: relative;">
+    <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="baseColorWrapper">
+      <span class="toggle-label" data-i18n="setting_base_color" style="font-size: 13px;">時間割の色</span>
+      <div id="baseColorSelect" class="custom-select" data-type="color-select" data-allow-default="true"></div>
+    </div>
+    <div id="colorFeatureBubble" class="feature-bubble" style="display: none;">
+      <span data-i18n="color_feature_intro">時間割の色が変更できるようになりました！</span>
+      <button id="closeColorFeatureBubble" class="close-bubble-btn" aria-label="Close">&times;</button>
+    </div>
   </div>
   <div style="margin-top: 10px;" id="syllabusWrapper">
     <div class="toggle-wrapper">
