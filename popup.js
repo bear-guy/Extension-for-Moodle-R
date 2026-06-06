@@ -259,8 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.assign(toast.style, {
       position: 'fixed', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
       backgroundColor: document.body.classList.contains('dark-mode') ? '#444' : '#323232',
-      color: '#fff', padding: '10px 16px', borderRadius: '8px', fontSize: '13px',
-      zIndex: '10000', maxWidth: '90%', textAlign: 'center', wordBreak: 'break-word',
+      color: '#fff', padding: '12px 20px', borderRadius: '8px', fontSize: '13px',
+      zIndex: '10000', width: 'max-content', maxWidth: '90%', minWidth: '280px',
+      textAlign: 'center', wordBreak: 'break-word', whiteSpace: 'pre-wrap',
       boxShadow: '0 4px 12px rgba(0,0,0,0.3)', opacity: '0', transition: 'opacity 0.3s'
     });
     document.body.appendChild(toast);
