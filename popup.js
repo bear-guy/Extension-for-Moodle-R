@@ -642,11 +642,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (startTutorialBtn) {
     startTutorialBtn.addEventListener('click', () => {
       chrome.storage.local.set({ drawerIntroDismissed: false, tutorialCompletedVersion: null }, () => {
-        // ドロワーを閉じてダッシュボード側の初期吹き出しを再表示させる（リロードなし）
-        window.parent.postMessage({ action: 'closeSettingsDrawer' }, '*');
-        setTimeout(() => {
-          window.parent.postMessage({ action: 'showDrawerIntroBubble' }, '*');
-        }, 300);
+        const isIframe = window !== window.parent;
+        if (isIframe) {
+          // ドロワーを閉じてダッシュボード側の初期吹き出しを再表示させる（リロードなし）
+          window.parent.postMessage({ action: 'closeSettingsDrawer' }, '*');
+          setTimeout(() => {
+            window.parent.postMessage({ action: 'showDrawerIntroBubble' }, '*');
+          }, 300);
+        } else {
+          // 通常のポップアップの場合は直接チュートリアルを開始
+          currentTutorialStep = 0;
+          showTutorialStep(0);
+        }
       });
     });
   }
@@ -662,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { targetId: 'baseColorContainer', i18nKey: 'color_feature_intro' },
     { targetId: 'syllabusWrapper', i18nKey: 'tutorial_step3' },
     { targetId: 'staffModeWrapper', i18nKey: 'tutorial_step4' },
+    { targetId: 'skipHomeWrapper', i18nKey: 'tutorial_step_skip_home' },
     { targetId: 'highlightCurrentClassWrapper', i18nKey: 'tutorial_step5' }
   ];
 

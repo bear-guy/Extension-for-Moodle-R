@@ -173,6 +173,13 @@ const translations = {
     "ko": "교직원 모드: 교사용 메뉴 및 화면으로 전환합니다.",
     "es": "Modo Personal: Cambia a los menús y vistas para profesores."
   },
+  "tutorial_step_skip_home": {
+    "ja": "ホームスキップ：ログイン後にダッシュボードへ直接移動します。",
+    "en": "Skip Home: Automatically redirects to the Dashboard after login.",
+    "zh": "跳过首页：登录后直接跳转到仪表板。",
+    "ko": "홈 건너뛰기: 로그인 후 대시보드로 바로 이동합니다.",
+    "es": "Omitir Inicio: Redirige automáticamente al Panel después de iniciar sesión."
+  },
   "tutorial_step5": {
     "ja": "今日の時間割をハイライト：今日の授業を色付けして目立たせます。",
     "en": "Highlight Today's Timetable: Highlights today's classes with a color.",
