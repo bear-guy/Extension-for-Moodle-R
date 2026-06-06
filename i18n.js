@@ -5,7 +5,7 @@ const translations = {
   // --- popup.html UI elements ---
   "popup_title": { "ja": "Extension for Moodle+R", "en": "Extension for Moodle+R", "zh": "Extension for Moodle+R", "ko": "Extension for Moodle+R", "es": "Extension for Moodle+R" },
   "better_layout": { "ja": "ベターレイアウト", "en": "Better Layout", "zh": "优化布局", "ko": "더 나은 레이아웃", "es": "Mejor Diseño" },
-  "syllabus_auto_fetch": { "ja": "シラバス情報の自動取得", "en": "Auto-fetch Syllabus", "zh": "自动获取教学大纲", "ko": "강의 계획서 자동 가져오기", "es": "Obtención Automática de Temario" },
+  "syllabus_auto_fetch": { "ja": "シラバス情報の表示", "en": "Display Syllabus", "zh": "显示教学大纲", "ko": "강의 계획서 표시", "es": "Mostrar Temario" },
   "fetch_all_syllabus": { "ja": "登録された授業のシラバスを全て取得", "en": "Fetch all registered syllabus data", "zh": "获取所有已注册课程的教学大纲", "ko": "등록된 모든 강의 계획서 데이터 가져오기", "es": "Obtener todos los datos de temarios registrados" },
   "clear_syllabus_data": { "ja": "取得したデータを削除", "en": "Clear fetched data", "zh": "清除已获取的数据", "ko": "가져온 데이터 지우기", "es": "Borrar datos obtenidos" },
   "staff_mode": { "ja": "教職員モード", "en": "Staff Mode", "zh": "教职工模式", "ko": "교직원 모드", "es": "Modo Personal" },
@@ -51,18 +51,18 @@ const translations = {
     "es": "Iniciando la obtención automática de {count} cursos restantes.\nSe abrirán nuevas pestañas secuencialmente. Por favor, espera."
   },
   "confirm_disable_syllabus": {
-    "ja": "シラバス情報の自動取得をオフにすると、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？",
-    "en": "Turning off Auto-fetch Syllabus will delete all fetched syllabus data.\nAre you sure?",
-    "zh": "关闭自动获取教学大纲功能将删除所有已获取的教学大纲数据。\n确定要关闭吗？",
-    "ko": "강의 계획서 자동 가져오기를 끄면 가져온 모든 강의 계획서 데이터가 삭제됩니다.\n계속하시겠습니까?",
-    "es": "Desactivar Obtención Automática de Temario eliminará todos los datos de temario obtenidos.\n¿Estás seguro?"
+    "ja": "シラバス情報の表示をオフにすると、取得済みのシラバスデータがすべて削除されます。\n本当によろしいですか？",
+    "en": "Turning off Display Syllabus will delete all fetched syllabus data.\nAre you sure?",
+    "zh": "关闭显示教学大纲功能将删除所有已获取的教学大纲数据。\n确定要关闭吗？",
+    "ko": "강의 계획서 표시를 끄면 가져온 모든 강의 계획서 데이터가 삭제됩니다.\n계속하시겠습니까?",
+    "es": "Desactivar Mostrar Temario eliminará todos los datos de temario obtenidos.\n¿Estás seguro?"
   },
   "confirm_enable_syllabus": {
-    "ja": "シラバス情報の自動取得がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。",
-    "en": "Auto-fetch Syllabus is now enabled.\nWould you like to auto-fetch syllabus data for all registered courses? (~1 min)\n*Requires the Moodle Dashboard to be open.",
-    "zh": "自动获取教学大纲已开启。\n您是否要自动获取所有已注册课程的教学大纲？（约1分钟）\n※需要在Moodle仪表板页面上运行。",
-    "ko": "강의 계획서 자동 가져오기가 켜졌습니다.\n등록된 모든 수업의 강의 계획서를 자동으로 가져오시겠습니까? (약 1분 소요)\n※ Moodle 대시보드가 열려 있어야 합니다.",
-    "es": "La Obtención Automática de Temario ahora está activada.\n¿Te gustaría obtener automáticamente los datos del temario de todos los cursos registrados? (~1 min)\n*Requiere que el Panel de Moodle esté abierto."
+    "ja": "シラバス情報の表示がオンになりました。\n登録されたすべての授業のシラバスを自動取得しますか？（1分程度）\n※Moodleのダッシュボードを開いている必要があります。",
+    "en": "Display Syllabus is now enabled.\nWould you like to auto-fetch syllabus data for all registered courses? (~1 min)\n*Requires the Moodle Dashboard to be open.",
+    "zh": "显示教学大纲已开启。\n您是否要自动获取所有已注册课程的教学大纲？（约1分钟）\n※需要在Moodle仪表板页面上运行。",
+    "ko": "강의 계획서 표시가 켜졌습니다.\n등록된 모든 수업의 강의 계획서를 자동으로 가져오시겠습니까? (약 1분 소요)\n※ Moodle 대시보드가 열려 있어야 합니다.",
+    "es": "Mostrar Temario ahora está activado.\n¿Te gustaría obtener automáticamente los datos del temario de todos los cursos registrados? (~1 min)\n*Requiere que el Panel de Moodle esté abierto."
   },
   "confirm_clear_syllabus": {
     "ja": "取得したシラバスのデータをすべて削除しますか？\n取得したシラバス情報の表示が消え、再度シラバスを開くまで表示されなくなります。",
