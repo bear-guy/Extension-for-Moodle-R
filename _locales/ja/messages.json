@@ -1,0 +1,8 @@
+{
+  "extensionName": {
+    "message": "Extension for Moodle+R"
+  },
+  "extensionDescription": {
+    "message": "さらばmanaba+R、moodle+Rを使いやすくするための拡張機能です。ベターレイアウトやシラバスの自動取得と表示、ダークモード、教職員向けモードなど様々な機能を搭載しております。"
+  }
+}

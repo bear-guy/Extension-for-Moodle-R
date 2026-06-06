@@ -1,5 +1,5 @@
 // i18n.js
-// カスタムの翻訳辞書モジュール
+// カスタムの翻訳辞書モジュール ja en zh ko es
 
 const translations = {
   // --- popup.html UI elements ---

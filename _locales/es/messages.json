@@ -1,0 +1,8 @@
+{
+  "extensionName": {
+    "message": "Extension for Moodle+R"
+  },
+  "extensionDescription": {
+    "message": "Una extensión para facilitar el uso de Moodle+R. Incluye un mejor diseño, obtención y visualización automática del temario, modo oscuro y modo para el personal."
+  }
+}

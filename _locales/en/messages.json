@@ -1,0 +1,8 @@
+{
+  "extensionName": {
+    "message": "Extension for Moodle+R"
+  },
+  "extensionDescription": {
+    "message": "An extension to make Moodle+R easier to use. Features include a better layout, automatic syllabus fetching and display, dark mode, and a staff mode."
+  }
+}
