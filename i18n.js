@@ -142,12 +142,48 @@ const translations = {
 
   // --- テーマカラーカスタマイズ用設定 ---
   "color_feature_intro": {
-    "ja": "時間割の色が変更できます。",
-    "en": "You can change timetable colors.",
-    "zh": "可以更改课程表颜色。",
-    "ko": "시간표 색상을 변경할 수 있습니다.",
-    "es": "Puedes cambiar los colores del horario."
+    "ja": "時間割の色：時間割の色を変更できます。",
+    "en": "Timetable Color: You can change timetable colors.",
+    "zh": "课表颜色：可以更改课程表颜色。",
+    "ko": "시간표 색상: 시간표 색상을 변경할 수 있습니다.",
+    "es": "Color del horario: Puedes cambiar los colores del horario."
   },
+  "tutorial_next": { "ja": "次へ", "en": "Next", "zh": "下一步", "ko": "다음", "es": "Siguiente" },
+  "tutorial_skip": { "ja": "スキップ", "en": "Skip", "zh": "跳过", "ko": "건너뛰기", "es": "Omitir" },
+  "tutorial_done": { "ja": "完了", "en": "Done", "zh": "完成", "ko": "완료", "es": "Hecho" },
+  "start_tutorial": { "ja": "チュートリアル", "en": "Tutorial", "zh": "教程", "ko": "튜토리얼", "es": "Tutorial" },
+  "tutorial_step1": {
+    "ja": "ベターレイアウト：Moodleのレイアウトを見やすく整理します。",
+    "en": "Better Layout: Organizes Moodle's layout to be easier to read.",
+    "zh": "优化布局：整理Moodle的布局，使其更易于阅读。",
+    "ko": "더 나은 레이아웃: Moodle 레이아웃을 보기 쉽게 정리합니다.",
+    "es": "Mejor Diseño: Organiza el diseño de Moodle para que sea más fácil de leer."
+  },
+  "tutorial_step3": {
+    "ja": "シラバス情報の表示：登録された授業のシラバスを自動取得します。",
+    "en": "Display Syllabus: Automatically fetches syllabi for registered courses.",
+    "zh": "显示教学大纲：自动获取已注册课程的教学大纲。",
+    "ko": "강의 계획서 표시: 등록된 수업의 강의 계획서를 자동으로 가져옵니다.",
+    "es": "Mostrar Temario: Obtiene automáticamente el temario de los cursos."
+  },
+  "tutorial_step4": {
+    "ja": "教職員モード：教員向けのメニューや表示に切り替えます。",
+    "en": "Staff Mode: Switches to menus and views for teachers.",
+    "zh": "教职工模式：切换到教师专用的菜单和视图。",
+    "ko": "교직원 모드: 교사용 메뉴 및 화면으로 전환합니다.",
+    "es": "Modo Personal: Cambia a los menús y vistas para profesores."
+  },
+  "tutorial_step5": {
+    "ja": "今日の時間割をハイライト：今日の授業を色付けして目立たせます。",
+    "en": "Highlight Today's Timetable: Highlights today's classes with a color.",
+    "zh": "高亮显示今日课表：对今天的课程进行颜色高亮显示。",
+    "ko": "오늘의 시간표 강조: 오늘의 수업을 색상으로 강조합니다.",
+    "es": "Resaltar el Horario de Hoy: Resalta las clases de hoy con un color."
+  },
+  "feature_intro": { "ja": "機能の紹介", "en": "Features", "zh": "功能介绍", "ko": "기능 소개", "es": "Características" },
+  "support_contact": { "ja": "お問い合わせ", "en": "Contact Us", "zh": "联系我们", "ko": "문의하기", "es": "Contacto" },
+  "privacy_policy": { "ja": "プライバシーポリシー", "en": "Privacy Policy", "zh": "隐私政策", "ko": "개인정보처리방침", "es": "Política de Privacidad" },
+
   "setting_base_color": { "ja": "時間割の色", "en": "Timetable Color", "zh": "课表颜色", "ko": "시간표 색상", "es": "Color del horario" },
   "setting_today_color": { "ja": "今日の曜日の色", "en": "Today's Column Color", "zh": "今日列颜色", "ko": "오늘 열 색상", "es": "Color de columna de hoy" },
   "setting_current_color": { "ja": "現在のコマの色", "en": "Current Class Color", "zh": "当前课程颜色", "ko": "현재 수업 색상", "es": "Color de clase actual" },

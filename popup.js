@@ -637,22 +637,115 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 新機能（カラー設定）のお知らせ吹き出しの表示制御
-  const colorFeatureBubble = document.getElementById('colorFeatureBubble');
-  const closeColorFeatureBubble = document.getElementById('closeColorFeatureBubble');
-
-  chrome.storage.local.get(['colorFeatureIntroDismissed'], (result) => {
-    if (!result.colorFeatureIntroDismissed && colorFeatureBubble) {
-      colorFeatureBubble.style.display = 'flex';
-    }
-  });
-
-  if (closeColorFeatureBubble) {
-    closeColorFeatureBubble.addEventListener('click', () => {
-      chrome.storage.local.set({ colorFeatureIntroDismissed: true }, () => {
-        colorFeatureBubble.style.display = 'none';
+  // チュートリアル手動開始ボタン
+  const startTutorialBtn = document.getElementById('startTutorialBtn');
+  if (startTutorialBtn) {
+    startTutorialBtn.addEventListener('click', () => {
+      chrome.storage.local.set({ drawerIntroDismissed: false, tutorialCompletedVersion: null }, () => {
+        // ドロワーを閉じてダッシュボード側の初期吹き出しを再表示させる（リロードなし）
+        window.parent.postMessage({ action: 'closeSettingsDrawer' }, '*');
+        setTimeout(() => {
+          window.parent.postMessage({ action: 'showDrawerIntroBubble' }, '*');
+        }, 300);
       });
     });
+  }
+
+  // チュートリアル機能の管理
+  const tutorialBubble = document.getElementById('tutorialBubble');
+  const tutorialText = document.getElementById('tutorialText');
+  const tutorialNextBtn = document.getElementById('tutorialNextBtn');
+  const tutorialSkipBtn = document.getElementById('tutorialSkipBtn');
+
+  const tutorialSteps = [
+    { targetId: 'extensionToggleWrapper', i18nKey: 'tutorial_step1' },
+    { targetId: 'baseColorContainer', i18nKey: 'color_feature_intro' },
+    { targetId: 'syllabusWrapper', i18nKey: 'tutorial_step3' },
+    { targetId: 'staffModeWrapper', i18nKey: 'tutorial_step4' },
+    { targetId: 'highlightCurrentClassWrapper', i18nKey: 'tutorial_step5' }
+  ];
+
+  let currentTutorialStep = 0;
+
+  const showTutorialStep = (stepIndex) => {
+    if (stepIndex >= tutorialSteps.length) {
+      endTutorial();
+      return;
+    }
+    const step = tutorialSteps[stepIndex];
+    const targetEl = document.getElementById(step.targetId);
+    
+    // 要素が非表示（opacity 0.4など）の場合はスキップ
+    if (!targetEl || targetEl.style.opacity === '0.4' || (targetEl.disabled !== undefined && targetEl.disabled)) {
+      currentTutorialStep++;
+      showTutorialStep(currentTutorialStep);
+      return;
+    }
+
+    targetEl.appendChild(tutorialBubble);
+    tutorialBubble.style.display = 'flex';
+    tutorialText.setAttribute('data-i18n', step.i18nKey);
+    if (window.MoodleExtI18n) {
+      tutorialText.textContent = window.MoodleExtI18n.getMessage(step.i18nKey, currentLang || 'ja');
+    }
+
+    // 最後のステップなら「次へ」を「完了」に変更し、スキップボタンを非表示にする
+    if (stepIndex === tutorialSteps.length - 1) {
+      tutorialNextBtn.textContent = window.MoodleExtI18n ? window.MoodleExtI18n.getMessage('tutorial_done', currentLang) : '完了';
+      if (tutorialSkipBtn) tutorialSkipBtn.style.display = 'none';
+    } else {
+      tutorialNextBtn.textContent = window.MoodleExtI18n ? window.MoodleExtI18n.getMessage('tutorial_next', currentLang) : '次へ';
+      if (tutorialSkipBtn) tutorialSkipBtn.style.display = 'inline-block';
+    }
+
+    // スクロール追従（要素が見えやすいように）
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const endTutorial = () => {
+    if (tutorialBubble) tutorialBubble.style.display = 'none';
+    const currentVersion = chrome.runtime.getManifest().version;
+    chrome.storage.local.set({ tutorialCompletedVersion: currentVersion });
+  };
+
+  if (tutorialBubble && tutorialNextBtn && tutorialSkipBtn) {
+    tutorialNextBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentTutorialStep++;
+      showTutorialStep(currentTutorialStep);
+    });
+
+    tutorialSkipBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      endTutorial();
+    });
+
+    const checkAndShowTutorial = () => {
+      chrome.storage.local.get(['tutorialCompletedVersion'], (result) => {
+        const currentVersion = chrome.runtime.getManifest().version;
+        // バージョンが変わっていれば再度チュートリアルを表示
+        if (result.tutorialCompletedVersion !== currentVersion) {
+          // UIの初期化やドロワーのアニメーションを待つため少し遅延させる
+          setTimeout(() => {
+            currentTutorialStep = 0;
+            showTutorialStep(0);
+          }, 400);
+        }
+      });
+    };
+
+    const isIframe = window !== window.parent;
+    if (!isIframe) {
+      // 通常のポップアップ（拡張機能アイコンからのクリック等）の場合はすぐに表示
+      checkAndShowTutorial();
+    } else {
+      // ページ内のドロワーとして読み込まれている場合は、ドロワーが開かれたタイミングで表示
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.action === 'drawerOpened') {
+          checkAndShowTutorial();
+        }
+      });
+    }
   }
 
 });

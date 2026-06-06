@@ -843,8 +843,8 @@ body.moodle-ext-enabled.dark-mode .custom-settings-drawer-close {
     color: #e0e0e0;
 }
 
-/* --- \u30c9\u30ed\u30ef\u30fc\u304c\u958b\u3044\u3066\u3044\u308b\u9593\u306f\u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u3092\u975e\u8868\u793a --- */
-/* Bootstrap\u306e\u30c4\u30fc\u30eb\u30c1\u30c3\u30d7\u306fDOM\u306b\u72ec\u7acb\u3057\u305f.tooltip\u8981\u7d20\u3092\u751f\u6210\u3059\u308b\u305f\u3081\u3001CSSで\u76f4\u63a5\u975e\u8868\u793a\u306b\u3059\u308b */
+/* --- ドロワーが開いている間はツールチップを非表示 --- */
+/* BootstrapのツールチップはDOMに独立した.tooltip要素を生成するため、CSSで直接非表示にする */
 body.custom-drawer-is-open .tooltip {
     display: none !important;
 }
@@ -891,16 +891,18 @@ body.moodle-ext-enabled .custom-drawer-intro-text {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* 吹き出しの閉じるボタン（×） */
-body.moodle-ext-enabled .custom-drawer-intro-close {
-    background: transparent;
+/* 吹き出しの次へボタン */
+body.moodle-ext-enabled .custom-drawer-intro-next {
+    background: #ffffff;
     border: none;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
+    color: #990000;
+    font-size: 0.8rem;
+    font-weight: bold;
     line-height: 1;
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 6px 12px;
     margin: 0;
+    margin-left: 6px;
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -908,12 +910,12 @@ body.moodle-ext-enabled .custom-drawer-intro-close {
     transition: background-color 0.2s, color 0.2s;
 }
 
-body.moodle-ext-enabled .custom-drawer-intro-close:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
+
+body.moodle-ext-enabled .custom-drawer-intro-next:hover {
+    background-color: #f0f0f0;
 }
 
-body.moodle-ext-enabled .custom-drawer-intro-close:focus {
+body.moodle-ext-enabled .custom-drawer-intro-next:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }

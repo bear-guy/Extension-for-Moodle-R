@@ -42,6 +42,7 @@
     }
 
     .toggle-wrapper {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -168,48 +169,71 @@
       right: 0;
       z-index: 1000;
       margin-top: 8px;
-      margin-left: 10px;
-      margin-right: 10px;
       background: #990000;
       color: #ffffff;
-      padding: 8px 12px;
+      padding: 10px 12px;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
       gap: 8px;
       font-size: 11.5px;
+      line-height: 1.4;
       animation: fadeInDown 0.4s ease forwards;
     }
-    
+
+    .tutorial-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      margin-top: 2px;
+    }
+
+    .tutorial-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .tutorial-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .tutorial-btn.primary {
+      background: #ffffff;
+      color: #990000;
+      font-weight: bold;
+    }
+
+    .tutorial-btn.primary:hover {
+      background: #f0f0f0;
+    }
+
     .feature-bubble::before {
       content: '';
       position: absolute;
       top: -6px;
-      right: 65px;
+      right: 10px;
+      /* デフォルト位置 */
       border-width: 0 6px 6px 6px;
       border-style: solid;
       border-color: transparent transparent #990000 transparent;
     }
-    
-    .close-bubble-btn {
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 0 4px;
-      line-height: 1;
-    }
-    
-    .close-bubble-btn:hover {
-      color: #ffffff;
-    }
-    
+
     @keyframes fadeInDown {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* --- ダークモード用スタイル --- */
@@ -325,7 +349,7 @@
       pointer-events: none;
       animation: rainbow-scroll 1.5s ease-out forwards;
     }
-    
+
     /* カスタムセレクトボックス用CSS */
     .custom-select {
       position: relative;
@@ -334,6 +358,7 @@
       margin-left: 10px;
       font-size: 13px;
     }
+
     .custom-select-trigger {
       display: flex;
       align-items: center;
@@ -345,11 +370,13 @@
       background: #fff;
       color: #333;
     }
+
     body.dark-mode .custom-select-trigger {
       background: #2c2c2c;
       color: #e0e0e0;
       border-color: #555;
     }
+
     .custom-options {
       position: absolute;
       top: 100%;
@@ -362,36 +389,44 @@
       max-height: 200px;
       overflow-y: auto;
       z-index: 100;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       margin-top: 2px;
     }
+
     body.dark-mode .custom-options {
       background: #2c2c2c;
       border-color: #555;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
     }
+
     .custom-select.open .custom-options {
       display: block;
     }
+
     .custom-option {
       display: flex;
       align-items: center;
       padding: 6px 8px;
       cursor: pointer;
     }
+
     .custom-option:hover {
       background-color: #f1f1f1;
     }
+
     body.dark-mode .custom-option:hover {
       background-color: #444;
     }
+
     .custom-option.selected {
       background-color: #e2e2e2;
       font-weight: bold;
     }
+
     body.dark-mode .custom-option.selected {
       background-color: #555;
     }
+
     .color-preview {
       width: 12px;
       height: 12px;
@@ -401,6 +436,7 @@
       border: 1px solid rgba(128, 128, 128, 0.5);
       flex-shrink: 0;
     }
+
     .custom-select.disabled {
       opacity: 0.5;
       pointer-events: none;
@@ -411,30 +447,28 @@
 
 <body class="preload">
   <div class="header-container" style="position: relative; justify-content: center;">
-    <a href="https://lms.ritsumei.ac.jp/my/" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+    <a href="https://lms.ritsumei.ac.jp/my/" target="_blank"
+      style="text-decoration: none; color: inherit; display: flex; align-items: center;">
       <img src="icons/icon128.png" alt="icon" class="header-icon" id="popupTitleIcon">
       <h1 id="popupTitleText" data-i18n="popup_title">Extension for Moodle+R</h1>
     </a>
-    <button id="closeDrawerBtn" class="close-btn" aria-label="Close" style="position: absolute; right: 0; background: none; border: none; font-size: 20px; cursor: pointer; color: #555; padding: 0 4px; line-height: 1;">&times;</button>
+    <button id="closeDrawerBtn" class="close-btn" aria-label="Close"
+      style="position: absolute; right: 0; background: none; border: none; font-size: 20px; cursor: pointer; color: #555; padding: 0 4px; line-height: 1;">&times;</button>
   </div>
-  <div class="toggle-wrapper">
+  <div class="toggle-wrapper" id="extensionToggleWrapper">
     <span class="toggle-label" data-i18n="better_layout">ベターレイアウト</span>
     <label class="switch">
       <input type="checkbox" id="extensionToggle">
       <span class="slider"></span>
     </label>
   </div>
-  <div style="position: relative;">
+  <div style="position: relative;" id="baseColorContainer">
     <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="baseColorWrapper">
       <span class="toggle-label" data-i18n="setting_base_color" style="font-size: 13px;">時間割の色</span>
       <div id="baseColorSelect" class="custom-select" data-type="color-select" data-allow-default="true"></div>
     </div>
-    <div id="colorFeatureBubble" class="feature-bubble" style="display: none;">
-      <span data-i18n="color_feature_intro">時間割の色が変更できるようになりました！</span>
-      <button id="closeColorFeatureBubble" class="close-bubble-btn" aria-label="Close">&times;</button>
-    </div>
   </div>
-  <div style="margin-top: 10px;" id="syllabusWrapper">
+  <div style="margin-top: 10px; position: relative;" id="syllabusWrapper">
     <div class="toggle-wrapper">
       <span class="toggle-label" data-i18n="syllabus_auto_fetch">シラバス情報の表示</span>
       <label class="switch">
@@ -443,7 +477,8 @@
       </label>
     </div>
     <div style="text-align: right; margin-top: 8px;">
-      <span id="autoFetchSyllabusBtn" class="clear-data-link" style="margin-bottom: 6px;" data-i18n="fetch_all_syllabus">登録された授業のシラバスを全て取得</span>
+      <span id="autoFetchSyllabusBtn" class="clear-data-link" style="margin-bottom: 6px;"
+        data-i18n="fetch_all_syllabus">登録された授業のシラバスを全て取得</span>
       <br>
       <span id="clearSyllabusDataBtn" class="clear-data-link" data-i18n="clear_syllabus_data">取得したデータを削除</span>
     </div>
@@ -497,25 +532,37 @@
 
 
   <div style="text-align: center; margin-top: 10px;">
-    <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;" data-i18n="feeling_lucky">I'm Feeling Lucky</span>
+    <span id="luckyBtn" class="clear-data-link" data-text="I'm Feeling Lucky" style="margin-top: 4px;"
+      data-i18n="feeling_lucky">I'm Feeling Lucky</span>
+  </div>
+
+  <div id="tutorialBubble" class="feature-bubble" style="display: none;">
+    <span id="tutorialText"></span>
+    <div class="tutorial-actions">
+      <button id="tutorialSkipBtn" class="tutorial-btn" data-i18n="tutorial_skip">スキップ</button>
+      <button id="tutorialNextBtn" class="tutorial-btn primary" data-i18n="tutorial_next">次へ</button>
+    </div>
   </div>
 
   <div class="popup-footer">
     <div class="links-wrapper">
-      <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link">GitHub</a>
-      <span class="divider">|</span>
-      <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
-        class="bottom-link" data-i18n="support_contact">サポート・お問い合わせ</a>
-      <br>
       <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#features" target="_blank"
-        class="bottom-link" style="margin-top: 6px; display: inline-block;" data-i18n="feature_intro">機能の紹介</a>
+        class="bottom-link" style="display: inline-block;" data-i18n="feature_intro">機能の紹介</a>
       <span class="divider">|</span>
+      <span id="startTutorialBtn" class="bottom-link" style="display: inline-block; cursor: pointer;"
+        data-i18n="start_tutorial">チュートリアル</span>
+      <br>
+      <a href="https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html#contact" target="_blank"
+        class="bottom-link" style="margin-top: 6px; display: inline-block;" data-i18n="support_contact">お問い合わせ</a>
+      <span class="divider" style="margin-top: 6px;">|</span>
       <a href="https://bear-guy.github.io/Extension-for-Moodle-R/privacy.html" target="_blank" class="bottom-link"
         style="margin-top: 6px; display: inline-block;" data-i18n="privacy_policy">プライバシーポリシー</a>
     </div>
     <div class="credit-text">
       &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
       reserved.
+      <a href="https://github.com/bear-guy/Extension-for-Moodle-R" target="_blank" class="bottom-link"
+        style="margin-left: 4px;">GitHub</a>
     </div>
   </div>
   <script src="i18n.js"></script>

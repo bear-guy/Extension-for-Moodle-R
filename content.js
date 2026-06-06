@@ -813,32 +813,44 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     wrapper.appendChild(btn);
     document.body.appendChild(wrapper);
 
+    const showDrawerIntroBubble = () => {
+      // 既に存在していれば削除
+      const existingBubble = document.querySelector('.custom-drawer-intro-bubble');
+      if (existingBubble) existingBubble.remove();
+
+      const bubble = document.createElement('div');
+      bubble.className = 'custom-drawer-intro-bubble';
+
+      const textSpan = document.createElement('span');
+      textSpan.className = 'custom-drawer-intro-text';
+      textSpan.textContent = window.MoodleExtI18n.getMessage('content_settings_drawer_intro', currentLang);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'custom-drawer-intro-next';
+      closeBtn.textContent = window.MoodleExtI18n.getMessage('tutorial_next', currentLang) || '次へ';
+      closeBtn.setAttribute('aria-label', 'Next');
+
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        chrome.storage.local.set({ drawerIntroDismissed: true }, () => {
+          bubble.remove();
+          const drawer = document.querySelector('.custom-settings-drawer');
+          if (drawer && (drawer.style.right === '-350px' || drawer.style.right === '')) {
+            btn.click(); // ドロワーを開く
+          }
+        });
+      };
+
+      bubble.appendChild(textSpan);
+      bubble.appendChild(closeBtn);
+      wrapper.appendChild(bubble);
+    };
+
     // 紹介吹き出しの表示判定と作成
     chrome.storage.local.get(['drawerIntroDismissed'], (result) => {
       if (!result.drawerIntroDismissed) {
-        const bubble = document.createElement('div');
-        bubble.className = 'custom-drawer-intro-bubble';
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'custom-drawer-intro-text';
-        textSpan.textContent = window.MoodleExtI18n.getMessage('content_settings_drawer_intro', currentLang);
-
-        const closeBtn = document.createElement('button');
-        closeBtn.className = 'custom-drawer-intro-close';
-        closeBtn.innerHTML = '&times;';
-        closeBtn.setAttribute('aria-label', 'Close');
-
-        closeBtn.onclick = (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          chrome.storage.local.set({ drawerIntroDismissed: true }, () => {
-            bubble.remove();
-          });
-        };
-
-        bubble.appendChild(textSpan);
-        bubble.appendChild(closeBtn);
-        wrapper.appendChild(bubble);
+        showDrawerIntroBubble();
       }
     });
 
@@ -857,7 +869,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     iframe.style.border = 'none';
     drawer.appendChild(iframe);
 
-    // iframeからの閉じるメッセージを受け取る
+    // iframeからの閉じるメッセージやその他メッセージを受け取る
     window.addEventListener('message', (event) => {
       if (event.data && event.data.action === 'closeSettingsDrawer') {
         drawer.style.right = '-350px';
@@ -865,6 +877,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         if (page) page.classList.remove('show-custom-drawer-right');
         // ドロワーが閉じたらツールチップを再表示できるようクラスを除去
         document.body.classList.remove('custom-drawer-is-open');
+      }
+      if (event.data && event.data.action === 'showDrawerIntroBubble') {
+        showDrawerIntroBubble();
       }
     });
 
