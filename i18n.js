@@ -140,6 +140,30 @@ const translations = {
     "es": "[Estado de clases] Posible cancelación de clases"
   },
 
+  // --- テーマカラーカスタマイズ用設定 ---
+  "setting_base_color": { "ja": "時間割の色", "en": "Timetable Color", "zh": "课表颜色", "ko": "시간표 색상", "es": "Color del horario" },
+  "setting_today_color": { "ja": "今日の曜日の色", "en": "Today's Column Color", "zh": "今日列颜色", "ko": "오늘 열 색상", "es": "Color de columna de hoy" },
+  "setting_current_color": { "ja": "現在のコマの色", "en": "Current Class Color", "zh": "当前课程颜色", "ko": "현재 수업 색상", "es": "Color de clase actual" },
+
+  // --- カラー名 ---
+  "color_default": { "ja": "デフォルト", "en": "Default", "zh": "默认", "ko": "기본", "es": "Predeterminado" },
+  "color_red": { "ja": "赤", "en": "Red", "zh": "红色", "ko": "빨강", "es": "Rojo" },
+  "color_pink": { "ja": "ピンク", "en": "Pink", "zh": "粉色", "ko": "핑크", "es": "Rosa" },
+  "color_purple": { "ja": "紫", "en": "Purple", "zh": "紫色", "ko": "보라", "es": "Morado" },
+  "color_indigo": { "ja": "インディゴ", "en": "Indigo", "zh": "靛青色", "ko": "인디고", "es": "Índigo" },
+  "color_blue": { "ja": "青", "en": "Blue", "zh": "蓝色", "ko": "파랑", "es": "Azul" },
+  "color_lightblue": { "ja": "水色", "en": "Light Blue", "zh": "浅蓝色", "ko": "하늘색", "es": "Azul claro" },
+  "color_cyan": { "ja": "シアン", "en": "Cyan", "zh": "青色", "ko": "시안", "es": "Cian" },
+  "color_teal": { "ja": "ティール", "en": "Teal", "zh": "鸭青色", "ko": "청록색", "es": "Verde azulado" },
+  "color_green": { "ja": "緑", "en": "Green", "zh": "绿色", "ko": "초록", "es": "Verde" },
+  "color_lightgreen": { "ja": "黄緑", "en": "Light Green", "zh": "浅绿色", "ko": "연두색", "es": "Verde claro" },
+  "color_lime": { "ja": "ライム", "en": "Lime", "zh": "石灰绿", "ko": "라임", "es": "Lima" },
+  "color_yellow": { "ja": "黄色", "en": "Yellow", "zh": "黄色", "ko": "노랑", "es": "Amarillo" },
+  "color_amber": { "ja": "琥珀色", "en": "Amber", "zh": "琥珀色", "ko": "호박색", "es": "Ámbar" },
+  "color_orange": { "ja": "オレンジ", "en": "Orange", "zh": "橙色", "ko": "주황", "es": "Naranja" },
+  "color_brown": { "ja": "茶色", "en": "Brown", "zh": "棕色", "ko": "갈색", "es": "Marrón" },
+  "color_grey": { "ja": "灰色", "en": "Grey", "zh": "灰色", "ko": "회색", "es": "Gris" },
+
   // --- 曜日の翻訳（シラバス表示用） ---
   "day_mon": { "ja": "月", "en": "Mon", "zh": "周一", "ko": "월", "es": "Lun" },
   "day_tue": { "ja": "火", "en": "Tue", "zh": "周二", "ko": "화", "es": "Mar" },

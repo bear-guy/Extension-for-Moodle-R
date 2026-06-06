@@ -23,8 +23,15 @@ chrome.storage.local.get({
   isLuckyEnabled: false,
   luckyUniversity: 'kyodai',
   lastSettingsSentDate: "",
-  displayLanguage: ""
+  displayLanguage: "",
+  baseColor: "default",
+  todayColor: "lightblue",
+  currentClassColor: "yellow"
 }, (data) => {
+  document.body.dataset.baseColor = data.baseColor;
+  document.body.dataset.todayColor = data.todayColor;
+  document.body.dataset.currentClassColor = data.currentClassColor;
+
   let currentLang = data.displayLanguage;
   if (!currentLang || currentLang === 'auto') {
     currentLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
@@ -90,6 +97,17 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         changed = true;
       }
       if (changed) applyLuckyLogo();
+      
+      // 動的カラー変更
+      if (changes.baseColor !== undefined) {
+        document.body.dataset.baseColor = changes.baseColor.newValue;
+      }
+      if (changes.todayColor !== undefined) {
+        document.body.dataset.todayColor = changes.todayColor.newValue;
+      }
+      if (changes.currentClassColor !== undefined) {
+        document.body.dataset.currentClassColor = changes.currentClassColor.newValue;
+      }
     }
   });
 
@@ -895,38 +913,38 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         return;
       }
       const html = response.html;
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const diary = doc.querySelector('.diary');
-        if (!diary) return; // 通常時は何も表示しない
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const diary = doc.querySelector('.diary');
+      if (!diary) return; // 通常時は何も表示しない
 
-        // 「休講」テキストがあるかチェック
-        let isCanceled = false;
-        const markLists = doc.querySelectorAll('.markList span.jp');
-        for (const span of markLists) {
-          if (span.textContent.includes('休講')) {
-            isCanceled = true;
-            break;
-          }
+      // 「休講」テキストがあるかチェック
+      let isCanceled = false;
+      const markLists = doc.querySelectorAll('.markList span.jp');
+      for (const span of markLists) {
+        if (span.textContent.includes('休講')) {
+          isCanceled = true;
+          break;
         }
+      }
 
-        const status = isCanceled ? 'canceled' : 'caution';
-        const bannerText = window.MoodleExtI18n.getMessage(`status_${status}`, currentLang);
+      const status = isCanceled ? 'canceled' : 'caution';
+      const bannerText = window.MoodleExtI18n.getMessage(`status_${status}`, currentLang);
 
-        const banner = document.createElement('a');
-        banner.href = 'https://www.ritsumei.ac.jp/academic-affairs/status/';
-        banner.target = '_blank';
-        banner.className = `extension-status-banner ${status}`;
-        banner.textContent = bannerText;
+      const banner = document.createElement('a');
+      banner.href = 'https://www.ritsumei.ac.jp/academic-affairs/status/';
+      banner.target = '_blank';
+      banner.className = `extension-status-banner ${status}`;
+      banner.textContent = bannerText;
 
-        document.body.appendChild(banner);
+      document.body.appendChild(banner);
 
-        // バナーの高さ（48px）分だけページ全体を押し下げる
-        const page = document.querySelector('#page');
-        if (page) {
-          const currentMargin = parseInt(window.getComputedStyle(page).marginTop) || 60;
-          page.style.marginTop = (currentMargin + 48) + 'px';
-        }
+      // バナーの高さ（48px）分だけページ全体を押し下げる
+      const page = document.querySelector('#page');
+      if (page) {
+        const currentMargin = parseInt(window.getComputedStyle(page).marginTop) || 60;
+        page.style.marginTop = (currentMargin + 48) + 'px';
+      }
     });
   };
 

@@ -151,7 +151,7 @@
       color: #d32f2f;
     }
 
-    #languageSelect {
+    select {
       font-size: 12px;
       padding: 2px 4px;
       border-radius: 4px;
@@ -226,7 +226,7 @@
       border-color: #555 !important;
     }
 
-    body.dark-mode #languageSelect {
+    body.dark-mode select {
       background-color: #333;
       color: #e0e0e0;
       border-color: #555;
@@ -269,6 +269,86 @@
       pointer-events: none;
       animation: rainbow-scroll 1.5s ease-out forwards;
     }
+    
+    /* カスタムセレクトボックス用CSS */
+    .custom-select {
+      position: relative;
+      display: inline-block;
+      width: 130px;
+      margin-left: 10px;
+      font-size: 13px;
+    }
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      background: #fff;
+      color: #333;
+    }
+    body.dark-mode .custom-select-trigger {
+      background: #2c2c2c;
+      color: #e0e0e0;
+      border-color: #555;
+    }
+    .custom-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      display: none;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      margin-top: 2px;
+    }
+    body.dark-mode .custom-options {
+      background: #2c2c2c;
+      border-color: #555;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    }
+    .custom-select.open .custom-options {
+      display: block;
+    }
+    .custom-option {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+    .custom-option:hover {
+      background-color: #f1f1f1;
+    }
+    body.dark-mode .custom-option:hover {
+      background-color: #444;
+    }
+    .custom-option.selected {
+      background-color: #e2e2e2;
+      font-weight: bold;
+    }
+    body.dark-mode .custom-option.selected {
+      background-color: #555;
+    }
+    .color-preview {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      display: inline-block;
+      border: 1px solid rgba(128, 128, 128, 0.5);
+      flex-shrink: 0;
+    }
+    .custom-select.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   </style>
 </head>
 
@@ -287,6 +367,10 @@
       <input type="checkbox" id="extensionToggle">
       <span class="slider"></span>
     </label>
+  </div>
+  <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="baseColorWrapper">
+    <span class="toggle-label" data-i18n="setting_base_color" style="font-size: 13px;">時間割の色</span>
+    <div id="baseColorSelect" class="custom-select" data-type="color-select" data-allow-default="true"></div>
   </div>
   <div style="margin-top: 10px;" id="syllabusWrapper">
     <div class="toggle-wrapper">
@@ -322,6 +406,14 @@
       <input type="checkbox" id="highlightCurrentClassToggle" checked>
       <span class="slider"></span>
     </label>
+  </div>
+  <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="todayColorWrapper">
+    <span class="toggle-label" data-i18n="setting_today_color" style="font-size: 13px;">今日の曜日の色</span>
+    <div id="todayColorSelect" class="custom-select" data-type="color-select" data-allow-default="false"></div>
+  </div>
+  <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="currentClassColorWrapper">
+    <span class="toggle-label" data-i18n="setting_current_color" style="font-size: 13px;">現在のコマの色</span>
+    <div id="currentClassColorSelect" class="custom-select" data-type="color-select" data-allow-default="false"></div>
   </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
     <span class="toggle-label" data-i18n="dark_mode">ダークモード（ベータ）</span>

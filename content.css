@@ -1,4 +1,4 @@
-/*
+﻿/*
 =##############*-                  
 =################+.                
 =###-.......:-*###*                
@@ -199,6 +199,233 @@ body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight a,
 body.moodle-ext-enabled.dark-mode .timetable-table td.current-class-highlight .room {
     color: #f0e6d2 !important;
 }
+
+/* --- テーマカラー設定 --- */
+/* Base Color: red */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="red"] .timetable-table td:not(.empty):not(.time) { background-color: #ffebee !important; }
+/* Today Color: red */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="red"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="red"] .timetable-table td.empty.today-column-highlight { background-color: #ffebee !important; }
+/* Current Class Color: red */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="red"] .timetable-table td.current-class-highlight { background-color: #ffebee !important; border: 2px solid #ef5350 !important; box-shadow: 0 0 8px rgba(239, 83, 80, 0.3) !important; }
+
+/* Base Color: pink */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="pink"] .timetable-table td:not(.empty):not(.time) { background-color: #fce4ec !important; }
+/* Today Color: pink */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="pink"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="pink"] .timetable-table td.empty.today-column-highlight { background-color: #fce4ec !important; }
+/* Current Class Color: pink */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="pink"] .timetable-table td.current-class-highlight { background-color: #fce4ec !important; border: 2px solid #f06292 !important; box-shadow: 0 0 8px rgba(240, 98, 146, 0.3) !important; }
+
+/* Base Color: purple */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="purple"] .timetable-table td:not(.empty):not(.time) { background-color: #f3e5f5 !important; }
+/* Today Color: purple */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="purple"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="purple"] .timetable-table td.empty.today-column-highlight { background-color: #f3e5f5 !important; }
+/* Current Class Color: purple */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="purple"] .timetable-table td.current-class-highlight { background-color: #f3e5f5 !important; border: 2px solid #ba68c8 !important; box-shadow: 0 0 8px rgba(186, 104, 200, 0.3) !important; }
+
+/* Base Color: indigo */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="indigo"] .timetable-table td:not(.empty):not(.time) { background-color: #e8eaf6 !important; }
+/* Today Color: indigo */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="indigo"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="indigo"] .timetable-table td.empty.today-column-highlight { background-color: #e8eaf6 !important; }
+/* Current Class Color: indigo */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="indigo"] .timetable-table td.current-class-highlight { background-color: #e8eaf6 !important; border: 2px solid #7986cb !important; box-shadow: 0 0 8px rgba(121, 134, 203, 0.3) !important; }
+
+/* Base Color: blue */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="blue"] .timetable-table td:not(.empty):not(.time) { background-color: #e3f2fd !important; }
+/* Today Color: blue */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="blue"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="blue"] .timetable-table td.empty.today-column-highlight { background-color: #e3f2fd !important; }
+/* Current Class Color: blue */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="blue"] .timetable-table td.current-class-highlight { background-color: #e3f2fd !important; border: 2px solid #64b5f6 !important; box-shadow: 0 0 8px rgba(100, 181, 246, 0.3) !important; }
+
+/* Base Color: lightblue */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="lightblue"] .timetable-table td:not(.empty):not(.time) { background-color: #e1f5fe !important; }
+/* Today Color: lightblue */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lightblue"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lightblue"] .timetable-table td.empty.today-column-highlight { background-color: #e1f5fe !important; }
+/* Current Class Color: lightblue */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="lightblue"] .timetable-table td.current-class-highlight { background-color: #e1f5fe !important; border: 2px solid #4fc3f7 !important; box-shadow: 0 0 8px rgba(79, 195, 247, 0.3) !important; }
+
+/* Base Color: cyan */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="cyan"] .timetable-table td:not(.empty):not(.time) { background-color: #e0f7fa !important; }
+/* Today Color: cyan */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="cyan"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="cyan"] .timetable-table td.empty.today-column-highlight { background-color: #e0f7fa !important; }
+/* Current Class Color: cyan */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="cyan"] .timetable-table td.current-class-highlight { background-color: #e0f7fa !important; border: 2px solid #4dd0e1 !important; box-shadow: 0 0 8px rgba(77, 208, 225, 0.3) !important; }
+
+/* Base Color: teal */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="teal"] .timetable-table td:not(.empty):not(.time) { background-color: #e0f2f1 !important; }
+/* Today Color: teal */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="teal"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="teal"] .timetable-table td.empty.today-column-highlight { background-color: #e0f2f1 !important; }
+/* Current Class Color: teal */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="teal"] .timetable-table td.current-class-highlight { background-color: #e0f2f1 !important; border: 2px solid #4db6ac !important; box-shadow: 0 0 8px rgba(77, 182, 172, 0.3) !important; }
+
+/* Base Color: green */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="green"] .timetable-table td:not(.empty):not(.time) { background-color: #e8f5e9 !important; }
+/* Today Color: green */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="green"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="green"] .timetable-table td.empty.today-column-highlight { background-color: #e8f5e9 !important; }
+/* Current Class Color: green */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="green"] .timetable-table td.current-class-highlight { background-color: #e8f5e9 !important; border: 2px solid #81c784 !important; box-shadow: 0 0 8px rgba(129, 199, 132, 0.3) !important; }
+
+/* Base Color: lightgreen */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="lightgreen"] .timetable-table td:not(.empty):not(.time) { background-color: #f1f8e9 !important; }
+/* Today Color: lightgreen */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lightgreen"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lightgreen"] .timetable-table td.empty.today-column-highlight { background-color: #f1f8e9 !important; }
+/* Current Class Color: lightgreen */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="lightgreen"] .timetable-table td.current-class-highlight { background-color: #f1f8e9 !important; border: 2px solid #aed581 !important; box-shadow: 0 0 8px rgba(174, 213, 129, 0.3) !important; }
+
+/* Base Color: lime */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="lime"] .timetable-table td:not(.empty):not(.time) { background-color: #f9fbe7 !important; }
+/* Today Color: lime */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lime"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lime"] .timetable-table td.empty.today-column-highlight { background-color: #f9fbe7 !important; }
+/* Current Class Color: lime */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="lime"] .timetable-table td.current-class-highlight { background-color: #f9fbe7 !important; border: 2px solid #dce775 !important; box-shadow: 0 0 8px rgba(220, 231, 117, 0.3) !important; }
+
+/* Base Color: yellow */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="yellow"] .timetable-table td:not(.empty):not(.time) { background-color: #fffde7 !important; }
+/* Today Color: yellow */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="yellow"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="yellow"] .timetable-table td.empty.today-column-highlight { background-color: #fffde7 !important; }
+/* Current Class Color: yellow */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="yellow"] .timetable-table td.current-class-highlight { background-color: #fffde7 !important; border: 2px solid #fff176 !important; box-shadow: 0 0 8px rgba(255, 241, 118, 0.3) !important; }
+
+/* Base Color: amber */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="amber"] .timetable-table td:not(.empty):not(.time) { background-color: #fff8e1 !important; }
+/* Today Color: amber */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="amber"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="amber"] .timetable-table td.empty.today-column-highlight { background-color: #fff8e1 !important; }
+/* Current Class Color: amber */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="amber"] .timetable-table td.current-class-highlight { background-color: #fff8e1 !important; border: 2px solid #ffd54f !important; box-shadow: 0 0 8px rgba(255, 213, 79, 0.3) !important; }
+
+/* Base Color: orange */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="orange"] .timetable-table td:not(.empty):not(.time) { background-color: #fff3e0 !important; }
+/* Today Color: orange */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="orange"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="orange"] .timetable-table td.empty.today-column-highlight { background-color: #fff3e0 !important; }
+/* Current Class Color: orange */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="orange"] .timetable-table td.current-class-highlight { background-color: #fff3e0 !important; border: 2px solid #ffb74d !important; box-shadow: 0 0 8px rgba(255, 183, 77, 0.3) !important; }
+
+/* Base Color: brown */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="brown"] .timetable-table td:not(.empty):not(.time) { background-color: #efebe9 !important; }
+/* Today Color: brown */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="brown"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="brown"] .timetable-table td.empty.today-column-highlight { background-color: #efebe9 !important; }
+/* Current Class Color: brown */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="brown"] .timetable-table td.current-class-highlight { background-color: #efebe9 !important; border: 2px solid #a1887f !important; box-shadow: 0 0 8px rgba(161, 136, 127, 0.3) !important; }
+
+/* Base Color: grey */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="grey"] .timetable-table td:not(.empty):not(.time) { background-color: #f5f5f5 !important; }
+/* Today Color: grey */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="grey"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="grey"] .timetable-table td.empty.today-column-highlight { background-color: #f5f5f5 !important; }
+/* Current Class Color: grey */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="grey"] .timetable-table td.current-class-highlight { background-color: #f5f5f5 !important; border: 2px solid #e0e0e0 !important; box-shadow: 0 0 8px rgba(224, 224, 224, 0.3) !important; }
+
+
+/* --- ダークモード専用テーマカラー --- */
+/* Dark Mode: red */
+body.moodle-ext-enabled.dark-mode[data-base-color="red"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(0, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="red"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="red"] .timetable-table td.empty.today-column-highlight { background-color: hsl(0, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="red"] .timetable-table td.current-class-highlight { background-color: hsl(0, 31%, 16%) !important; border: 2px solid hsl(0, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: pink */
+body.moodle-ext-enabled.dark-mode[data-base-color="pink"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(330, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="pink"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="pink"] .timetable-table td.empty.today-column-highlight { background-color: hsl(330, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="pink"] .timetable-table td.current-class-highlight { background-color: hsl(330, 31%, 16%) !important; border: 2px solid hsl(330, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: purple */
+body.moodle-ext-enabled.dark-mode[data-base-color="purple"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(290, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="purple"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="purple"] .timetable-table td.empty.today-column-highlight { background-color: hsl(290, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="purple"] .timetable-table td.current-class-highlight { background-color: hsl(290, 31%, 16%) !important; border: 2px solid hsl(290, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: indigo */
+body.moodle-ext-enabled.dark-mode[data-base-color="indigo"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(230, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="indigo"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="indigo"] .timetable-table td.empty.today-column-highlight { background-color: hsl(230, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="indigo"] .timetable-table td.current-class-highlight { background-color: hsl(230, 31%, 16%) !important; border: 2px solid hsl(230, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: blue */
+body.moodle-ext-enabled.dark-mode[data-base-color="blue"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(210, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="blue"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="blue"] .timetable-table td.empty.today-column-highlight { background-color: hsl(210, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="blue"] .timetable-table td.current-class-highlight { background-color: hsl(210, 31%, 16%) !important; border: 2px solid hsl(210, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: lightblue */
+body.moodle-ext-enabled.dark-mode[data-base-color="lightblue"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(195, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="lightblue"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="lightblue"] .timetable-table td.empty.today-column-highlight { background-color: hsl(195, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="lightblue"] .timetable-table td.current-class-highlight { background-color: hsl(195, 31%, 16%) !important; border: 2px solid hsl(195, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: cyan */
+body.moodle-ext-enabled.dark-mode[data-base-color="cyan"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(180, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="cyan"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="cyan"] .timetable-table td.empty.today-column-highlight { background-color: hsl(180, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="cyan"] .timetable-table td.current-class-highlight { background-color: hsl(180, 31%, 16%) !important; border: 2px solid hsl(180, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: teal */
+body.moodle-ext-enabled.dark-mode[data-base-color="teal"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(160, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="teal"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="teal"] .timetable-table td.empty.today-column-highlight { background-color: hsl(160, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="teal"] .timetable-table td.current-class-highlight { background-color: hsl(160, 31%, 16%) !important; border: 2px solid hsl(160, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: green */
+body.moodle-ext-enabled.dark-mode[data-base-color="green"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(120, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="green"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="green"] .timetable-table td.empty.today-column-highlight { background-color: hsl(120, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="green"] .timetable-table td.current-class-highlight { background-color: hsl(120, 31%, 16%) !important; border: 2px solid hsl(120, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: lightgreen */
+body.moodle-ext-enabled.dark-mode[data-base-color="lightgreen"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(90, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="lightgreen"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="lightgreen"] .timetable-table td.empty.today-column-highlight { background-color: hsl(90, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="lightgreen"] .timetable-table td.current-class-highlight { background-color: hsl(90, 31%, 16%) !important; border: 2px solid hsl(90, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: lime */
+body.moodle-ext-enabled.dark-mode[data-base-color="lime"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(70, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="lime"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="lime"] .timetable-table td.empty.today-column-highlight { background-color: hsl(70, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="lime"] .timetable-table td.current-class-highlight { background-color: hsl(70, 31%, 16%) !important; border: 2px solid hsl(70, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: yellow */
+body.moodle-ext-enabled.dark-mode[data-base-color="yellow"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(46, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="yellow"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="yellow"] .timetable-table td.empty.today-column-highlight { background-color: hsl(46, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="yellow"] .timetable-table td.current-class-highlight { background-color: hsl(46, 31%, 16%) !important; border: 2px solid hsl(46, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: amber */
+body.moodle-ext-enabled.dark-mode[data-base-color="amber"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(35, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="amber"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="amber"] .timetable-table td.empty.today-column-highlight { background-color: hsl(35, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="amber"] .timetable-table td.current-class-highlight { background-color: hsl(35, 31%, 16%) !important; border: 2px solid hsl(35, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: orange */
+body.moodle-ext-enabled.dark-mode[data-base-color="orange"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(25, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="orange"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="orange"] .timetable-table td.empty.today-column-highlight { background-color: hsl(25, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="orange"] .timetable-table td.current-class-highlight { background-color: hsl(25, 31%, 16%) !important; border: 2px solid hsl(25, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: brown */
+body.moodle-ext-enabled.dark-mode[data-base-color="brown"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(20, 20%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="brown"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="brown"] .timetable-table td.empty.today-column-highlight { background-color: hsl(20, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="brown"] .timetable-table td.current-class-highlight { background-color: hsl(20, 31%, 16%) !important; border: 2px solid hsl(20, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: grey */
+body.moodle-ext-enabled.dark-mode[data-base-color="grey"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(0, 0%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="grey"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="grey"] .timetable-table td.empty.today-column-highlight { background-color: hsl(0, 0%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="grey"] .timetable-table td.current-class-highlight { background-color: hsl(0, 0%, 16%) !important; border: 2px solid hsl(0, 0%, 32%) !important; box-shadow: none !important; }
 
 /* --- その他のUI調整 --- */
 /* バッジ（未提出課題など）を赤色にして目立たせる */

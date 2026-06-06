@@ -25,6 +25,109 @@ document.addEventListener('DOMContentLoaded', () => {
   const popupTitleText = document.getElementById('popupTitleText');
   const languageSelect = document.getElementById('languageSelect');
   const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+  const baseColorSelect = document.getElementById('baseColorSelect');
+  const baseColorWrapper = document.getElementById('baseColorWrapper');
+  const todayColorSelect = document.getElementById('todayColorSelect');
+  const currentClassColorSelect = document.getElementById('currentClassColorSelect');
+  const todayColorWrapper = document.getElementById('todayColorWrapper');
+  const currentClassColorWrapper = document.getElementById('currentClassColorWrapper');
+
+  // カスタムセレクトボックスの生成
+  const colorOptions = [
+    { value: 'default', color: '#bfecf4', i18n: 'color_default' },
+    { value: 'lightblue', color: '#81d4fa', i18n: 'color_lightblue' },
+    { value: 'red', color: '#ef9a9a', i18n: 'color_red' },
+    { value: 'pink', color: '#f48fb1', i18n: 'color_pink' },
+    { value: 'purple', color: '#ce93d8', i18n: 'color_purple' },
+    { value: 'indigo', color: '#9fa8da', i18n: 'color_indigo' },
+    { value: 'blue', color: '#90caf9', i18n: 'color_blue' },
+    { value: 'cyan', color: '#80deea', i18n: 'color_cyan' },
+    { value: 'teal', color: '#80cbc4', i18n: 'color_teal' },
+    { value: 'green', color: '#a5d6a7', i18n: 'color_green' },
+    { value: 'lightgreen', color: '#c5e1a5', i18n: 'color_lightgreen' },
+    { value: 'lime', color: '#e6ee9c', i18n: 'color_lime' },
+    { value: 'yellow', color: '#fff59d', i18n: 'color_yellow' },
+    { value: 'amber', color: '#ffe082', i18n: 'color_amber' },
+    { value: 'orange', color: '#ffcc80', i18n: 'color_orange' },
+    { value: 'brown', color: '#bcaaa4', i18n: 'color_brown' },
+    { value: 'grey', color: '#eeeeee', i18n: 'color_grey' }
+  ];
+
+  document.querySelectorAll('.custom-select[data-type="color-select"]').forEach(el => {
+    const allowDefault = el.getAttribute('data-allow-default') === 'true';
+    const availableColors = allowDefault ? colorOptions : colorOptions.filter(c => c.value !== 'default');
+    
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    trigger.innerHTML = `<span class="color-preview"></span><span class="custom-select-label"></span>`;
+    el.appendChild(trigger);
+    
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-options';
+    availableColors.forEach(c => {
+      const opt = document.createElement('div');
+      opt.className = 'custom-option';
+      opt.dataset.value = c.value;
+      opt.innerHTML = `<span class="color-preview" style="background-color: ${c.color}"></span><span class="option-label" data-i18n="${c.i18n}"></span>`;
+      optionsContainer.appendChild(opt);
+    });
+    el.appendChild(optionsContainer);
+    
+    el._value = availableColors[0].value;
+    
+    Object.defineProperty(el, 'value', {
+      get: () => el._value,
+      set: (val) => {
+        el._value = val;
+        const selectedColorObj = availableColors.find(c => c.value === val) || availableColors[0];
+        trigger.querySelector('.color-preview').style.backgroundColor = selectedColorObj.color;
+        const labelEl = trigger.querySelector('.custom-select-label');
+        labelEl.setAttribute('data-i18n', selectedColorObj.i18n);
+        
+        if (window.MoodleExtI18n && window.MoodleExtI18n.getMessage) {
+           const currentLang = document.documentElement.lang || 'ja';
+           labelEl.innerText = window.MoodleExtI18n.getMessage(selectedColorObj.i18n, currentLang);
+        } else {
+           const optLabel = optionsContainer.querySelector(`[data-value="${val}"] .option-label`);
+           if (optLabel) labelEl.innerText = optLabel.innerText;
+        }
+
+        optionsContainer.querySelectorAll('.custom-option').forEach(o => o.classList.remove('selected'));
+        const opt = optionsContainer.querySelector(`[data-value="${val}"]`);
+        if (opt) opt.classList.add('selected');
+      }
+    });
+
+    Object.defineProperty(el, 'disabled', {
+      get: () => el.classList.contains('disabled'),
+      set: (val) => {
+        if (val) el.classList.add('disabled');
+        else el.classList.remove('disabled');
+      }
+    });
+
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (el.classList.contains('disabled')) return;
+      document.querySelectorAll('.custom-select.open').forEach(other => {
+        if (other !== el) other.classList.remove('open');
+      });
+      el.classList.toggle('open');
+    });
+
+    optionsContainer.addEventListener('click', (e) => {
+      const opt = e.target.closest('.custom-option');
+      if (opt) {
+        el.value = opt.dataset.value;
+        el.classList.remove('open');
+        el.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
+  });
 
   // iframe内でない場合（直接ポップアップを開いた場合）は閉じるボタンを非表示にする
   if (closeDrawerBtn) {
@@ -96,6 +199,15 @@ document.addEventListener('DOMContentLoaded', () => {
       syllabusToggle.disabled = !isEnabled;
       syllabusWrapper.style.opacity = isEnabled ? '1' : '0.4';
     }
+
+    if (baseColorSelect) baseColorSelect.disabled = !isEnabled;
+    if (baseColorWrapper) baseColorWrapper.style.opacity = isEnabled ? '1' : '0.4';
+
+    const isHighlightEnabled = isEnabled && highlightCurrentClassToggle.checked;
+    if (todayColorSelect) todayColorSelect.disabled = !isHighlightEnabled;
+    if (currentClassColorSelect) currentClassColorSelect.disabled = !isHighlightEnabled;
+    if (todayColorWrapper) todayColorWrapper.style.opacity = isHighlightEnabled ? '1' : '0.4';
+    if (currentClassColorWrapper) currentClassColorWrapper.style.opacity = isHighlightEnabled ? '1' : '0.4';
   };
 
   // シラバス機能に依存するボタン状態を更新する関数
@@ -229,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai' }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow' }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
@@ -248,6 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
       syllabusToggle.checked = data.isSyllabusEnabled;
       updateSyllabusButtons(data.isEnabled && data.isSyllabusEnabled);
     }
+    if (baseColorSelect) baseColorSelect.value = data.baseColor;
+    if (todayColorSelect) todayColorSelect.value = data.todayColor;
+    if (currentClassColorSelect) currentClassColorSelect.value = data.currentClassColor;
 
     // 初期状態のダークモード表示を更新
     if (data.isDarkMode) {
@@ -388,8 +503,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof sendGAEvent === 'function') {
       sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
     }
+    updateDependentUI(toggle.checked);
     chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
   });
+
+  if (baseColorSelect) {
+    baseColorSelect.addEventListener('change', (e) => {
+      chrome.storage.local.set({ baseColor: e.target.value });
+    });
+  }
+
+  if (todayColorSelect) {
+    todayColorSelect.addEventListener('change', (e) => {
+      chrome.storage.local.set({ todayColor: e.target.value });
+    });
+  }
+
+  if (currentClassColorSelect) {
+    currentClassColorSelect.addEventListener('change', (e) => {
+      chrome.storage.local.set({ currentClassColor: e.target.value });
+    });
+  }
 
   // シラバス自動取得の実行関数
   const triggerAutoFetch = () => {
