@@ -510,7 +510,7 @@ body.moodle-ext-enabled .custom-settings-toggler-wrapper {
     position: fixed;
     right: 0;
     top: calc(60px + 0.7rem);
-    z-index: 9999;
+    z-index: 1030; /* ドロワー(1040)より下になるよう変更 */
     transition: right 0.3s ease;
 }
 
