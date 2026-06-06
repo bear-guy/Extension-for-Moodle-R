@@ -358,6 +358,29 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         });
       }
     }
+
+    // 「学び支援サイト」の下に「本日の授業・定期試験について」を追加する
+    const targetHref = 'https://www.ritsumei.ac.jp/pathways-future/';
+    const statusUrl = 'https://www.ritsumei.ac.jp/academic-affairs/status/';
+    const statusName = '本日の授業・定期試験について';
+
+    // 1. ヘッダーの「リンク集」ドロップダウン内
+    const dropdownItems = document.querySelectorAll(`a.dropdown-item[href="${targetHref}"]`);
+    dropdownItems.forEach(item => {
+      const nextEl = item.nextElementSibling;
+      if (!nextEl || !nextEl.classList.contains('custom-status-link')) {
+        item.insertAdjacentHTML('afterend', `<a class="dropdown-item custom-status-link" role="menuitem" href="${statusUrl}" target="_blank" data-disableactive="true" tabindex="-1" data-hidden-checked="true">${statusName}</a>`);
+      }
+    });
+
+    // 2. 左側ドロワーのアコーディオン内
+    const drawerItems = document.querySelectorAll(`a.list-group-item[href="${targetHref}"]`);
+    drawerItems.forEach(item => {
+      const nextEl = item.nextElementSibling;
+      if (!nextEl || !nextEl.classList.contains('custom-status-link')) {
+        item.insertAdjacentHTML('afterend', `<a class="ps-5 bg-light list-group-item list-group-item-action custom-status-link" href="${statusUrl}" target="_blank" data-hidden-checked="true" data-aria-hidden-tab-index="" tabindex="-1">${statusName}</a>`);
+      }
+    });
   };
 
   // 重複するデフォルトリンクを非表示
