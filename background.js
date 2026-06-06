@@ -1,6 +1,13 @@
 import { sendGAEvent } from './analytics.js';
 
 chrome.runtime.onInstalled.addListener((details) => {
+  let lang = 'en';
+  if (navigator.language.startsWith('ja')) lang = 'ja';
+  else if (navigator.language.startsWith('zh')) lang = 'zh';
+  else if (navigator.language.startsWith('ko')) lang = 'ko';
+  else if (navigator.language.startsWith('es')) lang = 'es';
+  const welcomeUrl = `https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html?lang=${lang}`;
+
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
     chrome.storage.local.set({
       isEnabled: true,
@@ -14,12 +21,12 @@ chrome.runtime.onInstalled.addListener((details) => {
     // 拡張機能のインストールを計測
     sendGAEvent('extension_installed', { version: chrome.runtime.getManifest().version });
 
-    chrome.tabs.create({ url: "https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html" });
+    chrome.tabs.create({ url: welcomeUrl });
   } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
     // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
     const currentVersion = chrome.runtime.getManifest().version;
     if (details.previousVersion !== currentVersion) {
-      chrome.tabs.create({ url: "https://bear-guy.github.io/Extension-for-Moodle-R/welcome.html" });
+      chrome.tabs.create({ url: welcomeUrl });
     }
   }
 });
