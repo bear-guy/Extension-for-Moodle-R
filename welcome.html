@@ -152,11 +152,40 @@
     }
 
     /* --- 言語切り替え用 --- */
-    body.lang-en .lang-ja, body.lang-en .lang-zh, body.lang-en .lang-ko, body.lang-en .lang-es { display: none !important; }
-    body.lang-ja .lang-en, body.lang-ja .lang-zh, body.lang-ja .lang-ko, body.lang-ja .lang-es { display: none !important; }
-    body.lang-zh .lang-ja, body.lang-zh .lang-en, body.lang-zh .lang-ko, body.lang-zh .lang-es { display: none !important; }
-    body.lang-ko .lang-ja, body.lang-ko .lang-en, body.lang-ko .lang-zh, body.lang-ko .lang-es { display: none !important; }
-    body.lang-es .lang-ja, body.lang-es .lang-en, body.lang-es .lang-zh, body.lang-es .lang-ko { display: none !important; }
+    body.lang-en .lang-ja,
+    body.lang-en .lang-zh,
+    body.lang-en .lang-ko,
+    body.lang-en .lang-es {
+      display: none !important;
+    }
+
+    body.lang-ja .lang-en,
+    body.lang-ja .lang-zh,
+    body.lang-ja .lang-ko,
+    body.lang-ja .lang-es {
+      display: none !important;
+    }
+
+    body.lang-zh .lang-ja,
+    body.lang-zh .lang-en,
+    body.lang-zh .lang-ko,
+    body.lang-zh .lang-es {
+      display: none !important;
+    }
+
+    body.lang-ko .lang-ja,
+    body.lang-ko .lang-en,
+    body.lang-ko .lang-zh,
+    body.lang-ko .lang-es {
+      display: none !important;
+    }
+
+    body.lang-es .lang-ja,
+    body.lang-es .lang-en,
+    body.lang-es .lang-zh,
+    body.lang-es .lang-ko {
+      display: none !important;
+    }
 
     .lang-switcher {
       text-align: center;
@@ -202,8 +231,11 @@
           academic year, replacing "manaba+R".</p>
         <p class="lang-zh" style="margin: 8px 0 0 0; color: #555;">“Extension for Moodle+R”
           是一款旨在改善“Moodle+R”易用性的扩展程序。该系统是立命馆大学从2026学年开始取代“manaba+R”引入的新学习管理系统（LMS）。</p>
-        <p class="lang-ko" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R"는 2026학년도부터 "manaba+R"을 대체하여 리츠메이칸 대학에 새롭게 도입된 LMS "Moodle+R"을 더욱 사용하기 쉽게 만들어주는 확장 프로그램입니다.</p>
-        <p class="lang-es" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" es una extensión diseñada para mejorar la usabilidad de "Moodle+R", el nuevo LMS introducido en la Universidad de Ritsumeikan a partir del año académico 2026, en reemplazo de "manaba+R".</p>
+        <p class="lang-ko" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R"는 2026학년도부터 "manaba+R"을 대체하여
+          리츠메이칸 대학에 새롭게 도입된 LMS "Moodle+R"을 더욱 사용하기 쉽게 만들어주는 확장 프로그램입니다.</p>
+        <p class="lang-es" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" es una extensión diseñada
+          para mejorar la usabilidad de "Moodle+R", el nuevo LMS introducido en la Universidad de Ritsumeikan a partir
+          del año académico 2026, en reemplazo de "manaba+R".</p>
       </div>
     </div>
 
@@ -217,7 +249,8 @@
       <li>ドロワー内で各機能のオン・オフなどの設定を切り替えることができます。</li>
     </ul>
     <ul class="lang-en">
-      <li>Click the <strong>extension button</strong> added to the top right of the Moodle+R screen to open the settings drawer.</li>
+      <li>Click the <strong>extension button</strong> added to the top right of the Moodle+R screen to open the settings
+        drawer.</li>
       <li>You can toggle features on or off and configure settings inside the drawer.</li>
     </ul>
     <ul class="lang-zh">
@@ -229,7 +262,8 @@
       <li>서랍 내에서 각 기능을 켜고 끄거나 설정을 변경할 수 있습니다.</li>
     </ul>
     <ul class="lang-es">
-      <li>Haz clic en el <strong>botón de la extensión</strong> agregado en la esquina superior derecha de la pantalla de Moodle+R para abrir el panel de configuración.</li>
+      <li>Haz clic en el <strong>botón de la extensión</strong> agregado en la esquina superior derecha de la pantalla
+        de Moodle+R para abrir el panel de configuración.</li>
       <li>Puedes activar o desactivar cada función y ajustar la configuración dentro del panel.</li>
     </ul>
 
@@ -254,7 +288,10 @@
         </div>
       </li>
       <li>
-        <strong>教職員モード:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を直接アクセスできるように追加します。
+        <strong>スケジュールカラーのカスタマイズ:</strong> 設定ドロワーから、時間割のベースカラー、今日の曜日の色、現在のコマの色を好みに合わせてカスタマイズできます。
+      </li>
+      <li>
+        <strong>教職員モード・便利リンク:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を追加します。
         <img src="assets/staff-ribbon.png" alt="教職員モードの例" class="feature-img">
       </li>
       <li><strong>ホームスキップ:</strong> 使わないトップページをスキップして直接ダッシュボードに遷移します。</li>
@@ -263,8 +300,8 @@
       </li>
       <li>
         <strong>シラバス情報の表示:</strong>
-        Moodle'の授業ページに「シラバス」ボタンを追加し、ワンクリックでシラバスに直接アクセス。さらに、一度シラバスを開くだけで<strong>開講曜日・時限、担当教員、単位数、教室</strong>のデータを自動取得し、Moodleのコースページやダッシュボードからいつでも確認できるようにします。<br>
-        またコースページ内の取得された教室の場所から地図にアクセスできます。
+        Moodleの授業ページに「シラバス」ボタンを追加し、ワンクリックでシラバスに直接アクセス。さらに、一度シラバスを開くだけで<strong>開講曜日・時限、担当教員、単位数、教室</strong>のデータを自動取得し、Moodleのコースページやダッシュボードからいつでも確認できるようにします。<br>
+        また設定ドロワーから「登録された授業のシラバスを全て取得」で一括取得も可能です。コースページ内の取得された教室の場所から地図にアクセスできます。
         <img src="assets/syllabus.png" alt="シラバス連携の例" class="feature-img">
       </li>
       <li>
@@ -276,6 +313,9 @@
       </li>
       <li>
         <strong>先生へのメッセージ（DM）ボタン:</strong> コースページのヘッダーに「DM」ボタンを設置し、クリックするだけでその授業の担当の先生へのメッセージ送信画面を開きます。
+      </li>
+      <li>
+        <strong>多言語対応:</strong> UIとウェルカムページが日本語、英語、中国語、韓国語、スペイン語の5ヶ国語に対応しており、設定ドロワーからいつでも言語を切り替えられます。
       </li>
     </ul>
 
@@ -294,7 +334,12 @@
         </div>
       </li>
       <li>
-        <strong>Staff Mode:</strong> Adds direct links to the ribbon for staff (Staff Portal, Respon, Timeclock, etc.).
+        <strong>Customizable Schedule Colors:</strong> Customize the base color of the timetable, today's column color,
+        and the current class slot color from the settings drawer to suit your preferences.
+      </li>
+      <li>
+        <strong>Staff Mode & Useful Links:</strong> Adds direct links to the ribbon for staff (Staff Portal, Respon,
+        Timeclock, etc.).
         <img src="assets/staff-ribbon.png" alt="Staff Mode Example" class="feature-img">
       </li>
       <li><strong>Home Skip:</strong> Skips the unused top page and redirects directly to the dashboard.</li>
@@ -307,7 +352,8 @@
         Adds a "Syllabus" button to Moodle course pages for one-click access. Furthermore, simply opening a syllabus
         once will automatically fetch the <strong>schedule, teacher, credits, and room</strong> data, allowing you to
         check them anytime from the Moodle course page or dashboard.<br>
-        You can also access the campus map from the fetched room location on the course page.
+        You can also fetch all registered syllabus at once from the settings drawer. You can also access the campus map
+        from the fetched room location on the course page.
         <img src="assets/syllabus.png" alt="Syllabus Integration Example" class="feature-img">
       </li>
       <li>
@@ -321,6 +367,10 @@
       <li>
         <strong>Direct Message (DM) Button:</strong> Places a "DM" button on the course page header. Clicking it opens
         the message composition screen for the instructor of that class.
+      </li>
+      <li>
+        <strong>Multi-language Support:</strong> The UI and welcome page support 5 languages (Japanese, English,
+        Chinese, Korean, Spanish). You can switch languages anytime from the settings drawer.
       </li>
     </ul>
 
@@ -339,7 +389,10 @@
         </div>
       </li>
       <li>
-        <strong>教职工模式:</strong> 在功能区添加教职工专用链接（如教职工门户、Respon、打卡等）。
+        <strong>自定义课表颜色:</strong> 您可以从设置抽屉中根据自己的喜好自定义课表的基础颜色、今天星期的颜色以及当前课程时段的颜色。
+      </li>
+      <li>
+        <strong>教职工模式与实用链接:</strong> 在功能区添加教职工专用链接（如教职工门户、Respon、打卡等）。
         <img src="assets/staff-ribbon.png" alt="教职工模式示例" class="feature-img">
       </li>
       <li><strong>跳过首页:</strong> 跳过未使用的首页，直接跳转至仪表板。</li>
@@ -350,7 +403,7 @@
         <strong>显示教学大纲信息:</strong>
         在 Moodle 的课程页面添加“教学大纲”按钮，一键直达大纲。此外，只需打开一次大纲，即可自动获取<strong>上课时间、授课教师、学分、教室</strong>数据，让您随时能从 Moodle
         的课程页面或仪表板查看。<br>
-        您还可以通过课程页面上获取的教室位置访问校园地图。
+        您还可以从设置抽屉中一键获取所有已注册课程的教学大纲。您还可以通过课程页面上获取的教室位置访问校园地图。
         <img src="assets/syllabus.png" alt="教学大纲整合示例" class="feature-img">
       </li>
       <li>
@@ -362,6 +415,9 @@
       </li>
       <li>
         <strong>发送消息 (DM) 按钮:</strong> 在课程页面顶部添加一个“DM”按钮。点击它即可打开向该课程讲师发送消息的编辑界面。
+      </li>
+      <li>
+        <strong>多语言支持:</strong> 用户界面和欢迎页面支持5种语言（日语、英语、中文、韩语、西班牙语）。您可以随时在设置抽屉中切换语言。
       </li>
     </ul>
 
@@ -380,7 +436,10 @@
         </div>
       </li>
       <li>
-        <strong>교직원 모드:</strong> 교직원을 위한 직접 링크(교직원 포털, Respon, 근태 관리 등)를 리본에 추가합니다.
+        <strong>시간표 색상 사용자 지정:</strong> 설정 서랍에서 시간표의 기본 색상, 오늘 요일의 색상, 현재 수업 시간의 색상을 취향에 맞게 사용자 지정할 수 있습니다.
+      </li>
+      <li>
+        <strong>교직원 모드 및 유용한 링크:</strong> 교직원을 위한 직접 링크(교직원 포털, Respon, 근태 관리 등)를 리본에 추가합니다.
         <img src="assets/staff-ribbon.png" alt="교직원 모드 예시" class="feature-img">
       </li>
       <li><strong>홈 건너뛰기:</strong> 사용하지 않는 시작 페이지를 건너뛰고 대시보드로 바로 이동합니다.</li>
@@ -389,8 +448,9 @@
       </li>
       <li>
         <strong>강의 계획서 정보 표시:</strong>
-        Moodle 수업 페이지에 "강의 계획서" 버튼을 추가하여 한 번의 클릭으로 접근할 수 있습니다. 또한, 강의 계획서를 한 번 열기만 하면 <strong>수업 시간, 담당 교수, 학점, 강의실</strong> 데이터를 자동으로 가져와 Moodle 수업 페이지나 대시보드에서 언제든지 확인할 수 있습니다.<br>
-        수업 페이지에서 가져온 강의실 위치를 통해 캠퍼스 맵에도 접속할 수 있습니다.
+        Moodle 수업 페이지에 "강의 계획서" 버튼을 추가하여 한 번의 클릭으로 접근할 수 있습니다. 또한, 강의 계획서를 한 번 열기만 하면 <strong>수업 시간, 담당 교수, 학점,
+          강의실</strong> 데이터를 자동으로 가져와 Moodle 수업 페이지나 대시보드에서 언제든지 확인할 수 있습니다.<br>
+        또한 설정 서랍에서 '등록된 수업의 강의 계획서 모두 가져오기'를 통해 일괄적으로 가져올 수도 있습니다. 수업 페이지에서 가져온 강의실 위치를 통해 캠퍼스 맵에도 접속할 수 있습니다.
         <img src="assets/syllabus.png" alt="강의 계획서 통합 예시" class="feature-img">
       </li>
       <li>
@@ -403,11 +463,15 @@
       <li>
         <strong>다이렉트 메시지 (DM) 버튼:</strong> 수업 페이지 상단에 "DM" 버튼을 배치합니다. 이 버튼을 클릭하면 해당 수업의 강사에게 메시지를 보낼 수 있는 작성 화면이 열립니다.
       </li>
+      <li>
+        <strong>다국어 지원:</strong> UI 및 환영 페이지는 5개 언어(일본어, 영어, 중국어, 한국어, 스페인어)를 지원합니다. 설정 서랍에서 언제든지 언어를 전환할 수 있습니다.
+      </li>
     </ul>
 
     <ul class="lang-es">
       <li>
-        <strong>Mejor Diseño:</strong> Hace que el horario sea más fácil de leer y utiliza el espacio de la pantalla de manera más efectiva.
+        <strong>Mejor Diseño:</strong> Hace que el horario sea más fácil de leer y utiliza el espacio de la pantalla de
+        manera más efectiva.
         <div class="before-after-container">
           <div class="image-wrapper">
             <span class="image-label">Antes</span>
@@ -420,17 +484,28 @@
         </div>
       </li>
       <li>
-        <strong>Modo Personal:</strong> Agrega enlaces directos en la cinta para el personal (Portal del Personal, Respon, Control de Asistencia, etc.).
+        <strong>Colores de Horario Personalizables:</strong> Personalice el color base del horario, el color de la
+        columna de hoy y el color del espacio de la clase actual desde el panel de configuración para que se adapte a
+        sus preferencias.
+      </li>
+      <li>
+        <strong>Modo Personal y Enlaces Útiles:</strong> Agrega enlaces directos en la cinta para el personal (Portal
+        del Personal, Respon, Control de Asistencia, etc.).
         <img src="assets/staff-ribbon.png" alt="Ejemplo del Modo Personal" class="feature-img">
       </li>
       <li><strong>Omitir Inicio:</strong> Omite la página de inicio no utilizada y redirige directamente al panel.</li>
       <li>
-        <strong>Resaltar Clase Actual:</strong> El espacio de la clase actual se resalta en el horario, lo que facilita ver qué clase estás tomando actualmente.
+        <strong>Resaltar Clase Actual:</strong> El espacio de la clase actual se resalta en el horario, lo que facilita
+        ver qué clase estás tomando actualmente.
       </li>
       <li>
         <strong>Mostrar Temario:</strong>
-        Agrega un botón de "Temario" a las páginas de cursos de Moodle para un acceso de un solo clic. Además, con solo abrir un temario una vez, se obtendrán automáticamente los datos de <strong>horario, profesor, créditos y aula</strong>, permitiéndote verificarlos en cualquier momento desde la página del curso o el panel de Moodle.<br>
-        También puedes acceder al mapa del campus desde la ubicación del aula obtenida en la página del curso.
+        Agrega un botón de "Temario" a las páginas de cursos de Moodle para un acceso de un solo clic. Además, con solo
+        abrir un temario una vez, se obtendrán automáticamente los datos de <strong>horario, profesor, créditos y
+          aula</strong>, permitiéndote verificarlos en cualquier momento desde la página del curso o el panel de
+        Moodle.<br>
+        También puede obtener todos los temarios registrados a la vez desde el panel de configuración. También puedes
+        acceder al mapa del campus desde la ubicación del aula obtenida en la página del curso.
         <img src="assets/syllabus.png" alt="Ejemplo de Integración de Temario" class="feature-img">
       </li>
       <li>
@@ -438,10 +513,17 @@
         <img src="assets/dark-mode-welcome.png" alt="Ejemplo del Modo Oscuro" class="feature-img">
       </li>
       <li>
-        <strong>Marcar Foro como Leído:</strong> Agrega un botón de "Marcar todo como leído" a las pantallas de los foros, lo que te permite marcar todas las publicaciones no leídas como leídas con un solo clic.
+        <strong>Marcar Foro como Leído:</strong> Agrega un botón de "Marcar todo como leído" a las pantallas de los
+        foros, lo que te permite marcar todas las publicaciones no leídas como leídas con un solo clic.
       </li>
       <li>
-        <strong>Botón de Mensaje Directo (DM):</strong> Coloca un botón de "DM" en el encabezado de la página del curso. Al hacer clic en él, se abre la pantalla de redacción de mensajes para el instructor de esa clase.
+        <strong>Botón de Mensaje Directo (DM):</strong> Coloca un botón de "DM" en el encabezado de la página del curso.
+        Al hacer clic en él, se abre la pantalla de redacción de mensajes para el instructor de esa clase.
+      </li>
+      <li>
+        <strong>Soporte Multilingüe:</strong> La interfaz de usuario y la página de bienvenida admiten 5 idiomas
+        (japonés, inglés, chino, coreano, español). Puede cambiar de idioma en cualquier momento desde el panel de
+        configuración.
       </li>
     </ul>
 
@@ -477,14 +559,22 @@
     </p>
     <p class="lang-ko">
       본 확장 프로그램은 개인이 개발한 비공식 도구이며, 리츠메이칸 대학 및 Moodle과는 전혀 관계가 없습니다. 본 확장 프로그램에 대해 대학 측에 문의하지 마십시오.<br>
-      본 확장 프로그램의 이용으로 인해 발생한 직·간접적인 문제, 불이익 또는 손해(예: 과제 제출 지연, 데이터 미반영 등)에 대해 개발자는 일체의 책임을 지지 않습니다. 전적으로 사용자 본인의 책임하에 사용하시기 바랍니다.<br>
-      또한, 대학 시스템(Moodle이나 강의 계획서 등)의 업데이트나 사양 변경에 따라 본 확장 프로그램이 정상적으로 작동하지 않거나 화면 표시가 깨질 수 있습니다. 또한, 개발자의 재량에 따라 예고 없이 기능 추가, 변경, 업데이트를 하거나 본 확장 프로그램의 제공을 중단할 수 있습니다. 이 점 미리 양해 부탁드립니다.<br>
+      본 확장 프로그램의 이용으로 인해 발생한 직·간접적인 문제, 불이익 또는 손해(예: 과제 제출 지연, 데이터 미반영 등)에 대해 개발자는 일체의 책임을 지지 않습니다. 전적으로 사용자 본인의 책임하에
+      사용하시기 바랍니다.<br>
+      또한, 대학 시스템(Moodle이나 강의 계획서 등)의 업데이트나 사양 변경에 따라 본 확장 프로그램이 정상적으로 작동하지 않거나 화면 표시가 깨질 수 있습니다. 또한, 개발자의 재량에 따라 예고 없이
+      기능 추가, 변경, 업데이트를 하거나 본 확장 프로그램의 제공을 중단할 수 있습니다. 이 점 미리 양해 부탁드립니다.<br>
       아울러, 본 확장 프로그램을 설치한 시점에 면책 조항에 동의한 것으로 간주합니다.
     </p>
     <p class="lang-es">
-      Esta extensión es una herramienta no oficial desarrollada por un individuo y no está afiliada con la Universidad de Ritsumeikan o Moodle. Por favor, no contacte a la universidad en relación con esta extensión.<br>
-      El desarrollador no asume ninguna responsabilidad por ningún problema, desventaja o daño directo o indirecto (por ejemplo, envíos de tareas retrasados, datos no reflejados) causado por el uso de esta extensión. Utilícela bajo su propio riesgo.<br>
-      Además, debido a actualizaciones o cambios de especificaciones en los sistemas de la universidad (como Moodle o Temario), esta extensión puede dejar de funcionar correctamente o la visualización puede distorsionarse. Además, el desarrollador puede agregar, cambiar, actualizar funciones o suspender la provisión de esta extensión sin previo aviso. Por favor, tenga esto en cuenta de antemano.<br>
+      Esta extensión es una herramienta no oficial desarrollada por un individuo y no está afiliada con la Universidad
+      de Ritsumeikan o Moodle. Por favor, no contacte a la universidad en relación con esta extensión.<br>
+      El desarrollador no asume ninguna responsabilidad por ningún problema, desventaja o daño directo o indirecto (por
+      ejemplo, envíos de tareas retrasados, datos no reflejados) causado por el uso de esta extensión. Utilícela bajo su
+      propio riesgo.<br>
+      Además, debido a actualizaciones o cambios de especificaciones en los sistemas de la universidad (como Moodle o
+      Temario), esta extensión puede dejar de funcionar correctamente o la visualización puede distorsionarse. Además,
+      el desarrollador puede agregar, cambiar, actualizar funciones o suspender la provisión de esta extensión sin
+      previo aviso. Por favor, tenga esto en cuenta de antemano.<br>
       Al instalar esta extensión, se considera que ha aceptado este descargo de responsabilidad.
     </p>
 
@@ -509,11 +599,13 @@
       在您安装本扩展程序时，即视为您已同意该隐私政策。
     </p>
     <p class="lang-ko">
-      본 확장 프로그램의 개인정보 취급에 대해서는 이 <a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">개인정보처리방침</a>을 확인해 주십시오.<br>
+      본 확장 프로그램의 개인정보 취급에 대해서는 이 <a href="privacy.html"
+        style="color: #2196F3; font-weight: bold; text-decoration: none;">개인정보처리방침</a>을 확인해 주십시오.<br>
       아울러, 본 확장 프로그램을 설치한 시점에 개인정보처리방침에 동의한 것으로 간주합니다.
     </p>
     <p class="lang-es">
-      Para el manejo de información personal en esta extensión, por favor revise esta <a href="privacy.html" style="color: #2196F3; font-weight: bold; text-decoration: none;">Política de Privacidad</a>.<br>
+      Para el manejo de información personal en esta extensión, por favor revise esta <a href="privacy.html"
+        style="color: #2196F3; font-weight: bold; text-decoration: none;">Política de Privacidad</a>.<br>
       Al instalar esta extensión, se considera que ha aceptado la política de privacidad.
     </p>
 
@@ -572,11 +664,13 @@
         <a href="mailto:potatogamer1023@gmail.com">이메일 (potatogamer1023@gmail.com)</a>
       <p>이 확장 프로그램이 유용하다고 생각되신다면, 개발을 위해 후원해 주시면 감사하겠습니다.<br>
         아래 QR 코드를 사용하여 PayPay로 후원하실 수 있습니다.<br>
-        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QR 코드" class="feature-img" style="max-width: 200px;">
+        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="PayPay QR 코드"
+          class="feature-img" style="max-width: 200px;">
       </p>
     </div>
     <div class="contact-links lang-es">
-      <p>Si tiene algún informe de errores, solicitudes de funciones u otras preguntas, no dude en contactarnos a través del siguiente formulario.<br>
+      <p>Si tiene algún informe de errores, solicitudes de funciones u otras preguntas, no dude en contactarnos a través
+        del siguiente formulario.<br>
         <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">Formulario de Contacto (Google Forms)</a>
       </p>
       <p>Alternativamente, puede comunicarse a través de las siguientes redes sociales o correo electrónico.<br>
@@ -584,7 +678,8 @@
         <a href="mailto:potatogamer1023@gmail.com">Correo Electrónico (potatogamer1023@gmail.com)</a>
       <p>Si encuentra útil esta extensión, agradecería su apoyo para su desarrollo.<br>
         Se aceptan donaciones a través de PayPay usando el código QR a continuación.<br>
-        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="Código QR de PayPay" class="feature-img" style="max-width: 200px;">
+        <img src="https://bear-guy.github.io/Extension-for-Moodle-R/assets/paypay-qr.JPG" alt="Código QR de PayPay"
+          class="feature-img" style="max-width: 200px;">
       </p>
     </div>
 
@@ -594,15 +689,16 @@
       <a href="privacy.html" class="lang-en" style="color: #666; text-decoration: underline; font-size: 14px;">Privacy
         Policy</a>
       <a href="privacy.html" class="lang-zh" style="color: #666; text-decoration: underline; font-size: 14px;">隐私政策</a>
-      <a href="privacy.html" class="lang-ko" style="color: #666; text-decoration: underline; font-size: 14px;">개인정보처리방침</a>
-      <a href="privacy.html" class="lang-es" style="color: #666; text-decoration: underline; font-size: 14px;">Política de Privacidad</a>
+      <a href="privacy.html" class="lang-ko"
+        style="color: #666; text-decoration: underline; font-size: 14px;">개인정보처리방침</a>
+      <a href="privacy.html" class="lang-es" style="color: #666; text-decoration: underline; font-size: 14px;">Política
+        de Privacidad</a>
     </div>
 
     <div class="lang-switcher">
       <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a> <span
-        style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a> <span
-        style="color: #ccc;">|</span> <a id="langBtnKo">KO</a> <span
-        style="color: #ccc;">|</span> <a id="langBtnEs">ES</a>
+        style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a> <span style="color: #ccc;">|</span> <a
+        id="langBtnKo">KO</a> <span style="color: #ccc;">|</span> <a id="langBtnEs">ES</a>
     </div>
 
     <div class="footer">
