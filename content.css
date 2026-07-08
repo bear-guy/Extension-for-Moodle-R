@@ -721,10 +721,10 @@ body.dark-mode img.icon[src*="pdf"] {
 
 
 /* --- カスタム設定ドロワ・ボタン（ネイティブのブロックドロワと完全一致） --- */
-/* ヘッダー → カスタムメニュー → ブロックドロワ の順に配置 */
-/* ネイティブのブロックドロワボタンをカスタムボタンの下にずらす */
+/* ヘッダー → ブロックドロワ → カスタムメニュー の順に配置 */
+/* Moodleネイティブのブロックドロワボタンを上に、カスタムボタンをその下に配置 */
 body.moodle-ext-enabled .drawer-toggles .drawer-right-toggle {
-    top: calc(60px + 0.7rem + 56px + 20px) !important;
+    top: calc(60px + 0.7rem) !important;
 }
 
 /* 両ボタンの左端を揃える */
@@ -736,8 +736,8 @@ body.moodle-ext-enabled .drawer-toggles .drawer-right-toggle .btn {
 body.moodle-ext-enabled .custom-settings-toggler-wrapper {
     position: fixed;
     right: 0;
-    top: calc(60px + 0.7rem);
-    z-index: 1030; /* ドロワー(1040)より下になるよう変更 */
+    top: calc(60px + 0.7rem + 56px + 10px); /* ネイティブボタンの下に配置 (少しマージンを調整) */
+    z-index: 1029; /* ネイティブボタン(z-index: 1030)の背後に隠れないよう調整 */
     transition: right 0.3s ease;
 }
 
