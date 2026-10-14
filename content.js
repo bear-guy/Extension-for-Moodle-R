@@ -1,11 +1,16 @@
 // ==========================================
 // メッセージ受信（シラバス自動取得用）
 // ==========================================
+// ダッシュボードの時間割と、その下の「その他」（曜日・時限の無い授業）から授業コードを重複なく集める
+// （時間割の授業名からは授業コードを消して表示するので、元の文字列を残した title を優先する）
+const collectCourseCodes = () => {
+  const links = Array.from(document.querySelectorAll('.timetable-table table .subject a, .timetable-others .course-name a'));
+  return [...new Set(links.map(link => (link.title || link.textContent).match(/\d{5,}/)?.[0]).filter(Boolean))];
+};
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getCourseCodes") {
-    const subjects = Array.from(document.querySelectorAll('.timetable-table table .subject a'));
-    const courseCodes = [...new Set(subjects.map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
-    sendResponse({ courseCodes });
+    sendResponse({ courseCodes: collectCourseCodes() });
   } else if (request.action === "autoFetchCompleted") {
     if (confirm(window.MoodleExtI18n.getMessage('content_syllabus_auto_fetch_done', window.currentMoodleLang || 'ja'))) window.location.reload();
   }
@@ -166,25 +171,22 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
       let retryCount = 0;
       const waitForTimetable = setInterval(() => {
-        const subjects = document.querySelectorAll('.timetable-table table .subject a');
-        if (subjects.length > 0) {
+        // 時間割と「その他」の授業コードを一意に抽出（「その他」の授業だけの人もいる）
+        const courseCodes = collectCourseCodes();
+        if (courseCodes.length > 0) {
           clearInterval(waitForTimetable);
           chrome.storage.local.set({ hasPromptedAutoFetch: true });
 
-          // 授業コードを一意に抽出
-          const courseCodes = [...new Set(Array.from(subjects).map(link => (link.title || link.innerText).match(/\d{5,}/)?.[0]).filter(Boolean))];
-          if (courseCodes.length > 0) {
-            setTimeout(() => {
-              if (confirm(window.MoodleExtI18n.getMessage('content_prompt_install_thanks', currentLang, { count: courseCodes.length }))) {
-                chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
-                  chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
-                  alert(window.MoodleExtI18n.getMessage('content_prompt_fetch_started', currentLang, { count: courseCodes.length }));
-                });
-              } else {
-                chrome.storage.local.set({ isSyllabusEnabled: false });
-              }
-            }, 800); // 描画完了を少し待つ
-          }
+          setTimeout(() => {
+            if (confirm(window.MoodleExtI18n.getMessage('content_prompt_install_thanks', currentLang, { count: courseCodes.length }))) {
+              chrome.storage.local.set({ isSyllabusEnabled: true }, () => {
+                chrome.runtime.sendMessage({ action: "startAutoFetchSyllabus", courseCodes: courseCodes });
+                alert(window.MoodleExtI18n.getMessage('content_prompt_fetch_started', currentLang, { count: courseCodes.length }));
+              });
+            } else {
+              chrome.storage.local.set({ isSyllabusEnabled: false });
+            }
+          }, 800); // 描画完了を少し待つ
         } else if (retryCount >= 10) {
           clearInterval(waitForTimetable);
           isPrompting = false; // 時間割が読み込めなかった場合は再度チェック可能にする

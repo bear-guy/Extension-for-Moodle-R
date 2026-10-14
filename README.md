@@ -63,7 +63,7 @@
 ## 開発者・お問い合わせ
 
 不具合のご報告やご要望については、以下のSNS、メールアドレス、フォームよりご連絡ください。
-*   Email: potatogamer@gmail.com
+*   Email: somakumagai1023@gmail.com
 *   X: @somakumagai
 *   お問い合わせフォーム (Google Forms)
     https://forms.gle/THai6UsTLrEzRBWJ8
