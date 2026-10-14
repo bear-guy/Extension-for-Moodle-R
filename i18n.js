@@ -13,12 +13,7 @@ const translations = {
   "highlight_current": { "ja": "今日の時間割をハイライト", "en": "Highlight Today's Timetable", "zh": "高亮显示今日课表", "ko": "오늘의 시간표 강조", "es": "Resaltar el Horario de Hoy" },
   "dark_mode": { "ja": "ダークモード（ベータ）", "en": "Dark Mode (Beta)", "zh": "深色模式 (Beta)", "ko": "다크 모드 (베타)", "es": "Modo Oscuro (Beta)" },
   "feeling_lucky": { "ja": "I'm Feeling Lucky", "en": "I'm Feeling Lucky", "zh": "I'm Feeling Lucky", "ko": "I'm Feeling Lucky", "es": "I'm Feeling Lucky" },
-  "support_contact": { "ja": "サポート・お問い合わせ", "en": "Support / Contact", "zh": "支持与联系", "ko": "지원 / 문의", "es": "Soporte / Contacto" },
-  "feature_intro": { "ja": "機能の紹介", "en": "Features", "zh": "功能介绍", "ko": "기능 소개", "es": "Características" },
-  "privacy_policy": { "ja": "プライバシーポリシー", "en": "Privacy Policy", "zh": "隐私政策", "ko": "개인정보처리방침", "es": "Política de Privacidad" },
-  "language_auto": { "ja": "言語: 自動 (Auto)", "en": "Language: Auto", "zh": "语言: 自动 (Auto)", "ko": "언어: 자동 (Auto)", "es": "Idioma: Automático (Auto)" },
-  "language_ja": { "ja": "日本語", "en": "日本語", "zh": "日本語", "ko": "日本語", "es": "日本語" },
-  "language_en": { "ja": "English", "en": "English", "zh": "English", "ko": "English", "es": "English" },
+  "translate_moodle": { "ja": "Moodleの表示も翻訳", "en": "Translate Moodle UI", "zh": "同时翻译 Moodle 界面", "ko": "Moodle 화면도 번역", "es": "Traducir también la interfaz de Moodle" },
   "language_label": { "ja": "言語 (Language)", "en": "Language (言語)", "zh": "语言 (Language)", "ko": "언어 (Language)", "es": "Idioma (Language)" },
 
   // --- popup.js alerts & confirms ---
@@ -116,6 +111,11 @@ const translations = {
   "content_info_credits": { "ja": "単位:", "en": "Credits:", "zh": "学分:", "ko": "학점:", "es": "Créditos:" },
   "content_info_room": { "ja": "教室:", "en": "Room:", "zh": "教室:", "ko": "강의실:", "es": "Aula:" },
   "content_info_unknown": { "ja": "不明", "en": "Unknown", "zh": "未知", "ko": "알 수 없음", "es": "Desconocido" },
+  "content_status_link": { "ja": "本日の授業・定期試験について", "en": "Today's Classes & Exams", "zh": "今日上课及定期考试信息", "ko": "오늘의 수업·정기시험 안내", "es": "Clases de hoy y exámenes" },
+  "content_teacher_list": { "ja": "担当教員一覧", "en": "Instructors List", "zh": "授课教师列表", "ko": "담당 교수 목록", "es": "Lista de profesores" },
+  "content_teacher_fallback": { "ja": "先生", "en": "Teacher", "zh": "老师", "ko": "교수님", "es": "Profesor" },
+  "content_dm_to": { "ja": "{teacher}へDM", "en": "DM to {teacher}", "zh": "私信 {teacher}", "ko": "{teacher}님에게 DM", "es": "DM a {teacher}" },
+  "content_campus_map": { "ja": "{campus}キャンパスマップ（PDF）", "en": "{campus} Campus Map (PDF)", "zh": "{campus}校区地图（PDF）", "ko": "{campus} 캠퍼스 지도 (PDF)", "es": "Mapa del campus {campus} (PDF)" },
   "content_toast_syllabus_saved": { "ja": "シラバス情報を取得・保存しました。", "en": "Syllabus information fetched and saved.", "zh": "已获取并保存教学大纲信息。", "ko": "강의 계획서 정보를 가져와 저장했습니다.", "es": "Información del temario obtenida y guardada." },
   "content_settings_drawer_title": { "ja": "拡張機能の設定", "en": "Extension Settings", "zh": "扩展程序设置", "ko": "확장 프로그램 설정", "es": "Configuración de la extensión" },
   "content_settings_drawer_intro": {
@@ -151,6 +151,7 @@ const translations = {
   "tutorial_next": { "ja": "次へ", "en": "Next", "zh": "下一步", "ko": "다음", "es": "Siguiente" },
   "tutorial_skip": { "ja": "スキップ", "en": "Skip", "zh": "跳过", "ko": "건너뛰기", "es": "Omitir" },
   "tutorial_done": { "ja": "完了", "en": "Done", "zh": "完成", "ko": "완료", "es": "Hecho" },
+  "common_cancel": { "ja": "キャンセル", "en": "Cancel", "zh": "取消", "ko": "취소", "es": "Cancelar" },
   "start_tutorial": { "ja": "チュートリアル", "en": "Tutorial", "zh": "教程", "ko": "튜토리얼", "es": "Tutorial" },
   "tutorial_step1": {
     "ja": "ベターレイアウト：Moodleのレイアウトを見やすく整理します。",
@@ -224,21 +225,20 @@ const translations = {
   "day_sun": { "ja": "日", "en": "Sun", "zh": "周日", "ko": "일", "es": "Dom" }
 };
 
+const SUPPORTED_LANGS = ['ja', 'en', 'zh', 'ko', 'es'];
+
 window.MoodleExtI18n = {
+  // 保存された表示言語の設定から実際に使う言語コードを決める（未設定・'auto' ならブラウザの言語、非対応なら英語）
+  resolveLanguage: function (displayLanguage) {
+    if (SUPPORTED_LANGS.includes(displayLanguage)) return displayLanguage;
+    const browserLang = navigator.language.slice(0, 2);
+    return SUPPORTED_LANGS.includes(browserLang) ? browserLang : 'en';
+  },
+
   // 現在設定されている言語を取得する
   getLanguage: function (callback) {
-    chrome.storage.local.get(['displayLanguage'], function (result) {
-      if (result.displayLanguage && ['ja', 'en', 'zh', 'ko', 'es'].includes(result.displayLanguage)) {
-        callback(result.displayLanguage);
-      } else {
-        // 'auto' または設定がない場合はブラウザの言語を判定
-        let browserLang = 'en';
-        if (navigator.language.startsWith('ja')) browserLang = 'ja';
-        else if (navigator.language.startsWith('zh')) browserLang = 'zh';
-        else if (navigator.language.startsWith('ko')) browserLang = 'ko';
-        else if (navigator.language.startsWith('es')) browserLang = 'es';
-        callback(browserLang);
-      }
+    chrome.storage.local.get(['displayLanguage'], (result) => {
+      callback(window.MoodleExtI18n.resolveLanguage(result.displayLanguage));
     });
   },
 

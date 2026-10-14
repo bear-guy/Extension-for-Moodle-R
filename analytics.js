@@ -56,7 +56,8 @@ class Analytics {
         isSkipHomeEnabled: true,
         isStaffMode: false,
         isSyllabusEnabled: true,
-        isHighlightCurrentClassEnabled: true
+        isHighlightCurrentClassEnabled: true,
+        isTranslateMoodleEnabled: true
       }, (data) => {
         resolve(data);
       });
@@ -83,7 +84,8 @@ class Analytics {
         setting_skip_home: { value: settings.isSkipHomeEnabled ? 'ON' : 'OFF' },
         setting_staff_mode: { value: settings.isStaffMode ? 'ON' : 'OFF' },
         setting_syllabus: { value: settings.isSyllabusEnabled ? 'ON' : 'OFF' },
-        setting_highlight_class: { value: settings.isHighlightCurrentClassEnabled ? 'ON' : 'OFF' }
+        setting_highlight_class: { value: settings.isHighlightCurrentClassEnabled ? 'ON' : 'OFF' },
+        setting_translate_moodle: { value: settings.isTranslateMoodleEnabled ? 'ON' : 'OFF' }
       };
 
       // booleanなどを文字列化
@@ -115,7 +117,8 @@ class Analytics {
         body: JSON.stringify(body)
       });
     } catch (e) {
-      console.error('Failed to send GA event', e);
+      // 広告ブロッカーやオフラインで送信できないのは想定内なので、拡張機能のエラーとして記録しない
+      console.debug('Failed to send GA event', e);
     }
   }
 }

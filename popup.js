@@ -22,8 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const autoFetchSyllabusBtn = document.getElementById('autoFetchSyllabusBtn');
   const luckyBtn = document.getElementById('luckyBtn');
   const popupTitleIcon = document.getElementById('popupTitleIcon');
-  const popupTitleText = document.getElementById('popupTitleText');
   const languageSelect = document.getElementById('languageSelect');
+  const translateMoodleToggle = document.getElementById('translateMoodleToggle');
+  const translateMoodleWrapper = document.getElementById('translateMoodleWrapper');
   const closeDrawerBtn = document.getElementById('closeDrawerBtn');
   const baseColorSelect = document.getElementById('baseColorSelect');
   const baseColorWrapper = document.getElementById('baseColorWrapper');
@@ -140,9 +141,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ドロワーが開かれたときに虹色アニメーションを再実行する
+  // 設定画面が開かれたことを計測する
+  const sendPopupOpenedEvent = () => {
+    sendGAEvent('popup_opened', {
+      better_layout: toggle.checked,
+      dark_mode: darkToggle.checked,
+      skip_home: skipHomeToggle.checked,
+      staff_mode: staffModeToggle.checked,
+      highlight_current_class: highlightCurrentClassToggle.checked,
+      syllabus_auto_fetch: syllabusToggle ? syllabusToggle.checked : false
+    });
+  };
+
+  // ドロワーが開かれたときに計測し、虹色アニメーションを再実行する
+  // （ドロワーの iframe は Moodle のページを開くたびに読み込まれるため、読み込み時ではなく開いたときに計測する）
   window.addEventListener('message', (event) => {
     if (event.data && event.data.action === 'drawerOpened') {
+      sendPopupOpenedEvent();
       if (luckyBtn) {
         luckyBtn.classList.remove('rainbow-animate');
         void luckyBtn.offsetWidth; // リフローを強制してアニメーションをリセット
@@ -158,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLang = lang;
     document.documentElement.lang = currentLang;
     if (languageSelect) languageSelect.value = currentLang;
+    updateTranslateMoodleUI();
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -187,6 +203,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const selected = e.target.value;
       chrome.storage.local.set({ displayLanguage: selected }, () => { reloadTabs(); window.location.reload(); });
     });
+  }
+
+  // 「Moodleの表示も翻訳」は表示言語が日本語以外のときだけ有効
+  function updateTranslateMoodleUI() {
+    if (!translateMoodleToggle) return;
+    const isJapanese = currentLang === 'ja';
+    translateMoodleToggle.disabled = isJapanese;
+    translateMoodleWrapper.style.opacity = isJapanese ? '0.4' : '1';
   }
 
   // ベターレイアウトに依存するUI状態を更新する関数
@@ -230,17 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
       chrome.runtime.sendMessage({ action: 'reloadMoodleTabs' });
       return;
     }
-    // 現在開いているアクティブなタブを確実に再読み込みする
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs.length > 0) {
-        chrome.tabs.reload(tabs[0].id);
-      }
-    });
-    // 裏で開いているMoodleやシラバスの他のタブも再読み込みする
+    // 開いている Moodle とシラバスのタブだけを再読み込みする（他のサイトのタブは入力中の内容を失わないよう触らない）
     chrome.tabs.query({ url: ["*://lms.ritsumei.ac.jp/*", "*://syllabus.ritsumei.ac.jp/*"] }, (tabs) => {
-      tabs.forEach(tab => {
-        if (!tab.active) chrome.tabs.reload(tab.id);
-      });
+      tabs.forEach(tab => chrome.tabs.reload(tab.id));
     });
   };
 
@@ -299,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
       Object.assign(btnContainer.style, { display: 'flex', gap: '8px', justifyContent: 'center' });
 
       const cancelBtn = document.createElement('button');
-      cancelBtn.textContent = currentLang === 'ja' ? 'キャンセル' : 'Cancel';
+      cancelBtn.textContent = window.MoodleExtI18n.getMessage('common_cancel', currentLang);
       Object.assign(cancelBtn.style, {
         padding: '8px 16px', borderRadius: '6px', border: `1px solid ${isDark ? '#555' : '#ccc'}`,
         backgroundColor: isDark ? '#3a3a3a' : '#f5f5f5', color: isDark ? '#e0e0e0' : '#333',
@@ -343,21 +359,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow' }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow', isTranslateMoodleEnabled: true }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     highlightCurrentClassToggle.checked = data.isHighlightCurrentClassEnabled;
     staffModeToggle.checked = data.isStaffMode;
+    if (translateMoodleToggle) translateMoodleToggle.checked = data.isTranslateMoodleEnabled;
     if (luckyBtn) {
       luckyBtn.dataset.enabled = data.isLuckyEnabled;
       luckyBtn.classList.add('rainbow-animate');
       setTimeout(() => luckyBtn.classList.remove('rainbow-animate'), 1500);
     }
-    if (data.isLuckyEnabled) {
-      if (popupTitleIcon) popupTitleIcon.src = `lucky/${data.luckyUniversity}.icon128.png`;
-      if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
-    }
+    if (data.isLuckyEnabled && popupTitleIcon) popupTitleIcon.src = `lucky/${data.luckyUniversity}.icon128.png`;
     if (syllabusToggle) {
       syllabusToggle.checked = data.isSyllabusEnabled;
       updateSyllabusButtons(data.isEnabled && data.isSyllabusEnabled);
@@ -380,26 +394,13 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => document.body.classList.remove('preload'), 50);
     });
 
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('popup_opened', {
-        better_layout: data.isEnabled,
-        dark_mode: data.isDarkMode,
-        skip_home: data.isSkipHomeEnabled,
-        staff_mode: data.isStaffMode,
-        highlight_current_class: data.isHighlightCurrentClassEnabled,
-        syllabus_auto_fetch: data.isSyllabusEnabled
-      });
-    }
+    // ツールバーのポップアップは開いた時点で計測する（ドロワーは drawerOpened で計測）
+    if (!isInIframe) sendPopupOpenedEvent();
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
   toggle.addEventListener('change', async () => {
     const isEnabled = toggle.checked;
-
-    // イベント送信
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('feature_toggled', { feature_name: 'better_layout', enabled: isEnabled });
-    }
 
     // シラバスがオンの状態でベターレイアウトをオフにしようとした場合の警告
     if (!isEnabled && syllabusToggle && syllabusToggle.checked) {
@@ -409,6 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     }
+
+    sendGAEvent('feature_toggled', { feature_name: 'better_layout', enabled: isEnabled });
 
     updateDependentUI(isEnabled);
 
@@ -446,9 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (ダークモード)
   darkToggle.addEventListener('change', () => {
     const isDarkMode = darkToggle.checked;
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('feature_toggled', { feature_name: 'dark_mode', enabled: isDarkMode });
-    }
+    sendGAEvent('feature_toggled', { feature_name: 'dark_mode', enabled: isDarkMode });
     if (isDarkMode) {
       document.body.classList.add('dark-mode');
       document.documentElement.classList.add('dark-mode');
@@ -459,52 +460,46 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set({ isDarkMode: isDarkMode }, reloadTabs);
   });
 
+  // トグル切り替え時の処理 (Moodleの表示も翻訳)
+  if (translateMoodleToggle) {
+    translateMoodleToggle.addEventListener('change', () => {
+      sendGAEvent('feature_toggled', { feature_name: 'translate_moodle', enabled: translateMoodleToggle.checked });
+      chrome.storage.local.set({ isTranslateMoodleEnabled: translateMoodleToggle.checked }, reloadTabs);
+    });
+  }
+
   // I'm feeling lucky ボタンクリック時の処理
   if (luckyBtn) {
     const universities = ['doshisha', 'handai', 'kansai', 'kansaigakuin', 'keio', 'kyodai', 'todai', 'waseda'];
     luckyBtn.addEventListener('click', () => {
       const isEnabled = luckyBtn.dataset.enabled === 'true';
       const newState = !isEnabled;
-      if (typeof sendGAEvent === 'function') {
-        sendGAEvent('feature_toggled', { feature_name: 'im_feeling_lucky', enabled: newState });
-      }
+      sendGAEvent('feature_toggled', { feature_name: 'im_feeling_lucky', enabled: newState });
 
       const selectedUni = newState ? universities[Math.floor(Math.random() * universities.length)] : 'kyodai';
 
       chrome.storage.local.set({ isLuckyEnabled: newState, luckyUniversity: selectedUni }, () => {
         luckyBtn.dataset.enabled = newState;
-        if (newState) {
-          if (popupTitleIcon) popupTitleIcon.src = `lucky/${selectedUni}.icon128.png`;
-          if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
-        } else {
-          if (popupTitleIcon) popupTitleIcon.src = 'icons/icon128.png';
-          if (popupTitleText) popupTitleText.textContent = 'Extension for Moodle+R';
-        }
+        if (popupTitleIcon) popupTitleIcon.src = newState ? `lucky/${selectedUni}.icon128.png` : 'icons/icon128.png';
       });
     });
   }
 
   // トグル切り替え時の処理 (ホームスキップ)
   skipHomeToggle.addEventListener('change', () => {
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('feature_toggled', { feature_name: 'skip_home', enabled: skipHomeToggle.checked });
-    }
+    sendGAEvent('feature_toggled', { feature_name: 'skip_home', enabled: skipHomeToggle.checked });
     chrome.storage.local.set({ isSkipHomeEnabled: skipHomeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (教職員モード)
   staffModeToggle.addEventListener('change', () => {
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('feature_toggled', { feature_name: 'staff_mode', enabled: staffModeToggle.checked });
-    }
+    sendGAEvent('feature_toggled', { feature_name: 'staff_mode', enabled: staffModeToggle.checked });
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (現在の授業をハイライト)
   highlightCurrentClassToggle.addEventListener('change', () => {
-    if (typeof sendGAEvent === 'function') {
-      sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
-    }
+    sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
     updateDependentUI(toggle.checked);
     chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
   });
@@ -582,9 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (syllabusToggle) {
     syllabusToggle.addEventListener('change', async () => {
       const isEnabled = syllabusToggle.checked;
-      if (typeof sendGAEvent === 'function') {
-        sendGAEvent('feature_toggled', { feature_name: 'syllabus_auto_fetch', enabled: isEnabled });
-      }
 
       // オフにした際の警告
       if (!isEnabled) {
@@ -595,15 +587,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
+      sendGAEvent('feature_toggled', { feature_name: 'syllabus_auto_fetch', enabled: isEnabled });
+
       updateSyllabusButtons(isEnabled);
 
       chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, async () => {
         if (isEnabled) {
           const shouldFetch = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_enable_syllabus', currentLang));
           if (shouldFetch) {
-            if (typeof sendGAEvent === 'function') {
-              sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
-            }
+            sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
             triggerAutoFetch();
           } else {
             reloadTabs();
@@ -618,9 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // シラバスデータの自動取得ボタン
   if (autoFetchSyllabusBtn) {
     autoFetchSyllabusBtn.addEventListener('click', () => {
-      if (typeof sendGAEvent === 'function') {
-        sendGAEvent('action_taken', { action_name: 'click_auto_fetch_btn' });
-      }
+      sendGAEvent('action_taken', { action_name: 'click_auto_fetch_btn' });
       triggerAutoFetch();
     });
   }
@@ -630,9 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSyllabusDataBtn.addEventListener('click', async () => {
       const confirmed = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_clear_syllabus', currentLang));
       if (confirmed) {
-        if (typeof sendGAEvent === 'function') {
-          sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
-        }
+        sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
         clearSyllabusData(true, reloadTabs);
       }
     });
@@ -643,8 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (startTutorialBtn) {
     startTutorialBtn.addEventListener('click', () => {
       chrome.storage.local.set({ drawerIntroDismissed: false, tutorialCompletedVersion: null }, () => {
-        const isIframe = window !== window.parent;
-        if (isIframe) {
+        if (isInIframe) {
           // ドロワーを閉じてダッシュボード側の初期吹き出しを再表示させる（リロードなし）
           window.parent.postMessage({ action: 'closeSettingsDrawer' }, '*');
           setTimeout(() => {
@@ -743,8 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     };
 
-    const isIframe = window !== window.parent;
-    if (!isIframe) {
+    if (!isInIframe) {
       // 通常のポップアップ（拡張機能アイコンからのクリック等）の場合はすぐに表示
       checkAndShowTutorial();
     } else {

@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "ja",
   "name": "__MSG_extensionName__",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "icons/icon16.png",
@@ -33,6 +33,15 @@
     "type": "module"
   },
   "content_scripts": [
+    {
+      "matches": [
+        "https://lms.ritsumei.ac.jp/*"
+      ],
+      "js": [
+        "moodle-strings.js",
+        "moodle-translate.js"
+      ]
+    },
     {
       "matches": [
         "https://lms.ritsumei.ac.jp/*",

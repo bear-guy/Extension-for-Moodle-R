@@ -776,6 +776,7 @@ body.moodle-ext-enabled .custom-settings-toggler-wrapper .btn:hover .icon {
 /* ダークモード対応 */
 body.moodle-ext-enabled.dark-mode .custom-settings-toggler-wrapper .btn,
 body.moodle-ext-enabled.dark-mode .drawer-toggles .drawer-right-toggle .btn,
+body.moodle-ext-enabled.dark-mode .drawer-toggles .drawer-left-toggle .btn,
 body.moodle-ext-enabled.dark-mode .btn-footer-popover {
     background-color: #343a40 !important;
     color: #e0e0e0 !important;

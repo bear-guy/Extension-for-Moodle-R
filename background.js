@@ -42,6 +42,10 @@ let currentFetchTabId = null;
 let fetchTimeoutId = null;
 let originalTabId = null;
 
+// ユーザーがタブをドラッグしている間はタブの作成・削除が失敗するので、少し待って再試行する
+const TAB_RETRY_DELAY_MS = 500;
+const TAB_RETRY_MAX = 20;
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "sendDailySettings") {
     // sendGAEvent は analytics.js 側で設定情報を自動的に付与してくれます
@@ -55,11 +59,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "syllabusFetchComplete") {
     // 1つのシラバス取得が完了したらタブを閉じて次へ
     if (currentFetchTabId && sender.tab && sender.tab.id === currentFetchTabId) {
-      clearTimeout(fetchTimeoutId);
-      chrome.tabs.remove(currentFetchTabId, () => {
-        currentFetchTabId = null;
-        processNextFetch();
-      });
+      finishCurrentFetch();
     }
   } else if (request.action === "reloadMoodleTabs") {
     // ドロワー（iframe）からのタブリロード要求
@@ -67,31 +67,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       tabs.forEach(tab => chrome.tabs.reload(tab.id));
     });
   } else if (request.action === "triggerAutoFetchFromDrawer") {
-    // ドロワー（iframe）からのシラバス自動取得要求
-    chrome.tabs.query({ url: "*://lms.ritsumei.ac.jp/*" }, (tabs) => {
-      if (!tabs || tabs.length === 0) {
+    // ドロワー（iframe）からのシラバス自動取得要求。ドロワーを開いているタブの時間割から授業コードを集める
+    const targetTabId = sender.tab?.id;
+    if (!targetTabId) {
+      sendResponse({ status: 'no_codes' });
+      return;
+    }
+    chrome.tabs.sendMessage(targetTabId, { action: "getCourseCodes" }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
         sendResponse({ status: 'no_codes' });
         return;
       }
-      const targetTab = tabs.find(t => t.active) || tabs[0];
-      chrome.tabs.sendMessage(targetTab.id, { action: "getCourseCodes" }, (response) => {
-        if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
-          sendResponse({ status: 'no_codes' });
-          return;
+      const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
+      chrome.storage.local.get(storageKeys, (result) => {
+        const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
+        if (missingCodes.length === 0) {
+          sendResponse({ status: 'all_done' });
+        } else {
+          chrome.storage.local.set({ hasPromptedAutoFetch: true });
+          // processNextFetch がキューから shift するので、件数を返す missingCodes とは別の配列にする
+          fetchQueue = [...missingCodes];
+          originalTabId = targetTabId;
+          if (!isFetching) processNextFetch();
+          sendResponse({ status: 'started', count: missingCodes.length });
         }
-        const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
-        chrome.storage.local.get(storageKeys, (result) => {
-          const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
-          if (missingCodes.length === 0) {
-            sendResponse({ status: 'all_done' });
-          } else {
-            chrome.storage.local.set({ hasPromptedAutoFetch: true });
-            fetchQueue = missingCodes;
-            originalTabId = targetTab.id;
-            if (!isFetching) processNextFetch();
-            sendResponse({ status: 'started', count: missingCodes.length });
-          }
-        });
       });
     });
     return true; // 非同期レスポンスのために必要
@@ -118,16 +117,46 @@ function processNextFetch() {
   const nextCode = fetchQueue.shift();
   // 自動取得モードを示すパラメータを付与して開く
   const url = `https://syllabus.ritsumei.ac.jp/syllabus/s/?coursecode=${nextCode}&autofetch=true`;
-  
+  openFetchTab(url);
+}
+
+function openFetchTab(url, attempt = 0) {
   chrome.tabs.create({ url: url, active: false }, (tab) => {
+    if (chrome.runtime.lastError || !tab) {
+      // 作成できなければ再試行し、それでも駄目ならこの授業は飛ばして次へ（キューを止めない）
+      if (attempt < TAB_RETRY_MAX) {
+        setTimeout(() => openFetchTab(url, attempt + 1), TAB_RETRY_DELAY_MS);
+      } else {
+        processNextFetch();
+      }
+      return;
+    }
     currentFetchTabId = tab.id;
     fetchTimeoutId = setTimeout(() => {
       if (currentFetchTabId === tab.id) {
-        chrome.tabs.remove(currentFetchTabId, () => {
-          currentFetchTabId = null;
-          processNextFetch();
-        });
+        finishCurrentFetch();
       }
     }, 15000); // 15秒でタイムアウトして強制的に次へ
+  });
+}
+
+// 取得用タブを閉じて次の授業へ進む
+function finishCurrentFetch() {
+  clearTimeout(fetchTimeoutId);
+  const tabId = currentFetchTabId;
+  // 閉じ終わるまでに完了通知とタイムアウトが重なっても二重に進まないよう、先に外しておく
+  currentFetchTabId = null;
+  removeTabWithRetry(tabId, processNextFetch);
+}
+
+function removeTabWithRetry(tabId, callback, attempt = 0) {
+  chrome.tabs.remove(tabId, () => {
+    const error = chrome.runtime.lastError;
+    // ユーザーが既に閉じていた場合などは再試行しない
+    if (error && error.message.includes('cannot be edited') && attempt < TAB_RETRY_MAX) {
+      setTimeout(() => removeTabWithRetry(tabId, callback, attempt + 1), TAB_RETRY_DELAY_MS);
+      return;
+    }
+    callback();
   });
 }
