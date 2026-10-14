@@ -117,7 +117,8 @@ class Analytics {
         body: JSON.stringify(body)
       });
     } catch (e) {
-      console.error('Failed to send GA event', e);
+      // 広告ブロッカーやオフラインで送信できないのは想定内なので、拡張機能のエラーとして記録しない
+      console.debug('Failed to send GA event', e);
     }
   }
 }
