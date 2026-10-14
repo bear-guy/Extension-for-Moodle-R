@@ -67,31 +67,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       tabs.forEach(tab => chrome.tabs.reload(tab.id));
     });
   } else if (request.action === "triggerAutoFetchFromDrawer") {
-    // ドロワー（iframe）からのシラバス自動取得要求
-    chrome.tabs.query({ url: "*://lms.ritsumei.ac.jp/*" }, (tabs) => {
-      if (!tabs || tabs.length === 0) {
+    // ドロワー（iframe）からのシラバス自動取得要求。ドロワーを開いているタブの時間割から授業コードを集める
+    const targetTabId = sender.tab?.id;
+    if (!targetTabId) {
+      sendResponse({ status: 'no_codes' });
+      return;
+    }
+    chrome.tabs.sendMessage(targetTabId, { action: "getCourseCodes" }, (response) => {
+      if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
         sendResponse({ status: 'no_codes' });
         return;
       }
-      const targetTab = tabs.find(t => t.active) || tabs[0];
-      chrome.tabs.sendMessage(targetTab.id, { action: "getCourseCodes" }, (response) => {
-        if (chrome.runtime.lastError || !response || !response.courseCodes || response.courseCodes.length === 0) {
-          sendResponse({ status: 'no_codes' });
-          return;
+      const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
+      chrome.storage.local.get(storageKeys, (result) => {
+        const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
+        if (missingCodes.length === 0) {
+          sendResponse({ status: 'all_done' });
+        } else {
+          chrome.storage.local.set({ hasPromptedAutoFetch: true });
+          // processNextFetch がキューから shift するので、件数を返す missingCodes とは別の配列にする
+          fetchQueue = [...missingCodes];
+          originalTabId = targetTabId;
+          if (!isFetching) processNextFetch();
+          sendResponse({ status: 'started', count: missingCodes.length });
         }
-        const storageKeys = response.courseCodes.map(code => `syllabus_${code}`);
-        chrome.storage.local.get(storageKeys, (result) => {
-          const missingCodes = response.courseCodes.filter(code => !result[`syllabus_${code}`]);
-          if (missingCodes.length === 0) {
-            sendResponse({ status: 'all_done' });
-          } else {
-            chrome.storage.local.set({ hasPromptedAutoFetch: true });
-            fetchQueue = missingCodes;
-            originalTabId = targetTab.id;
-            if (!isFetching) processNextFetch();
-            sendResponse({ status: 'started', count: missingCodes.length });
-          }
-        });
       });
     });
     return true; // 非同期レスポンスのために必要

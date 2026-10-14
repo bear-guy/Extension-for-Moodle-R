@@ -32,10 +32,7 @@ chrome.storage.local.get({
   document.body.dataset.todayColor = data.todayColor;
   document.body.dataset.currentClassColor = data.currentClassColor;
 
-  let currentLang = data.displayLanguage;
-  if (!currentLang || currentLang === 'auto') {
-    currentLang = navigator.language.startsWith('ja') ? 'ja' : 'en';
-  }
+  const currentLang = window.MoodleExtI18n.resolveLanguage(data.displayLanguage);
   window.currentMoodleLang = currentLang;
 
   // 1日1回の設定状況送信
@@ -128,6 +125,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     `;
     document.head.appendChild(style);
   }
+
+  // 外部（シラバスサイト）から取得した文字列を HTML に埋め込むときのエスケープ
+  const escapeHtml = (str) => String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   // トースト通知を表示
   const showToast = (message) => {
@@ -231,6 +231,18 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
   // --- Moodle UI 調整機能 ---
 
+  // 各時限の授業時間（0:00 からの経過分）
+  const PERIODS = [
+    { p: 1, start: 540, end: 635 },   // 9:00〜10:35
+    { p: 2, start: 645, end: 740 },   // 10:45〜12:20
+    { p: 3, start: 790, end: 885 },   // 13:10〜14:45
+    { p: 4, start: 895, end: 990 },   // 14:55〜16:30
+    { p: 5, start: 1000, end: 1095 }, // 16:40〜18:15
+    { p: 6, start: 1105, end: 1200 }, // 18:25〜20:00
+    { p: 7, start: 1210, end: 1305 }  // 20:10〜21:45
+  ];
+  const formatMinutes = (minutes) => `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`;
+
   // レイアウトの最適化（時間割の加工など）
   const fixMoodleLayout = () => {
     document.body.classList.remove('limitedwidth');
@@ -249,16 +261,6 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // 時間割の表示調整
     const table = document.querySelector('.timetable-table table');
     if (table) {
-      const periodTimes = {
-        1: "9:00<br>|<br>10:35",
-        2: "10:45<br>|<br>12:20",
-        3: "13:10<br>|<br>14:45",
-        4: "14:55<br>|<br>16:30",
-        5: "16:40<br>|<br>18:15",
-        6: "18:25<br>|<br>20:00",
-        7: "20:10<br>|<br>21:45"
-      };
-
       // 曜日ヘッダーにその週の日付を追加
       const headerRow = table.querySelector('tr:not(.date-row)');
       if (headerRow && !headerRow.dataset.dateAdded && !table.querySelector('.date-row')) {
@@ -274,39 +276,39 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dateRow.className = 'date-row';
         dateRow.appendChild(document.createElement('th')); // 左上の空白セル
 
-        for (let i = 1; i <= 5; i++) { // 月(1)〜金(5)列に対して処理
+        for (let i = 1; i < headerRow.cells.length; i++) { // 月(1)〜土(6)列に対して処理（土曜の表示可否は下で判定）
           const dateTh = document.createElement('th');
           dateTh.style.textAlign = 'center';
 
-          if (headerRow.cells[i]) {
-            const cellDate = new Date(monday);
-            cellDate.setDate(monday.getDate() + (i - 1));
-            dateTh.innerHTML = `<span style="opacity: 0.8;">${cellDate.getMonth() + 1}/${cellDate.getDate()}</span>`;
-          }
+          const cellDate = new Date(monday);
+          cellDate.setDate(monday.getDate() + (i - 1));
+          dateTh.innerHTML = `<span style="opacity: 0.8;">${cellDate.getMonth() + 1}/${cellDate.getDate()}</span>`;
           dateRow.appendChild(dateTh);
-        }
-
-        // 土日の列（非表示列）も数を合わせる
-        for (let i = 6; i < headerRow.cells.length; i++) {
-          const hiddenTh = document.createElement('th');
-          hiddenTh.style.display = 'none';
-          dateRow.appendChild(hiddenTh);
         }
         if (headerRow.parentNode) headerRow.parentNode.insertBefore(dateRow, headerRow);
       }
 
+      // 土曜以降の列（6列目〜）は授業が入っている列だけ表示する（現状の Moodle+R に日曜列は無い）
+      const visibleWeekendColumns = new Set();
       table.querySelectorAll('tr').forEach((row) => {
-        if (row.classList.contains('date-row')) return; // 追加した日付の行は処理をスキップ
-        for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = 'none'; // 土日を隠す
+        for (let i = 6; i < row.cells.length; i++) {
+          if (row.cells[i].querySelector('.subject')) visibleWeekendColumns.add(i);
+        }
+      });
+
+      table.querySelectorAll('tr').forEach((row) => {
+        for (let i = 6; i < row.cells.length; i++) row.cells[i].style.display = visibleWeekendColumns.has(i) ? '' : 'none';
+        if (row.classList.contains('date-row')) return; // 追加した日付の行は以降の処理をスキップ
 
         // 時限セルに時間を追加
         if (row.cells.length > 0) {
           const timeCell = row.cells[0];
           if (!timeCell.dataset.timeAdded) {
             const p = timeCell.innerText.trim().match(/^\d/)?.[0];
-            if (p && periodTimes[p]) {
+            const period = PERIODS.find(t => String(t.p) === p);
+            if (period) {
               timeCell.dataset.timeAdded = "true";
-              timeCell.innerHTML = `<div style="font-weight:bold; font-size:1.1em;">${p}</div><div style="font-size:0.75em; line-height:1.2; margin-top:4px; opacity:0.8; letter-spacing:-0.5px;">${periodTimes[p]}</div>`;
+              timeCell.innerHTML = `<div style="font-weight:bold; font-size:1.1em;">${p}</div><div style="font-size:0.75em; line-height:1.2; margin-top:4px; opacity:0.8; letter-spacing:-0.5px;">${formatMinutes(period.start)}<br>|<br>${formatMinutes(period.end)}</div>`;
             }
           }
         }
@@ -316,11 +318,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         link.dataset.processed = "true";
         link.title = link.innerText.trim();
 
-        // 授業コードを含めた最初の6文字を削除し、§以降の文字も削除
-        let subjectText = link.innerText.trim();
-        if (subjectText.length > 6) {
-          subjectText = subjectText.substring(6).trim();
-        }
+        // 先頭の授業コード（例: "16965:"）を削除し、§以降の文字も削除
+        let subjectText = link.innerText.trim().replace(/^\d{5,}\s*[:：]\s*/, '');
         // 「月4:」や「火2・3:」などの曜日・時限表記を削除
         subjectText = subjectText.replace(/^[月火水木金土日][\d・]+[：:]\s*/, '');
         link.innerText = subjectText.replace(/\s*§.*/, '');
@@ -440,26 +439,21 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const table = document.querySelector('.timetable-table table');
     if (!table) return;
 
-    // 今日の曜日の列全体をハイライト
-    if (day >= 1 && day <= 5) {
-      Array.from(table.rows).forEach(row => {
-        if (row.cells[day]) row.cells[day].classList.add('today-column-highlight');
-      });
-    }
+    // 時間割の列は 月(1)〜土(6)。日曜日(getDay() = 0)は7列目を探すが、現状は日曜列が無いので何もしない
+    const column = day === 0 ? 7 : day;
 
-    if (day < 1 || day > 6) return;
+    // 今日の曜日の列全体をハイライト（土曜列が非表示のときは見えないだけで影響なし）
+    Array.from(table.rows).forEach(row => {
+      if (row.cells[column]) row.cells[column].classList.add('today-column-highlight');
+    });
 
-    const currentPeriod = [
-      { p: 1, s: 540, e: 635 }, { p: 2, s: 645, e: 740 }, { p: 3, s: 790, e: 885 },
-      { p: 4, s: 895, e: 990 }, { p: 5, s: 1000, e: 1095 }, { p: 6, s: 1105, e: 1200 },
-      { p: 7, s: 1210, e: 1305 }
-    ].find(t => currentMinutes >= t.s && currentMinutes <= t.e)?.p || 0;
+    const currentPeriod = PERIODS.find(t => currentMinutes >= t.start && currentMinutes <= t.end)?.p || 0;
 
     if (currentPeriod === 0) return;
 
     // 行の追加でズレないように、最初のセル（時限の数字）を見て対象の行を特定する
     const targetRow = Array.from(table.rows).find(row => row.cells.length > 0 && row.cells[0].innerText.trim().startsWith(currentPeriod.toString()));
-    const cell = targetRow ? targetRow.cells[day] : null;
+    const cell = targetRow ? targetRow.cells[column] : null;
 
     if (cell && !cell.classList.contains('empty')) cell.classList.add('current-class-highlight');
   };
@@ -502,7 +496,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dmButton.style.flexShrink = '0';
         dmButton.style.whiteSpace = 'nowrap';
         dmButton.textContent = 'DM';
-        dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, { teacher: link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher') });
+        dmButton.title = window.MoodleExtI18n.getMessage('content_message_teacher', currentLang, { teacher: link.textContent.trim() || window.MoodleExtI18n.getMessage('content_teacher_fallback', currentLang) });
         headerContainer.appendChild(dmButton);
       } else {
         const isDark = document.body.classList.contains('dark-mode');
@@ -539,12 +533,12 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         dropdown.style.minWidth = '160px';
 
         Array.from(teacherLinks).forEach(link => {
-          const teacherName = link.textContent.trim() || (currentLang === 'ja' ? '先生' : 'Teacher');
+          const teacherName = link.textContent.trim() || window.MoodleExtI18n.getMessage('content_teacher_fallback', currentLang);
           const item = document.createElement('a');
           item.href = link.href;
           item.target = '_blank';
           item.rel = 'noopener noreferrer';
-          item.textContent = currentLang === 'ja' ? `${teacherName}へDM` : `DM to ${teacherName}`;
+          item.textContent = window.MoodleExtI18n.getMessage('content_dm_to', currentLang, { teacher: teacherName });
           item.style.display = 'block';
           item.style.padding = '8px 16px';
           item.style.color = textColor;
@@ -639,33 +633,34 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
             fontSize: '0.9rem', fontWeight: 'bold', gap: '15px', flexShrink: '0', whiteSpace: 'nowrap'
           });
 
-          let roomHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_room', currentLang)}</strong> ${data.room || window.MoodleExtI18n.getMessage('content_info_unknown', currentLang)}`;
+          // シラバスサイトから取得した値は HTML として解釈させない。取得できなかった項目（"不明"）は表示言語に合わせる
+          const msg = (key, replacements) => window.MoodleExtI18n.getMessage(key, currentLang, replacements);
+          const display = (value) => (!value || value === '不明') ? msg('content_info_unknown') : escapeHtml(value);
+
+          let roomHTML = display(data.room);
           if (data.campus && data.room && data.room !== '不明') {
             const mapUrls = { '衣笠': '227619', 'BKC': '227632', 'OIC': '229844' };
             const matchedCampus = Object.keys(mapUrls).find(k => data.campus.includes(k));
-            if (matchedCampus) roomHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_room', currentLang)}</strong> <a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${data.campus}キャンパスマップ（PDF）">${data.room}</a>`;
+            if (matchedCampus) roomHTML = `<a href="https://www.ritsumei.ac.jp/file.jsp?id=${mapUrls[matchedCampus]}&f=.pdf" target="_blank" style="color: inherit; text-decoration: underline;" title="${escapeHtml(msg('content_campus_map', { campus: data.campus }))}">${display(data.room)}</a>`;
           }
-          let teacherHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> ${data.teacher}`;
-          if (data.teacher) {
-            const teachers = data.teacher.split(/[、,・\n]+/).map(t => t.trim()).filter(Boolean);
-            if (teachers.length > 1) {
-              const listText = currentLang === 'ja' ? '担当教員一覧' : 'Instructors List';
-              const bgColor = isDark ? '#3a3a3a' : '#ffffff';
-              const borderColor = isDark ? '#555' : '#ccc';
-              const textColor = isDark ? '#e0e0e0' : '#212529';
-              const linkColor = isDark ? '#66b2ff' : '#0056b3';
-              teacherHTML = `<strong>${window.MoodleExtI18n.getMessage('content_info_teacher', currentLang)}</strong> 
-                <details style="display: inline-block; position: relative; margin-left: 2px;">
-                  <summary style="cursor: pointer; color: ${linkColor}; font-weight: normal; text-decoration: underline; outline: none;">${listText}</summary>
-                  <div style="position: absolute; top: 100%; left: 0; background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; padding: 8px 12px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; white-space: nowrap; margin-top: 8px; font-weight: normal; line-height: 1.5;">
-                    ${teachers.join('<br>')}
-                  </div>
-                </details>`;
-            }
+          let teacherHTML = display(data.teacher);
+          const teachers = (data.teacher || '').split(/[、,・\n]+/).map(t => t.trim()).filter(Boolean);
+          if (teachers.length > 1) {
+            const bgColor = isDark ? '#3a3a3a' : '#ffffff';
+            const borderColor = isDark ? '#555' : '#ccc';
+            const textColor = isDark ? '#e0e0e0' : '#212529';
+            const linkColor = isDark ? '#66b2ff' : '#0056b3';
+            teacherHTML = `
+              <details style="display: inline-block; position: relative; margin-left: 2px;">
+                <summary style="cursor: pointer; color: ${linkColor}; font-weight: normal; text-decoration: underline; outline: none;">${msg('content_teacher_list')}</summary>
+                <div style="position: absolute; top: 100%; left: 0; background-color: ${bgColor}; color: ${textColor}; border: 1px solid ${borderColor}; padding: 8px 12px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; white-space: nowrap; margin-top: 8px; font-weight: normal; line-height: 1.5;">
+                  ${teachers.map(escapeHtml).join('<br>')}
+                </div>
+              </details>`;
           }
           // 表示用に曜日を現在の言語へ変換（ストレージのデータは変更しない）
           const translatedSchedule = window.MoodleExtI18n.translateSchedule(data.schedule, currentLang);
-          container.innerHTML = `<div><strong>${window.MoodleExtI18n.getMessage('content_info_schedule', currentLang)}</strong> ${translatedSchedule}</div><div>${teacherHTML}</div><div><strong>${window.MoodleExtI18n.getMessage('content_info_credits', currentLang)}</strong> ${data.credits}</div><div>${roomHTML}</div>`;
+          container.innerHTML = `<div><strong>${msg('content_info_schedule')}</strong> ${display(translatedSchedule)}</div><div><strong>${msg('content_info_teacher')}</strong> ${teacherHTML}</div><div><strong>${msg('content_info_credits')}</strong> ${display(data.credits)}</div><div><strong>${msg('content_info_room')}</strong> ${roomHTML}</div>`;
         }
       });
     }
@@ -730,27 +725,43 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     [0, 50, 150, 300].forEach(delay => setTimeout(triggerSearch, delay));
   };
 
+  // Shadow DOM の内側も含めて要素を検索する（シラバスサイトの詳細ページは LWC の Shadow DOM 内に描画される）
+  const deepQuerySelectorAll = (selector, root = document) => {
+    const results = Array.from(root.querySelectorAll(selector));
+    root.querySelectorAll('*').forEach(el => {
+      if (el.shadowRoot) results.push(...deepQuerySelectorAll(selector, el.shadowRoot));
+    });
+    return results;
+  };
+
   // シラバス情報の取得と保存（シラバスサイト用）
   const extractAndSaveSyllabusData = () => {
     if (!isSyllabusEnabled || new URLSearchParams(window.location.search).get('nosave') === 'true' || document.body.dataset.syllabusExtracted === "true" || window.syllabusExtractInterval) return;
 
     window.syllabusExtractInterval = setInterval(() => {
-      const courseNameEl = document.querySelector('td[data-label="授業科目名"]');
-      const labels = Array.from(document.querySelectorAll('span.slds-form-element__label'));
-      if (!courseNameEl || !labels.some(el => el.textContent.includes('授業施設'))) return;
+      const getCellText = (label) => deepQuerySelectorAll(`td[data-label="${label}"]`)[0]?.textContent.trim();
+      const courseName = getCellText('授業科目名');
+      // 項目ラベルのクラスは旧 slds-form-element__label、現行 syllabus-field__label
+      const labels = deepQuerySelectorAll('span.slds-form-element__label, span.syllabus-field__label');
+      if (!courseName || !labels.some(el => el.textContent.includes('授業施設'))) return;
 
-      const courseCode = courseNameEl.textContent.match(/\d{5,}/)?.[0];
+      const courseCode = courseName.match(/\d{5,}/)?.[0];
       if (!courseCode) return;
 
-      const getLabelNext = (text) => labels.find(el => el.textContent.includes(text))?.nextElementSibling?.textContent.trim();
+      // 値の要素には印刷用テキストと画面表示用コンポーネントが並んでおり、コンテンツスクリプトからは
+      // 両方の文字列が見えて重複するため、印刷用テキストがあればそちらだけを読む
+      const getLabelNext = (text) => {
+        const valueEl = labels.find(el => el.textContent.includes(text))?.nextElementSibling;
+        return (valueEl?.querySelector('.syllabus-field__print-text') || valueEl)?.textContent.trim();
+      };
       const cleanUrl = new URL(location.href);
       cleanUrl.searchParams.delete('autofetch'); cleanUrl.searchParams.delete('nosave');
       const currentUrlStr = cleanUrl.toString();
 
       const newSyllabusData = {
-        schedule: document.querySelector('td[data-label="開講曜日・時限"]')?.textContent.trim() || "不明",
-        teacher: document.querySelector('td[data-label="全担当教員"]')?.textContent.trim() || "不明",
-        credits: document.querySelector('td[data-label="単位数"]')?.textContent.trim() || "不明",
+        schedule: getCellText('開講曜日・時限') || "不明",
+        teacher: getCellText('全担当教員') || "不明",
+        credits: getCellText('単位数') || "不明",
         room: getLabelNext('授業施設') || "不明",
         campus: getLabelNext('キャンパス') || "不明"
       };
@@ -798,7 +809,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
     const btn = document.createElement('button');
     btn.className = 'btn icon-no-margin custom-settings-drawer-btn';
-    btn.title = window.MoodleExtI18n.getMessage('content_settings_drawer_title', currentLang) || '拡張機能の設定';
+    btn.title = window.MoodleExtI18n.getMessage('content_settings_drawer_title', currentLang);
     btn.setAttribute('data-toggle', 'tooltip');
     btn.setAttribute('data-placement', 'right');
     // Moodleの純正アイコンと全く同じ構造（width/height 24px）にする
@@ -827,7 +838,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
 
       const closeBtn = document.createElement('button');
       closeBtn.className = 'custom-drawer-intro-next';
-      closeBtn.textContent = window.MoodleExtI18n.getMessage('tutorial_next', currentLang) || '次へ';
+      closeBtn.textContent = window.MoodleExtI18n.getMessage('tutorial_next', currentLang);
       closeBtn.setAttribute('aria-label', 'Next');
 
       closeBtn.onclick = (e) => {
@@ -895,6 +906,12 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       if (isClosed) {
         drawer.style.right = '0';
         if (page) page.classList.add('show-custom-drawer-right');
+        // 紹介吹き出しが残っているとドロワーの陰からはみ出すので、開いた時点で役目を終えたものとして消す
+        const introBubble = document.querySelector('.custom-drawer-intro-bubble');
+        if (introBubble) {
+          introBubble.remove();
+          chrome.storage.local.set({ drawerIntroDismissed: true });
+        }
         // ドロワーが開いている間はBootstrapのツールチップDOMをCSSで非表示にする
         document.body.classList.add('custom-drawer-is-open');
         // ドロワーが開いたことをiframeに通知
