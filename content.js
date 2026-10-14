@@ -26,7 +26,8 @@ chrome.storage.local.get({
   displayLanguage: "",
   baseColor: "default",
   todayColor: "lightblue",
-  currentClassColor: "yellow"
+  currentClassColor: "yellow",
+  isTranslateMoodleEnabled: true
 }, (data) => {
   document.body.dataset.baseColor = data.baseColor;
   document.body.dataset.todayColor = data.todayColor;
@@ -34,6 +35,11 @@ chrome.storage.local.get({
 
   const currentLang = window.MoodleExtI18n.resolveLanguage(data.displayLanguage);
   window.currentMoodleLang = currentLang;
+
+  // Moodle 本体の UI を表示言語に翻訳する（ベターレイアウトとは独立した機能）
+  if (data.isTranslateMoodleEnabled && currentLang !== 'ja' && window.MoodleExtTranslate) {
+    window.MoodleExtTranslate.start(currentLang);
+  }
 
   // 1日1回の設定状況送信
   const today = new Date().toDateString();
@@ -379,7 +385,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     // 「学び支援サイト」の下に「本日の授業・定期試験について」を追加する
     const targetHref = 'https://www.ritsumei.ac.jp/pathways-future/';
     const statusUrl = 'https://www.ritsumei.ac.jp/academic-affairs/status/';
-    const statusName = '本日の授業・定期試験について';
+    const statusName = window.MoodleExtI18n.getMessage('content_status_link', currentLang);
 
     // 1. ヘッダーの「リンク集」ドロップダウン内
     const dropdownItems = document.querySelectorAll(`a.dropdown-item[href="${targetHref}"]`);

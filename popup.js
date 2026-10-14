@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const luckyBtn = document.getElementById('luckyBtn');
   const popupTitleIcon = document.getElementById('popupTitleIcon');
   const languageSelect = document.getElementById('languageSelect');
+  const translateMoodleToggle = document.getElementById('translateMoodleToggle');
+  const translateMoodleWrapper = document.getElementById('translateMoodleWrapper');
   const closeDrawerBtn = document.getElementById('closeDrawerBtn');
   const baseColorSelect = document.getElementById('baseColorSelect');
   const baseColorWrapper = document.getElementById('baseColorWrapper');
@@ -171,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentLang = lang;
     document.documentElement.lang = currentLang;
     if (languageSelect) languageSelect.value = currentLang;
+    updateTranslateMoodleUI();
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -200,6 +203,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const selected = e.target.value;
       chrome.storage.local.set({ displayLanguage: selected }, () => { reloadTabs(); window.location.reload(); });
     });
+  }
+
+  // 「Moodleの表示も翻訳」は表示言語が日本語以外のときだけ有効
+  function updateTranslateMoodleUI() {
+    if (!translateMoodleToggle) return;
+    const isJapanese = currentLang === 'ja';
+    translateMoodleToggle.disabled = isJapanese;
+    translateMoodleWrapper.style.opacity = isJapanese ? '0.4' : '1';
   }
 
   // ベターレイアウトに依存するUI状態を更新する関数
@@ -348,12 +359,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow' }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow', isTranslateMoodleEnabled: true }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     highlightCurrentClassToggle.checked = data.isHighlightCurrentClassEnabled;
     staffModeToggle.checked = data.isStaffMode;
+    if (translateMoodleToggle) translateMoodleToggle.checked = data.isTranslateMoodleEnabled;
     if (luckyBtn) {
       luckyBtn.dataset.enabled = data.isLuckyEnabled;
       luckyBtn.classList.add('rainbow-animate');
@@ -447,6 +459,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     chrome.storage.local.set({ isDarkMode: isDarkMode }, reloadTabs);
   });
+
+  // トグル切り替え時の処理 (Moodleの表示も翻訳)
+  if (translateMoodleToggle) {
+    translateMoodleToggle.addEventListener('change', () => {
+      sendGAEvent('feature_toggled', { feature_name: 'translate_moodle', enabled: translateMoodleToggle.checked });
+      chrome.storage.local.set({ isTranslateMoodleEnabled: translateMoodleToggle.checked }, reloadTabs);
+    });
+  }
 
   // I'm feeling lucky ボタンクリック時の処理
   if (luckyBtn) {

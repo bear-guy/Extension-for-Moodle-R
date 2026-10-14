@@ -13,6 +13,7 @@ const translations = {
   "highlight_current": { "ja": "今日の時間割をハイライト", "en": "Highlight Today's Timetable", "zh": "高亮显示今日课表", "ko": "오늘의 시간표 강조", "es": "Resaltar el Horario de Hoy" },
   "dark_mode": { "ja": "ダークモード（ベータ）", "en": "Dark Mode (Beta)", "zh": "深色模式 (Beta)", "ko": "다크 모드 (베타)", "es": "Modo Oscuro (Beta)" },
   "feeling_lucky": { "ja": "I'm Feeling Lucky", "en": "I'm Feeling Lucky", "zh": "I'm Feeling Lucky", "ko": "I'm Feeling Lucky", "es": "I'm Feeling Lucky" },
+  "translate_moodle": { "ja": "Moodleの表示も翻訳", "en": "Translate Moodle UI", "zh": "同时翻译 Moodle 界面", "ko": "Moodle 화면도 번역", "es": "Traducir también la interfaz de Moodle" },
   "language_label": { "ja": "言語 (Language)", "en": "Language (言語)", "zh": "语言 (Language)", "ko": "언어 (Language)", "es": "Idioma (Language)" },
 
   // --- popup.js alerts & confirms ---
@@ -110,6 +111,7 @@ const translations = {
   "content_info_credits": { "ja": "単位:", "en": "Credits:", "zh": "学分:", "ko": "학점:", "es": "Créditos:" },
   "content_info_room": { "ja": "教室:", "en": "Room:", "zh": "教室:", "ko": "강의실:", "es": "Aula:" },
   "content_info_unknown": { "ja": "不明", "en": "Unknown", "zh": "未知", "ko": "알 수 없음", "es": "Desconocido" },
+  "content_status_link": { "ja": "本日の授業・定期試験について", "en": "Today's Classes & Exams", "zh": "今日上课及定期考试信息", "ko": "오늘의 수업·정기시험 안내", "es": "Clases de hoy y exámenes" },
   "content_teacher_list": { "ja": "担当教員一覧", "en": "Instructors List", "zh": "授课教师列表", "ko": "담당 교수 목록", "es": "Lista de profesores" },
   "content_teacher_fallback": { "ja": "先生", "en": "Teacher", "zh": "老师", "ko": "교수님", "es": "Profesor" },
   "content_dm_to": { "ja": "{teacher}へDM", "en": "DM to {teacher}", "zh": "私信 {teacher}", "ko": "{teacher}님에게 DM", "es": "DM a {teacher}" },

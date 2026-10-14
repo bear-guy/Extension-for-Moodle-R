@@ -35,6 +35,15 @@
   "content_scripts": [
     {
       "matches": [
+        "https://lms.ritsumei.ac.jp/*"
+      ],
+      "js": [
+        "moodle-strings.js",
+        "moodle-translate.js"
+      ]
+    },
+    {
+      "matches": [
         "https://lms.ritsumei.ac.jp/*",
         "https://syllabus.ritsumei.ac.jp/*"
       ],

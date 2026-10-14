@@ -56,7 +56,8 @@ class Analytics {
         isSkipHomeEnabled: true,
         isStaffMode: false,
         isSyllabusEnabled: true,
-        isHighlightCurrentClassEnabled: true
+        isHighlightCurrentClassEnabled: true,
+        isTranslateMoodleEnabled: true
       }, (data) => {
         resolve(data);
       });
@@ -83,7 +84,8 @@ class Analytics {
         setting_skip_home: { value: settings.isSkipHomeEnabled ? 'ON' : 'OFF' },
         setting_staff_mode: { value: settings.isStaffMode ? 'ON' : 'OFF' },
         setting_syllabus: { value: settings.isSyllabusEnabled ? 'ON' : 'OFF' },
-        setting_highlight_class: { value: settings.isHighlightCurrentClassEnabled ? 'ON' : 'OFF' }
+        setting_highlight_class: { value: settings.isHighlightCurrentClassEnabled ? 'ON' : 'OFF' },
+        setting_translate_moodle: { value: settings.isTranslateMoodleEnabled ? 'ON' : 'OFF' }
       };
 
       // booleanなどを文字列化
