@@ -14,6 +14,9 @@ const translations = {
   "dark_mode": { "ja": "ダークモード（ベータ）", "en": "Dark Mode (Beta)", "zh": "深色模式 (Beta)", "ko": "다크 모드 (베타)", "es": "Modo Oscuro (Beta)" },
   "feeling_lucky": { "ja": "I'm Feeling Lucky", "en": "I'm Feeling Lucky", "zh": "I'm Feeling Lucky", "ko": "I'm Feeling Lucky", "es": "I'm Feeling Lucky" },
   "translate_moodle": { "ja": "Moodleの表示も翻訳", "en": "Translate Moodle UI", "zh": "同时翻译 Moodle 界面", "ko": "Moodle 화면도 번역", "es": "Traducir también la interfaz de Moodle" },
+  "deadline_display": { "ja": "課題の締め切りを表示", "en": "Show Deadlines", "zh": "显示作业截止时间", "ko": "과제 마감 표시", "es": "Mostrar Fechas Límite" },
+  "deadline_notify": { "ja": "締め切りを通知", "en": "Deadline Notifications", "zh": "截止提醒", "ko": "마감 알림", "es": "Avisos de Fechas Límite" },
+  "restore_dismissed_deadlines": { "ja": "非表示にした締め切りを戻す（{count}件）", "en": "Restore hidden deadlines ({count})", "zh": "恢复已隐藏的截止事项（{count} 项）", "ko": "숨긴 마감 다시 표시 ({count}건)", "es": "Restaurar fechas límite ocultas ({count})" },
   "language_label": { "ja": "言語 (Language)", "en": "Language (言語)", "zh": "语言 (Language)", "ko": "언어 (Language)", "es": "Idioma (Language)" },
 
   // --- popup.js alerts & confirms ---
@@ -73,6 +76,20 @@ const translations = {
     "ko": "강의 계획서 데이터가 지워졌습니다.",
     "es": "Datos del temario borrados."
   },
+  "alert_deadline_notify_denied": {
+    "ja": "通知が許可されなかったため、締め切りの通知はオフのままです。",
+    "en": "Notifications were not allowed, so deadline notifications remain off.",
+    "zh": "由于未允许通知，截止提醒仍处于关闭状态。",
+    "ko": "알림이 허용되지 않아 마감 알림이 꺼진 상태로 유지됩니다.",
+    "es": "No se permitieron las notificaciones, así que los avisos de fechas límite siguen desactivados."
+  },
+  "alert_deadlines_restored": {
+    "ja": "非表示にした締め切りを再び表示しました。",
+    "en": "Hidden deadlines are shown again.",
+    "zh": "已重新显示隐藏的截止事项。",
+    "ko": "숨긴 마감을 다시 표시했습니다.",
+    "es": "Las fechas límite ocultas se muestran de nuevo."
+  },
   "alert_no_data_to_clear": {
     "ja": "削除するデータがありません。",
     "en": "No data to clear.",
@@ -125,6 +142,29 @@ const translations = {
     "ko": "여기서 확장 프로그램 설정을 구성할 수 있습니다.",
     "es": "Puedes configurar los ajustes de la extensión desde aquí."
   },
+  "content_deadline_badge": { "ja": "締切 {count}", "en": "{count} due", "zh": "{count} 项截止", "ko": "마감 {count}", "es": "{count} por entregar" },
+  "content_deadline_overdue": { "ja": "期限切れ", "en": "Overdue", "zh": "已逾期", "ko": "기한 지남", "es": "Vencido" },
+  "content_deadline_dismiss": { "ja": "非表示", "en": "Hide", "zh": "隐藏", "ko": "숨기기", "es": "Ocultar" },
+  "content_deadline_undo": { "ja": "元に戻す", "en": "Undo", "zh": "撤销", "ko": "실행 취소", "es": "Deshacer" },
+  "content_deadline_dismiss_hint": {
+    "ja": "時間割・アイコンの件数・通知から外します。締め切りの日時が変わると再び表示されます。",
+    "en": "Removes this from the timetable, the icon count, and notifications. It will show again if the due date changes.",
+    "zh": "从课表、图标计数和提醒中移除。截止时间变更后会重新显示。",
+    "ko": "시간표, 아이콘 건수, 알림에서 제외합니다. 마감 일시가 바뀌면 다시 표시됩니다.",
+    "es": "La quita del horario, del contador del icono y de los avisos. Volverá a mostrarse si cambia la fecha límite."
+  },
+
+  // --- background.js（拡張アイコンのバッジ・通知） ---
+  "deadline_action_title": {
+    "ja": "24時間以内の締め切り: {count}件",
+    "en": "Deadlines within 24 hours: {count}",
+    "zh": "24小时内截止: {count} 项",
+    "ko": "24시간 이내 마감: {count}건",
+    "es": "Fechas límite en 24 horas: {count}"
+  },
+  // {time} は Intl.RelativeTimeFormat の「5 時間後」「in 5 hours」など
+  "deadline_notification_title": { "ja": "{time}に締め切り", "en": "Due {time}", "zh": "{time}截止", "ko": "{time} 마감", "es": "Vence {time}" },
+  "deadline_notification_dismiss": { "ja": "この締め切りを非表示", "en": "Hide this deadline", "zh": "隐藏此截止事项", "ko": "이 마감 숨기기", "es": "Ocultar esta fecha límite" },
   "status_canceled": {
     "ja": "【休講情報】休講情報あり",
     "en": "[Class Status] Classes are canceled",
@@ -188,6 +228,13 @@ const translations = {
     "ko": "오늘의 시간표 강조: 오늘의 수업을 색상으로 강조합니다.",
     "es": "Resaltar el Horario de Hoy: Resalta las clases de hoy con un color."
   },
+  "tutorial_step_deadline": {
+    "ja": "課題の締め切りを表示：7日以内の締め切りを時間割に、24時間以内の件数を拡張機能のアイコンに表示します。「締め切りを通知」をオンにすると、24時間前と1時間前にお知らせします。不要な締め切りはバッジをクリックして非表示にできます。",
+    "en": "Show Deadlines: Shows deadlines within 7 days on your timetable and the number due within 24 hours on the extension icon. Turn on Deadline Notifications to be notified 24 hours and 1 hour before. Click a badge to hide deadlines you don't need.",
+    "zh": "显示作业截止时间：在课表上显示7天内的截止事项，并在扩展图标上显示24小时内截止的数量。开启“截止提醒”后，会在截止前24小时和1小时通知您。点击徽章可隐藏不需要的截止事项。",
+    "ko": "과제 마감 표시: 7일 이내 마감을 시간표에, 24시간 이내 마감 건수를 확장 프로그램 아이콘에 표시합니다. '마감 알림'을 켜면 24시간 전과 1시간 전에 알려 드립니다. 필요 없는 마감은 배지를 클릭해 숨길 수 있습니다.",
+    "es": "Mostrar Fechas Límite: Muestra en tu horario las fechas límite de los próximos 7 días y, en el icono de la extensión, cuántas vencen en 24 horas. Activa Avisos de Fechas Límite para recibir avisos 24 horas y 1 hora antes. Haz clic en una insignia para ocultar las fechas límite que no necesites."
+  },
   "feature_intro": { "ja": "機能の紹介", "en": "Features", "zh": "功能介绍", "ko": "기능 소개", "es": "Características" },
   "support_contact": { "ja": "お問い合わせ", "en": "Contact Us", "zh": "联系我们", "ko": "문의하기", "es": "Contacto" },
   "privacy_policy": { "ja": "プライバシーポリシー", "en": "Privacy Policy", "zh": "隐私政策", "ko": "개인정보처리방침", "es": "Política de Privacidad" },
@@ -227,7 +274,8 @@ const translations = {
 
 const SUPPORTED_LANGS = ['ja', 'en', 'zh', 'ko', 'es'];
 
-window.MoodleExtI18n = {
+// background.js（Service Worker）からも import するので window ではなく globalThis に公開する
+globalThis.MoodleExtI18n = {
   // 保存された表示言語の設定から実際に使う言語コードを決める（未設定・'auto' ならブラウザの言語、非対応なら英語）
   resolveLanguage: function (displayLanguage) {
     if (SUPPORTED_LANGS.includes(displayLanguage)) return displayLanguage;
@@ -238,7 +286,7 @@ window.MoodleExtI18n = {
   // 現在設定されている言語を取得する
   getLanguage: function (callback) {
     chrome.storage.local.get(['displayLanguage'], (result) => {
-      callback(window.MoodleExtI18n.resolveLanguage(result.displayLanguage));
+      callback(globalThis.MoodleExtI18n.resolveLanguage(result.displayLanguage));
     });
   },
 

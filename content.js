@@ -32,7 +32,8 @@ chrome.storage.local.get({
   baseColor: "default",
   todayColor: "lightblue",
   currentClassColor: "yellow",
-  isTranslateMoodleEnabled: true
+  isTranslateMoodleEnabled: true,
+  isDeadlineEnabled: true
 }, (data) => {
   document.body.dataset.baseColor = data.baseColor;
   document.body.dataset.todayColor = data.todayColor;
@@ -70,7 +71,7 @@ chrome.storage.local.get({
   // 拡張機能のメイン処理開始
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
-    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity, currentLang);
+    initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity, currentLang, data.isDeadlineEnabled);
   }
 
   // ダークモードの適用・強制解除（シラバス）
@@ -88,7 +89,7 @@ chrome.storage.local.get({
 // ==========================================
 // 拡張機能のメイン処理
 // ==========================================
-const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, initialIsLuckyEnabled, initialLuckyUniversity, currentLang) => {
+const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEnabled, initialIsLuckyEnabled, initialLuckyUniversity, currentLang, isDeadlineEnabled) => {
   let isLuckyEnabled = initialIsLuckyEnabled;
   let luckyUniversity = initialLuckyUniversity;
   let originalLogoSrc = null;
@@ -115,6 +116,13 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       }
       if (changes.currentClassColor !== undefined) {
         document.body.dataset.currentClassColor = changes.currentClassColor.newValue;
+      }
+
+      // 締め切りの一覧や非表示にした締め切りが変わったら時間割のバッジを描き直す（別のタブ・通知・ドロワーで変えた場合も含む）
+      if ((changes.deadlineEvents !== undefined || changes.dismissedDeadlines !== undefined) && isDeadlineEnabled) {
+        if (changes.deadlineEvents !== undefined) deadlineEvents = changes.deadlineEvents.newValue || [];
+        if (changes.dismissedDeadlines !== undefined) dismissedDeadlines = changes.dismissedDeadlines.newValue || {};
+        renderDeadlineBadges();
       }
     }
   });
@@ -935,6 +943,220 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     };
   };
 
+  // --- 課題の締め切り ---
+
+  // 時間割のバッジに出す範囲（Moodle のタイムラインの既定「次の 7 日間」に合わせる）
+  const DEADLINE_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  let deadlineEvents = [];
+  // 「非表示」にした締め切り（{ "<イベント ID>:<締め切り時刻>": 非表示にした時刻 }）。期限が変わると別のキーになるので再び表示される
+  let dismissedDeadlines = {};
+  const deadlineKey = (e) => `${e.id}:${e.timesort}`;
+
+  // Moodle が返す名前は HTML エスケープされているので、表示用の文字列に戻す
+  const decodeHtml = (str) => new DOMParser().parseFromString(str || '', 'text/html').body.textContent;
+
+  // 締め切り（ダッシュボードのタイムラインと同じ API）を取得してストレージに保存する
+  // 拡張アイコンのバッジと通知は、保存された一覧をもとに background.js が出す
+  const fetchDeadlines = () => {
+    // content script からは M.cfg が見えないので、ページ内のフォームやログアウトリンクから sesskey を取る
+    const sesskey = document.querySelector('input[name="sesskey"]')?.value || document.querySelector('a[href*="sesskey="]')?.href.match(/sesskey=(\w+)/)?.[1];
+    if (!sesskey) return;
+    const isDashboard = /^\/(my\/)?(index\.php)?$/.test(window.location.pathname);
+
+    chrome.storage.local.get({ deadlineEvents: [], deadlineFetchedAt: 0, dismissedDeadlines: {} }, (stored) => {
+      deadlineEvents = stored.deadlineEvents;
+      dismissedDeadlines = stored.dismissedDeadlines;
+      renderDeadlineBadges();
+
+      // ダッシュボードでは毎回、それ以外のページでは 1 分に 1 回まで取り直す（提出後に開くページで一覧を新しくするため）
+      if (!isDashboard && Date.now() - stored.deadlineFetchedAt < 60 * 1000) return;
+      const now = Math.floor(Date.now() / 1000);
+      fetch(`/lib/ajax/service.php?sesskey=${encodeURIComponent(sesskey)}&info=core_calendar_get_action_events_by_timesort`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // 期限後も提出できる課題を拾うため 14 日前から取る（1 回に取れるのは 50 件まで）
+        body: JSON.stringify([{
+          index: 0,
+          methodname: 'core_calendar_get_action_events_by_timesort',
+          args: { timesortfrom: now - 14 * 24 * 60 * 60, limitnum: 50, limittononsuspendedevents: true }
+        }])
+      })
+        .then(res => res.json())
+        .then(([result]) => {
+          if (!result || result.error) return; // セッション切れなどのときは前回の一覧を残す
+          const events = result.data.events
+            // 「開始」（アンケートの受付開始など）は締め切りではない。期限を過ぎて提出もできないものは出さない
+            .filter(e => e.eventtype !== 'open' && !(e.overdue && !e.action?.actionable))
+            .filter(e => (e.url || '').startsWith('https://lms.ritsumei.ac.jp/'))
+            .map(e => ({
+              id: e.id,
+              courseId: e.course?.id,
+              courseName: decodeHtml(e.course?.fullname).replace(/^\d{5,}\s*[:：]\s*/, '').replace(/\s*§.*/, ''),
+              name: decodeHtml(e.activityname || e.name),
+              timesort: e.timesort,
+              url: e.url,
+              actionable: !!e.action?.actionable
+            }));
+          const updates = { deadlineFetchedAt: Date.now() };
+          // 一覧は変わったときだけ書き込む（background.js が通知の予定を組み直すきっかけになるため）
+          if (JSON.stringify(events) !== JSON.stringify(deadlineEvents)) updates.deadlineEvents = events;
+          chrome.storage.local.set(updates);
+        })
+        .catch(() => {});
+    });
+  };
+
+  const formatDeadline = (timesort) => new Intl.DateTimeFormat(currentLang, { month: 'numeric', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(timesort * 1000));
+
+  const deadlineLevel = (e, now) => {
+    const remaining = e.timesort * 1000 - now;
+    return remaining <= 0 ? 'overdue' : remaining <= DAY_MS ? 'urgent' : remaining <= 3 * DAY_MS ? 'soon' : 'later';
+  };
+
+  // 締め切りを非表示にする／戻す。締め切りから 14 日（取得する範囲）を過ぎた記録は消す（background.js にも同じ処理がある）
+  // 続けて押されたときに読み込みと書き込みが入れ違って記録が消えないよう、順番に処理する
+  let dismissQueue = Promise.resolve();
+  const setDeadlineDismissed = (key, dismissed) => {
+    dismissQueue = dismissQueue.then(() => new Promise((resolve) => {
+      chrome.storage.local.get({ dismissedDeadlines: {} }, (stored) => {
+        const now = Date.now();
+        const next = Object.fromEntries(Object.entries(stored.dismissedDeadlines).filter(([k]) => Number(k.split(':')[1]) * 1000 > now - 14 * DAY_MS));
+        if (dismissed) next[key] = now;
+        else delete next[key];
+        chrome.storage.local.set({ dismissedDeadlines: next }, resolve);
+      });
+    }));
+  };
+
+  // 時間割のバッジから開く、その授業の締め切りの一覧。各行に「非表示」ボタンを置く
+  // （時間割のセルの中に置くと .subject a の加工やセルのはみ出し制限を受けるので、body 直下に置いて位置を合わせる）
+  let deadlinePopover = null;
+  const closeDeadlinePopover = (focusBadge = false) => {
+    if (!deadlinePopover) return;
+    const { el, badge } = deadlinePopover;
+    deadlinePopover = null;
+    el.remove();
+    if (badge.isConnected) {
+      badge.setAttribute('aria-expanded', 'false');
+      if (focusBadge) badge.focus();
+    }
+  };
+
+  const openDeadlinePopover = (badge, events, focusFirst) => {
+    closeDeadlinePopover();
+    const msg = (key, replacements) => window.MoodleExtI18n.getMessage(key, currentLang, replacements);
+    const now = Date.now();
+
+    const el = document.createElement('div');
+    el.className = 'moodle-ext-deadline-popover';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', events[0].courseName);
+
+    const header = document.createElement('div');
+    header.className = 'moodle-ext-deadline-popover-header';
+    header.textContent = events[0].courseName;
+    el.appendChild(header);
+
+    events.forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'moodle-ext-deadline-row';
+
+      const info = document.createElement('div');
+      info.className = 'moodle-ext-deadline-info';
+      const date = document.createElement('div');
+      date.className = `moodle-ext-deadline-date ${deadlineLevel(e, now)}`;
+      date.textContent = formatDeadline(e.timesort) + (e.timesort * 1000 <= now ? ` (${msg('content_deadline_overdue')})` : '');
+      const link = document.createElement('a');
+      link.href = e.url;
+      link.textContent = e.name;
+      link.dataset.hiddenChecked = 'true'; // hideDuplicateLinks の対象にしない
+      info.append(date, link);
+
+      // 非表示にした行はその場で「元に戻す」に変わる（一覧を閉じるまで取り消せる）
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'moodle-ext-deadline-dismiss';
+      const showState = (dismissed) => {
+        row.classList.toggle('dismissed', dismissed);
+        button.textContent = msg(dismissed ? 'content_deadline_undo' : 'content_deadline_dismiss');
+        button.title = dismissed ? '' : msg('content_deadline_dismiss_hint');
+      };
+      button.addEventListener('click', () => {
+        const dismiss = !row.classList.contains('dismissed');
+        setDeadlineDismissed(deadlineKey(e), dismiss);
+        if (dismiss) chrome.runtime.sendMessage({ action: 'trackAction', actionName: 'dismiss_deadline_timetable' });
+        showState(dismiss);
+      });
+      showState(false);
+
+      row.append(info, button);
+      el.appendChild(row);
+    });
+
+    document.body.appendChild(el);
+    // バッジの下に出し、画面の右端からはみ出さないようにする
+    const rect = badge.getBoundingClientRect();
+    const left = Math.max(8, Math.min(rect.left, document.documentElement.clientWidth - el.offsetWidth - 8));
+    el.style.left = `${left + window.scrollX}px`;
+    el.style.top = `${rect.bottom + window.scrollY + 4}px`;
+
+    badge.setAttribute('aria-expanded', 'true');
+    deadlinePopover = { el, badge };
+    if (focusFirst) el.querySelector('a')?.focus();
+  };
+
+  // 一覧の外をクリック・Esc・画面サイズの変更で閉じる
+  document.addEventListener('mousedown', (e) => {
+    if (deadlinePopover && !deadlinePopover.el.contains(e.target) && !deadlinePopover.badge.contains(e.target)) closeDeadlinePopover();
+  }, true);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && deadlinePopover) closeDeadlinePopover(true);
+  });
+  window.addEventListener('resize', () => closeDeadlinePopover());
+
+  // 時間割と「その他」の授業に、7 日以内の締め切りの件数バッジを付ける（内容か緊急度が変わったときだけ描き直す）
+  const renderDeadlineBadges = () => {
+    const now = Date.now();
+    // 期限を過ぎていても提出できるものは「期限切れ」として残す。非表示にしたものは除く
+    const relevant = deadlineEvents.filter(e => e.timesort * 1000 - now <= DEADLINE_WINDOW_MS && (e.timesort * 1000 > now || e.actionable) && !dismissedDeadlines[deadlineKey(e)]);
+
+    document.querySelectorAll('.timetable-table .subject, .timetable-others td.course-name').forEach(container => {
+      const courseId = Number(container.querySelector('a[href*="course/view.php"]')?.href.match(/[?&]id=(\d+)/)?.[1]);
+      const events = relevant.filter(e => e.courseId === courseId).sort((a, b) => a.timesort - b.timesort);
+      const first = events[0];
+      const level = first ? deadlineLevel(first, now) : '';
+      const signature = first ? `${level}|${events.map(deadlineKey).join(',')}` : '';
+
+      const existing = container.querySelector('.moodle-ext-deadline-badge');
+      if ((existing?.dataset.signature || '') === signature) return;
+      existing?.remove();
+      if (!first) return;
+
+      // a 要素にすると時間割の授業名の加工（.subject a）の対象になってしまうので span をボタンとして振る舞わせる
+      const badge = document.createElement('span');
+      badge.className = `moodle-ext-deadline-badge ${level}`;
+      badge.dataset.signature = signature;
+      badge.setAttribute('role', 'button');
+      badge.setAttribute('aria-haspopup', 'dialog');
+      badge.setAttribute('aria-expanded', 'false');
+      badge.tabIndex = 0;
+      badge.textContent = window.MoodleExtI18n.getMessage('content_deadline_badge', currentLang, { count: events.length });
+      const overdueLabel = window.MoodleExtI18n.getMessage('content_deadline_overdue', currentLang);
+      badge.title = events.map(e => `${formatDeadline(e.timesort)}${e.timesort * 1000 <= now ? ` (${overdueLabel})` : ''}  ${e.name}`).join('\n');
+
+      const toggle = (focusFirst) => {
+        if (deadlinePopover?.badge === badge) closeDeadlinePopover();
+        else openDeadlinePopover(badge, events, focusFirst);
+      };
+      badge.addEventListener('click', (e) => { e.stopPropagation(); toggle(false); });
+      badge.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(true); }
+      });
+      container.appendChild(badge);
+    });
+  };
+
   // --- 監視と実行 ---
 
   // --- 休講情報・警戒レベルの通知バナー表示 ---
@@ -1000,6 +1222,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       addSettingsDrawer();
       checkAcademicStatus();
       if (isHighlightCurrentClassEnabled) highlightCurrentClass();
+      if (isDeadlineEnabled) renderDeadlineBadges();
       applySkipHomeLinks();
       addMarkAllReadButton();
     } else if (window.location.hostname.includes('syllabus.ritsumei.ac.jp')) {
@@ -1030,5 +1253,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
   runFeatures();
   if (isHighlightCurrentClassEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
     setInterval(highlightCurrentClass, 60000); // 1分ごとにハイライト更新
+  }
+  if (isDeadlineEnabled && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
+    fetchDeadlines();
+    setInterval(renderDeadlineBadges, 60000); // 1分ごとに締め切りの緊急度を更新
   }
 };

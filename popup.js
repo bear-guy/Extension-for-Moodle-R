@@ -32,6 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentClassColorSelect = document.getElementById('currentClassColorSelect');
   const todayColorWrapper = document.getElementById('todayColorWrapper');
   const currentClassColorWrapper = document.getElementById('currentClassColorWrapper');
+  const deadlineToggle = document.getElementById('deadlineToggle');
+  const deadlineWrapper = document.getElementById('deadlineWrapper');
+  const deadlineNotifyToggle = document.getElementById('deadlineNotifyToggle');
+  const deadlineNotifyWrapper = document.getElementById('deadlineNotifyWrapper');
+  const restoreDeadlinesWrapper = document.getElementById('restoreDeadlinesWrapper');
+  const restoreDeadlinesBtn = document.getElementById('restoreDeadlinesBtn');
+
+  // 締め切りの通知に使う任意の権限（manifest の optional_permissions）
+  const DEADLINE_PERMISSIONS = { permissions: ['notifications', 'alarms'] };
 
   // カスタムセレクトボックスの生成
   const colorOptions = [
@@ -149,7 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
       skip_home: skipHomeToggle.checked,
       staff_mode: staffModeToggle.checked,
       highlight_current_class: highlightCurrentClassToggle.checked,
-      syllabus_auto_fetch: syllabusToggle ? syllabusToggle.checked : false
+      syllabus_auto_fetch: syllabusToggle ? syllabusToggle.checked : false,
+      deadline_display: deadlineToggle.checked,
+      deadline_notification: deadlineNotifyToggle.checked
     });
   };
 
@@ -174,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.lang = currentLang;
     if (languageSelect) languageSelect.value = currentLang;
     updateTranslateMoodleUI();
+    updateRestoreDeadlinesLink();
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -233,6 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentClassColorSelect) currentClassColorSelect.disabled = !isHighlightEnabled;
     if (todayColorWrapper) todayColorWrapper.style.opacity = isHighlightEnabled ? '1' : '0.4';
     if (currentClassColorWrapper) currentClassColorWrapper.style.opacity = isHighlightEnabled ? '1' : '0.4';
+
+    deadlineToggle.disabled = !isEnabled;
+    deadlineWrapper.style.opacity = isEnabled ? '1' : '0.4';
+    const isDeadlineEnabled = isEnabled && deadlineToggle.checked;
+    deadlineNotifyToggle.disabled = !isDeadlineEnabled;
+    deadlineNotifyWrapper.style.opacity = isDeadlineEnabled ? '1' : '0.4';
   };
 
   // シラバス機能に依存するボタン状態を更新する関数
@@ -356,15 +374,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  // 締め切りの通知をやめる（予約済みのアラームを消してから権限を返す。設定の保存は background.js が権限の削除に合わせて行う）
+  const disableDeadlineNotify = async () => {
+    try {
+      if (chrome.alarms) await chrome.alarms.clearAll();
+      await chrome.permissions.remove(DEADLINE_PERMISSIONS);
+    } catch (e) {
+      console.debug('Failed to remove deadline permissions', e);
+    }
+  };
+
+  // 締め切りの表示をオフにしたときは、通知もやめて取得した一覧を消す
+  const clearDeadlineData = async () => {
+    deadlineNotifyToggle.checked = false;
+    await disableDeadlineNotify();
+    await chrome.storage.local.remove(['deadlineEvents', 'deadlineFetchedAt', 'deadlineNotified', 'dismissedDeadlines']);
+  };
+
+  // 「非表示にした締め切りを戻す（n件）」。今の一覧にあるものだけ数え、0 件なら出さない
+  // （提出済みなどで一覧から消えたものは、戻しても表示されないため）
+  function updateRestoreDeadlinesLink() {
+    chrome.storage.local.get({ deadlineEvents: [], dismissedDeadlines: {} }, ({ deadlineEvents, dismissedDeadlines }) => {
+      const count = deadlineEvents.filter(e => dismissedDeadlines[`${e.id}:${e.timesort}`]).length;
+      restoreDeadlinesWrapper.style.display = count ? 'block' : 'none';
+      restoreDeadlinesBtn.textContent = window.MoodleExtI18n.getMessage('restore_dismissed_deadlines', currentLang, { count });
+    });
+  }
+
+  // ドロワーは開いたまま時間割や通知で非表示にされることがあるので、変わったら数え直す
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && (changes.deadlineEvents || changes.dismissedDeadlines)) updateRestoreDeadlinesLink();
+  });
+
+  restoreDeadlinesBtn.addEventListener('click', () => {
+    sendGAEvent('action_taken', { action_name: 'restore_deadlines' });
+    chrome.storage.local.remove('dismissedDeadlines', () => {
+      safeAlert(window.MoodleExtI18n.getMessage('alert_deadlines_restored', currentLang));
+    });
+  });
+
   // 保存されている状態を取得
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow', isTranslateMoodleEnabled: true }, (data) => {
+  chrome.storage.local.get({ isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true, isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true, isLuckyEnabled: false, luckyUniversity: 'kyodai', baseColor: 'default', todayColor: 'lightblue', currentClassColor: 'yellow', isTranslateMoodleEnabled: true, isDeadlineEnabled: true, isDeadlineNotifyEnabled: false }, (data) => {
     toggle.checked = data.isEnabled;
     darkToggle.checked = data.isDarkMode;
     skipHomeToggle.checked = data.isSkipHomeEnabled;
     highlightCurrentClassToggle.checked = data.isHighlightCurrentClassEnabled;
     staffModeToggle.checked = data.isStaffMode;
+    deadlineToggle.checked = data.isDeadlineEnabled;
+    deadlineNotifyToggle.checked = data.isDeadlineNotifyEnabled;
     if (translateMoodleToggle) translateMoodleToggle.checked = data.isTranslateMoodleEnabled;
     if (luckyBtn) {
       luckyBtn.dataset.enabled = data.isLuckyEnabled;
@@ -436,6 +495,11 @@ document.addEventListener('DOMContentLoaded', () => {
       highlightCurrentClassToggle.checked = false;
       updates.isHighlightCurrentClassEnabled = false;
     }
+    if (!isEnabled && deadlineToggle.checked) {
+      deadlineToggle.checked = false;
+      updates.isDeadlineEnabled = false;
+      await clearDeadlineData();
+    }
 
     chrome.storage.local.set(updates, () => {
       if (shouldClearSyllabus) {
@@ -502,6 +566,34 @@ document.addEventListener('DOMContentLoaded', () => {
     sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
     updateDependentUI(toggle.checked);
     chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
+  });
+
+  // トグル切り替え時の処理 (課題の締め切りを表示)
+  deadlineToggle.addEventListener('change', async () => {
+    const isEnabled = deadlineToggle.checked;
+    sendGAEvent('feature_toggled', { feature_name: 'deadline_display', enabled: isEnabled });
+    if (!isEnabled) await clearDeadlineData();
+    updateDependentUI(toggle.checked);
+    chrome.storage.local.set({ isDeadlineEnabled: isEnabled }, reloadTabs);
+  });
+
+  // トグル切り替え時の処理 (締め切りを通知)
+  deadlineNotifyToggle.addEventListener('change', () => {
+    if (!deadlineNotifyToggle.checked) {
+      disableDeadlineNotify();
+      return;
+    }
+    // 許可ダイアログはクリックの直後にしか出せないので、ほかの処理より先に求める
+    // （許可されたときの設定の保存と計測は background.js が permissions.onAdded で行う）
+    chrome.permissions.request(DEADLINE_PERMISSIONS)
+      .then((granted) => {
+        deadlineNotifyToggle.checked = granted;
+        if (!granted) safeAlert(window.MoodleExtI18n.getMessage('alert_deadline_notify_denied', currentLang));
+      })
+      .catch((e) => {
+        console.debug('Failed to request deadline permissions', e);
+        deadlineNotifyToggle.checked = false;
+      });
   });
 
   if (baseColorSelect) {
@@ -658,7 +750,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { targetId: 'syllabusWrapper', i18nKey: 'tutorial_step3' },
     { targetId: 'staffModeWrapper', i18nKey: 'tutorial_step4' },
     { targetId: 'skipHomeWrapper', i18nKey: 'tutorial_step_skip_home' },
-    { targetId: 'highlightCurrentClassWrapper', i18nKey: 'tutorial_step5' }
+    { targetId: 'highlightCurrentClassWrapper', i18nKey: 'tutorial_step5' },
+    { targetId: 'deadlineWrapper', i18nKey: 'tutorial_step_deadline' }
   ];
 
   let currentTutorialStep = 0;

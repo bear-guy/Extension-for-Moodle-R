@@ -980,3 +980,184 @@ body.moodle-ext-enabled.dark-mode .extension-status-banner.canceled {
 body.moodle-ext-enabled.dark-mode .extension-status-banner.caution {
     background-color: #cc6000;
 }
+
+/* --- 課題の締め切りバッジ（時間割と「その他」の授業） --- */
+body.moodle-ext-enabled .moodle-ext-deadline-badge {
+    display: inline-block;
+    margin-top: 3px;
+    padding: 0 7px;
+    border-radius: 9px;
+    font-size: 0.72rem;
+    font-weight: bold;
+    line-height: 1.6;
+    white-space: nowrap;
+    color: #fff;
+    background-color: #607d8b; /* 4 日以上先 */
+    cursor: pointer;
+}
+
+body.moodle-ext-enabled .timetable-others .moodle-ext-deadline-badge {
+    margin: 0 0 0 6px;
+}
+
+/* 3 日以内 */
+body.moodle-ext-enabled .moodle-ext-deadline-badge.soon {
+    background-color: #e65100;
+}
+
+/* 24 時間以内・期限切れ（期限後も提出できるもの） */
+body.moodle-ext-enabled .moodle-ext-deadline-badge.urgent,
+body.moodle-ext-enabled .moodle-ext-deadline-badge.overdue {
+    background-color: #d32f2f;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-badge:hover {
+    opacity: 0.85;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-badge:focus-visible {
+    outline: 2px solid #2196F3;
+    outline-offset: 1px;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-badge {
+    background-color: #546e7a;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-badge.soon {
+    background-color: #bf4a00;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-badge.urgent,
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-badge.overdue {
+    background-color: #b71c1c;
+}
+
+/* --- 締め切りの一覧（バッジをクリックして開く） --- */
+body.moodle-ext-enabled .moodle-ext-deadline-popover {
+    position: absolute;
+    z-index: 1025; /* ナビバー（1030）より下 */
+    width: 300px;
+    max-width: calc(100vw - 16px);
+    padding: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #212529;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-popover-header {
+    padding: 0 12px 6px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-row + .moodle-ext-deadline-row {
+    border-top: 1px solid #f0f0f0;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-info {
+    flex: 1;
+    min-width: 0;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-date {
+    font-size: 0.75rem;
+    color: #607d8b;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-date.soon {
+    color: #e65100;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-date.urgent,
+body.moodle-ext-enabled .moodle-ext-deadline-date.overdue {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-info a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #0f6cbf;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-dismiss {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    color: #555;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+body.moodle-ext-enabled .moodle-ext-deadline-dismiss:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+/* 非表示にした行（一覧を閉じるまで「元に戻す」を押せる） */
+body.moodle-ext-enabled .moodle-ext-deadline-row.dismissed .moodle-ext-deadline-info {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-popover {
+    border-color: #555;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-popover-header {
+    border-bottom-color: #444;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-row + .moodle-ext-deadline-row {
+    border-top-color: #3a3a3a;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-date {
+    color: #90a4ae;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-date.soon {
+    color: #ffab40;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-date.urgent,
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-date.overdue {
+    color: #ef9a9a;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-info a {
+    color: #66b2ff;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-dismiss {
+    border-color: #555;
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-deadline-dismiss:hover {
+    background-color: #444;
+    color: #fff;
+}

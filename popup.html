@@ -512,6 +512,23 @@
     <span class="toggle-label" data-i18n="setting_current_color" style="font-size: 13px;">現在のコマの色</span>
     <div id="currentClassColorSelect" class="custom-select" data-type="color-select" data-allow-default="false"></div>
   </div>
+  <div class="toggle-wrapper" style="margin-top: 10px;" id="deadlineWrapper">
+    <span class="toggle-label" data-i18n="deadline_display">課題の締め切りを表示</span>
+    <label class="switch">
+      <input type="checkbox" id="deadlineToggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div class="toggle-wrapper" style="margin-top: 10px; margin-left: 10px;" id="deadlineNotifyWrapper">
+    <span class="toggle-label" data-i18n="deadline_notify" style="font-size: 13px;">締め切りを通知</span>
+    <label class="switch">
+      <input type="checkbox" id="deadlineNotifyToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+  <div style="text-align: right; margin-top: 8px; display: none;" id="restoreDeadlinesWrapper">
+    <span id="restoreDeadlinesBtn" class="clear-data-link"></span>
+  </div>
   <div class="toggle-wrapper" style="margin-top: 10px;">
     <span class="toggle-label" data-i18n="dark_mode">ダークモード（ベータ）</span>
     <label class="switch">

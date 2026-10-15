@@ -57,7 +57,9 @@ class Analytics {
         isStaffMode: false,
         isSyllabusEnabled: true,
         isHighlightCurrentClassEnabled: true,
-        isTranslateMoodleEnabled: true
+        isTranslateMoodleEnabled: true,
+        isDeadlineEnabled: true,
+        isDeadlineNotifyEnabled: false
       }, (data) => {
         resolve(data);
       });
@@ -85,7 +87,9 @@ class Analytics {
         setting_staff_mode: { value: settings.isStaffMode ? 'ON' : 'OFF' },
         setting_syllabus: { value: settings.isSyllabusEnabled ? 'ON' : 'OFF' },
         setting_highlight_class: { value: settings.isHighlightCurrentClassEnabled ? 'ON' : 'OFF' },
-        setting_translate_moodle: { value: settings.isTranslateMoodleEnabled ? 'ON' : 'OFF' }
+        setting_translate_moodle: { value: settings.isTranslateMoodleEnabled ? 'ON' : 'OFF' },
+        setting_deadline: { value: settings.isDeadlineEnabled ? 'ON' : 'OFF' },
+        setting_deadline_notify: { value: settings.isDeadlineNotifyEnabled ? 'ON' : 'OFF' }
       };
 
       // booleanなどを文字列化

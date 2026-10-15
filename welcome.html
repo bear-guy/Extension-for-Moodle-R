@@ -3,742 +3,752 @@
 
 <head>
   <meta charset="UTF-8">
-  <title class="lang-ja">Extension for Moodle+R へようこそ！</title>
-  <title class="lang-en">Welcome to Extension for Moodle+R!</title>
-  <title class="lang-zh">欢迎使用 Extension for Moodle+R！</title>
-  <title class="lang-ko">Extension for Moodle+R에 오신 것을 환영합니다!</title>
-  <title class="lang-es">¡Bienvenido a Extension for Moodle+R!</title>
-  <link rel="icon" type="image/png" href="https://bear-guy.github.io/Extension-for-Moodle-R/icons/icon128.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Extension for Moodle+R へようこそ！</title>
+  <meta name="description" content="立命館大学の LMS「Moodle+R」の時間割やコースページを見やすく整える Chrome 拡張機能「Extension for Moodle+R」の使い方と機能の紹介です。">
+  <link rel="icon" type="image/png" href="icons/icon128.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R2H7719DLS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-R2H7719DLS');
+  </script>
   <style>
+    :root {
+      --brand-orange: #f79312;
+      --brand-red: #b40d2b;
+      --bg: #fbfaf8;
+      --bg-soft: #f3f1ed;
+      --surface: #ffffff;
+      --text: #1d1b19;
+      --text-sub: #5f5a54;
+      --text-mute: #8d877f;
+      --line: #e8e4de;
+      --accent: #b40d2b;
+      --accent-soft: #fbe9ec;
+      --shadow-lg: 0 30px 60px -20px rgba(60, 30, 10, .25), 0 10px 20px -10px rgba(60, 30, 10, .12);
+      --shadow-xl: 0 44px 80px -24px rgba(60, 30, 10, .32), 0 14px 28px -12px rgba(60, 30, 10, .16);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .05), 0 4px 12px rgba(0, 0, 0, .04);
+      --radius: 20px;
+      --ease-out: cubic-bezier(.16, 1, .3, 1);
+      color-scheme: light;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121110;
+        --bg-soft: #1a1917;
+        --surface: #1f1e1c;
+        --text: #f3f0eb;
+        --text-sub: #b7b0a7;
+        --text-mute: #8a837a;
+        --line: #2f2d2a;
+        --accent: #ff6b81;
+        --accent-soft: #3a1820;
+        --shadow-lg: 0 30px 60px -20px rgba(0, 0, 0, .7);
+        --shadow-xl: 0 44px 80px -24px rgba(0, 0, 0, .8);
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+        color-scheme: dark;
+      }
+    }
+
+    /* --- 言語の切り替え（page-i18n.js と welcome.js が body に lang-xx を付ける。付く前は日本語を表示） --- */
+    body:not(.lang-en):not(.lang-zh):not(.lang-ko):not(.lang-es) :is(.lang-en, .lang-zh, .lang-ko, .lang-es),
+    body.lang-en :is(.lang-ja, .lang-zh, .lang-ko, .lang-es),
+    body.lang-zh :is(.lang-ja, .lang-en, .lang-ko, .lang-es),
+    body.lang-ko :is(.lang-ja, .lang-en, .lang-zh, .lang-es),
+    body.lang-es :is(.lang-ja, .lang-en, .lang-zh, .lang-ko) {
+      display: none !important;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
     body {
-      font-family: sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
-      line-height: 1.6;
+      margin: 0;
+      font-family: "Inter", "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
       font-size: 16px;
-      margin: 0;
-      padding: 40px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* 中国語・韓国語は日本語フォントにない文字があるので、それぞれのフォントを優先する */
+    html:lang(zh) body { font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; }
+    html:lang(ko) body { font-family: "Inter", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif; }
+
+    img { max-width: 100%; height: auto; display: block; }
+
+    a { color: var(--accent); }
+
+    h1, h2, h3, h4 { word-break: auto-phrase; text-wrap: balance; }
+
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+    /* --- ヘッダー --- */
+    .site-header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
     }
 
-    .header-wrapper {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 20px;
+    .site-header .wrap { display: flex; align-items: center; gap: 24px; height: 64px; }
+
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+    .brand img { width: 28px; height: 28px; }
+
+    .nav { display: flex; gap: 4px; margin-left: auto; }
+    .nav a { color: var(--text-sub); text-decoration: none; font-size: 14px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+    .nav a:hover { background: var(--bg-soft); color: var(--text); }
+
+    .lang-select { display: flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--bg-soft); border: 1px solid var(--line); }
+    .lang-select button {
+      font: inherit; font-size: 12px; font-weight: 600; padding: 3px 9px; border: none; border-radius: 999px; background: none; color: var(--text-mute); cursor: pointer;
+    }
+    .lang-select button:hover { color: var(--text); }
+    .lang-select button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+
+    /* --- ヒーロー --- */
+    .hero { position: relative; overflow: hidden; padding: 72px 0 96px; }
+
+    .hero::before, .hero::after {
+      content: ""; position: absolute; border-radius: 50%; filter: blur(80px); opacity: .45; z-index: 0; pointer-events: none;
+    }
+    .hero::before { width: 520px; height: 520px; background: var(--brand-orange); top: -180px; right: -120px; }
+    .hero::after { width: 420px; height: 420px; background: var(--brand-red); bottom: -200px; left: -160px; opacity: .25; }
+
+    .hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1.15fr; gap: 56px; align-items: center; }
+    .hero .wrap > * { min-width: 0; }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); font-size: 13px; font-weight: 600; color: var(--text-sub);
+    }
+    .pill .dot { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: #1f9d55; color: #fff; font-size: 12px; }
+
+    .hero h1 { font-size: clamp(36px, 5vw, 60px); line-height: 1.2; letter-spacing: -.02em; margin: 20px 0 20px; font-weight: 900; }
+    .hero h1 .grad {
+      background: linear-gradient(100deg, var(--brand-red) 10%, var(--brand-orange) 90%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
     }
 
-    .top-icon {
-      width: 80px;
-      height: 80px;
-      flex-shrink: 0;
+    .lead { font-size: 17px; color: var(--text-sub); margin: 0 0 32px; max-width: 34em; }
+
+    .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font-weight: 700; font-size: 15px; text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--brand-red); color: #fff; box-shadow: 0 8px 20px -6px rgba(180, 13, 43, .55); }
+    .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--line); }
+
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 28px; font-size: 13px; color: var(--text-mute); }
+    .hero-meta > span::before { content: "✓"; color: #1f9d55; font-weight: 700; margin-right: 6px; }
+
+    /* ブラウザ風フレーム */
+    .browser { border-radius: 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg); overflow: hidden; }
+    .browser-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: var(--bg-soft); border-bottom: 1px solid var(--line); }
+    .browser-bar i { width: 10px; height: 10px; border-radius: 50%; background: #e5e0d9; }
+    .browser-bar i:nth-child(1) { background: #ff5f57; }
+    .browser-bar i:nth-child(2) { background: #febc2e; }
+    .browser-bar i:nth-child(3) { background: #28c840; }
+    .browser-bar .url { margin-left: 12px; flex: 1; font-size: 11px; color: var(--text-mute); background: var(--surface); border-radius: 6px; padding: 2px 10px; font-family: ui-monospace, monospace; }
+
+    /* ヒーローの画像はカーソルの位置に合わせてゆっくり動く（--mx / --my は welcome.js が -1〜1 で設定する）。
+       手前のカードほど大きく動かして奥行きを出す */
+    .hero-visual { position: relative; --mx: 0; --my: 0; }
+    .hero-visual .browser {
+      transform: perspective(1600px) translate3d(calc(var(--mx) * -6px), calc(var(--my) * -4px), 0) rotateY(calc(-8deg + var(--mx) * 6deg)) rotateX(calc(3deg - var(--my) * 4deg));
+      transform-origin: left center;
+      transition: transform 1.4s var(--ease-out), box-shadow .8s ease;
+    }
+    .hero-visual.is-hovered .browser { box-shadow: var(--shadow-xl); }
+    .float-card {
+      position: absolute; border-radius: 12px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-lg);
+      transition: transform 1.4s var(--ease-out), box-shadow .8s ease;
+    }
+    .float-card.fc1 { width: 46%; left: -8%; bottom: -16%; --depth: 26px; }
+    .float-card.fc2 { width: 64%; right: -6%; top: -12%; --depth: 18px; }
+    .hero-visual .float-card { transform: translate3d(calc(var(--mx) * var(--depth)), calc(var(--my) * var(--depth) * .7), 0); }
+    .hero-visual .float-card:hover { transform: translate3d(calc(var(--mx) * var(--depth)), calc(var(--my) * var(--depth) * .7), 0) scale(1.04); box-shadow: var(--shadow-xl); z-index: 2; }
+    .float-label {
+      display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--text-sub); border-bottom: 1px solid var(--line); background: var(--bg-soft);
+    }
+    .float-label::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--brand-orange); }
+
+    /* --- セクション共通 --- */
+    section { padding: 96px 0; }
+    .section-soft { background: var(--bg-soft); }
+
+    .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--brand-orange); text-transform: uppercase; }
+    h2 { font-size: clamp(28px, 3.4vw, 40px); line-height: 1.3; letter-spacing: -.01em; margin: 8px 0 16px; font-weight: 900; }
+    .section-lead { color: var(--text-sub); max-width: 40em; margin: 0 0 48px; }
+
+    /* --- 使い方（ステップ） --- */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+    .step { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; display: flex; flex-direction: column; gap: 12px; }
+    .step-num {
+      counter-increment: step; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; color: #fff;
+      background: linear-gradient(135deg, var(--brand-orange), var(--brand-red));
+    }
+    .step-num::before { content: counter(step); }
+    .step h3 { margin: 4px 0 0; font-size: 19px; }
+    .step p { margin: 0; color: var(--text-sub); font-size: 15px; }
+    .step .shot { margin-top: auto; padding-top: 12px; }
+    .step .shot img { border-radius: 10px; border: 1px solid var(--line); }
+
+    .tip { display: flex; gap: 14px; margin-top: 28px; padding: 18px 22px; border-radius: 14px; background: var(--accent-soft); color: var(--text); font-size: 15px; }
+    .tip strong { color: var(--accent); }
+
+    /* --- Before / After スライダー --- */
+    .compare { position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-lg); user-select: none; --pos: 50%; }
+    .compare img { width: 100%; }
+    .compare .after { position: absolute; inset: 0; clip-path: inset(0 0 0 var(--pos)); }
+    .compare .handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 3px; margin-left: -1.5px; background: #fff; box-shadow: 0 0 0 1px rgba(0, 0, 0, .15); pointer-events: none; }
+    .compare .handle::after {
+      content: "⟷"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; border-radius: 50%;
+      background: #fff; color: #333; display: grid; place-items: center; font-size: 18px; box-shadow: 0 6px 16px rgba(0, 0, 0, .25);
+    }
+    .compare:has(input:focus-visible) .handle::after { outline: 3px solid var(--brand-orange); outline-offset: 2px; }
+    .compare input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; margin: 0; touch-action: pan-y; }
+    .compare .tag { position: absolute; top: 14px; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; background: rgba(0, 0, 0, .65); color: #fff; pointer-events: none; }
+    .compare .tag.l { left: 14px; }
+    .compare .tag.r { right: 14px; background: var(--brand-red); }
+    /* 「動かせる」と伝えるヒント。画面に入るとつまみが左右に動き（welcome.js）、一度でも触ると消える */
+    .compare .hint {
+      position: absolute; left: var(--pos); top: calc(50% + 34px); transform: translateX(-50%); pointer-events: none; white-space: nowrap;
+      font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; background: rgba(0, 0, 0, .72); color: #fff; transition: opacity .4s ease;
+    }
+    .compare.touched .hint { opacity: 0; }
+    .compare.hinting .handle::after { animation: knob-pulse 1.1s ease-in-out infinite; }
+    @keyframes knob-pulse {
+      0%, 100% { box-shadow: 0 6px 16px rgba(0, 0, 0, .25), 0 0 0 0 rgba(255, 255, 255, .8); }
+      50% { box-shadow: 0 6px 16px rgba(0, 0, 0, .25), 0 0 0 12px rgba(255, 255, 255, 0); }
     }
 
-    h1 {
-      color: #2196F3;
-      font-size: 28px;
-      margin: 0;
+    /* --- 機能（交互レイアウト） --- */
+    .feature { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; padding: 48px 0; }
+    .feature > * { min-width: 0; }
+    .feature:nth-of-type(even) { grid-template-columns: 1.25fr 1fr; }
+    .feature:nth-of-type(even) .feature-text { order: 2; }
+
+    .feature-icon { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 24px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm); }
+    .feature h3 { font-size: 26px; line-height: 1.4; margin: 16px 0 12px; }
+    .feature p { color: var(--text-sub); margin: 0 0 12px; }
+    .feature ul { margin: 0; padding-left: 1.2em; color: var(--text-sub); }
+    .feature li { margin-bottom: 4px; }
+    .feature .note { font-size: 14px; color: var(--text-mute); }
+    .badge-new { display: inline-block; vertical-align: middle; margin-left: 8px; font-size: 11px; font-weight: 800; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; background: var(--brand-orange); color: #fff; }
+
+    .frame { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow-lg); background: var(--surface); }
+    .zoomable { cursor: zoom-in; }
+    .frame.pad { padding: 28px; display: grid; gap: 18px; background: var(--bg-soft); }
+    .frame.pad img { border-radius: 10px; background: #fff; box-shadow: var(--shadow-sm); }
+    .frame.pad img.sub { opacity: .9; }
+
+    /* 画像の切り替えボタン（色・ダークモード・言語） */
+    .switcher { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+    .switcher button {
+      font: inherit; font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-sub); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .switcher button[aria-pressed="true"] { border-color: var(--text); color: var(--text); box-shadow: inset 0 0 0 1px var(--text); }
+    .swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); }
+
+    /* 小さな機能 */
+    .mini-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 24px; }
+    .mini { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .mini h4 { margin: 0; font-size: 18px; }
+    .mini p { margin: 0; color: var(--text-sub); font-size: 15px; }
+    .mini img { border-radius: 10px; border: 1px solid var(--line); margin-top: 6px; }
+
+    /* --- ご利用にあたって（アコーディオン） --- */
+    .legal { display: grid; gap: 12px; max-width: 860px; }
+    details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 0 22px; }
+    summary { cursor: pointer; list-style: none; padding: 18px 0; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; font-size: 22px; font-weight: 400; color: var(--text-mute); transition: transform .2s; }
+    details[open] summary::after { transform: rotate(45deg); }
+    details p { margin: 0 0 18px; color: var(--text-sub); font-size: 15px; }
+
+    /* --- サポート --- */
+    .support { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .support-card {
+      background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px; text-decoration: none; color: var(--text); display: flex; flex-direction: column; gap: 8px; min-width: 0; transition: transform .15s, box-shadow .15s;
+    }
+    a.support-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .support-card .ico { font-size: 26px; line-height: 1; height: 26px; }
+    .support-card strong { font-size: 17px; }
+    .support-card > span:last-child { color: var(--text-sub); font-size: 14px; overflow-wrap: anywhere; }
+
+    .donate {
+      margin-top: 20px; border-radius: var(--radius); padding: 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+      background: linear-gradient(120deg, color-mix(in srgb, var(--brand-orange) 16%, var(--surface)), color-mix(in srgb, var(--brand-red) 12%, var(--surface)));
+      border: 1px solid var(--line);
+    }
+    .donate > div { flex: 1 1 360px; }
+    .donate h3 { margin: 0 0 6px; font-size: 20px; }
+    .donate p { margin: 0; color: var(--text-sub); font-size: 15px; }
+    .paypay-id { display: inline-flex; align-items: center; gap: 12px; padding: 10px 12px 10px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+    .paypay-id img { width: 29px; height: 28px; }
+    .copy-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 14px; border-radius: 8px; border: none; background: var(--text); color: var(--bg); cursor: pointer; }
+    .copy-btn .copy-done, .copy-btn.copied .copy-label { display: none; }
+    .copy-btn.copied .copy-done { display: inline; }
+
+    /* --- フッター --- */
+    footer { padding: 40px 0 56px; border-top: 1px solid var(--line); font-size: 14px; color: var(--text-mute); }
+    footer .wrap { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    footer a { color: var(--text-sub); }
+
+    /* --- 画像の拡大表示 --- */
+    dialog.lightbox { border: none; padding: 0; background: transparent; max-width: 94vw; max-height: 94vh; }
+    dialog.lightbox::backdrop { background: rgba(10, 8, 6, .85); backdrop-filter: blur(4px); }
+    dialog.lightbox img { max-width: 94vw; max-height: 90vh; border-radius: 10px; cursor: zoom-out; }
+
+    /* --- スクロール時のフェードイン --- */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.in { opacity: 1; transform: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .hero-visual .browser, .float-card { transition: none; }
+      .compare.hinting .handle::after { animation: none; }
+      html { scroll-behavior: auto; }
     }
 
-    h2 {
-      font-size: 22px;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 5px;
-      margin-top: 30px;
+    /* --- レスポンシブ --- */
+    @media (max-width: 900px) {
+      .nav { display: none; }
+      .lang-select { margin-left: auto; }
+      .hero { padding: 48px 0 72px; }
+      .hero .wrap, .feature, .feature:nth-of-type(even) { grid-template-columns: 1fr; gap: 32px; }
+      .feature:nth-of-type(even) .feature-text { order: 0; }
+      .hero-visual .browser, .hero-visual .float-card { transform: none; }
+      .float-card.fc2 { display: none; }
+      .float-card.fc1 { width: 60%; left: auto; right: -2%; bottom: -12%; }
+      .steps, .support, .mini-grid { grid-template-columns: 1fr; }
+      section { padding: 64px 0; }
     }
 
-    li {
-      margin-bottom: 10px;
-    }
-
-    .contact-links a {
-      color: #2196F3;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .contact-links a:hover {
-      text-decoration: underline;
-    }
-
-    .paypay-id {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-      padding: 8px 14px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      background: #f8f9fa;
-    }
-
-    .copy-btn {
-      font-size: 13px;
-      padding: 4px 12px;
-      border: 1px solid #2196F3;
-      border-radius: 4px;
-      background: #fff;
-      color: #2196F3;
-      cursor: pointer;
-    }
-
-    .copy-btn:hover {
-      background: #e3f2fd;
-    }
-
-    .footer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 14px;
-      color: #888;
-    }
-
-    .feature-img {
-      max-width: 100%;
-      height: auto;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      margin-top: 12px;
-      margin-bottom: 20px;
-      display: block;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .feature-img:hover {
-      transform: scale(1.02);
-    }
-
-    .before-after-container {
-      display: flex;
-      gap: 15px;
-      margin-top: 12px;
-      margin-bottom: 20px;
-    }
-
-    .image-wrapper {
-      flex: 1;
-    }
-
-    .image-wrapper .feature-img {
-      margin-top: 5px;
-      margin-bottom: 0;
-    }
-
-    .image-label {
-      font-size: 14px;
-      font-weight: bold;
-      color: #666;
-      display: block;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      .before-after-container {
-        flex-direction: column;
-      }
-
-      .header-wrapper {
-        flex-direction: column;
-        text-align: center;
-      }
-    }
-
-    /* 画像拡大用のモーダルスタイル */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .modal-content {
-      max-width: 90vw;
-      max-height: 90vh;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-    }
-
-    /* --- 言語切り替え用 --- */
-    body.lang-en .lang-ja,
-    body.lang-en .lang-zh,
-    body.lang-en .lang-ko,
-    body.lang-en .lang-es {
-      display: none !important;
-    }
-
-    body.lang-ja .lang-en,
-    body.lang-ja .lang-zh,
-    body.lang-ja .lang-ko,
-    body.lang-ja .lang-es {
-      display: none !important;
-    }
-
-    body.lang-zh .lang-ja,
-    body.lang-zh .lang-en,
-    body.lang-zh .lang-ko,
-    body.lang-zh .lang-es {
-      display: none !important;
-    }
-
-    body.lang-ko .lang-ja,
-    body.lang-ko .lang-en,
-    body.lang-ko .lang-zh,
-    body.lang-ko .lang-es {
-      display: none !important;
-    }
-
-    body.lang-es .lang-ja,
-    body.lang-es .lang-en,
-    body.lang-es .lang-zh,
-    body.lang-es .lang-ko {
-      display: none !important;
-    }
-
-    .lang-switcher {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 14px;
-    }
-
-    .lang-switcher a {
-      cursor: pointer;
-      text-decoration: none;
-      margin: 0 5px;
-    }
-
-    .lang-switcher a:hover {
-      text-decoration: underline;
+    @media (max-width: 520px) {
+      .brand span { display: none; }
+      .donate { padding: 24px 20px; }
+      .paypay-id { width: 100%; gap: 8px; padding-left: 12px; font-size: 14px; flex-wrap: wrap; white-space: normal; }
+      .paypay-id strong { white-space: nowrap; }
+      .paypay-id .copy-btn { margin-left: auto; }
     }
   </style>
 </head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-R2H7719DLS"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() { dataLayer.push(arguments); }
-  gtag('js', new Date());
-
-  gtag('config', 'G-R2H7719DLS');
-</script>
 
 <body>
-  <div class="container">
-    <div class="header-wrapper">
-      <img src="icons/icon128.png" alt="Extension for Moodle+R" class="top-icon">
-      <div style="text-align: center;">
-        <h1 class="lang-ja">インストールしていただきありがとうございます！</h1>
-        <h1 class="lang-en">Thank you for installing!</h1>
-        <h1 class="lang-zh">感谢您的安装！</h1>
-        <h1 class="lang-ko">설치해 주셔서 감사합니다!</h1>
-        <h1 class="lang-es">¡Gracias por instalar!</h1>
-        <p class="lang-ja" style="margin: 8px 0 0 0; color: #555;">「Extension for
-          Moodle+R」は、「manaba+R」に代わって立命館大学に新しく導入されたLMS「Moodle+R」をより使いやすくするための拡張機能です。</p>
-        <p class="lang-en" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" is an extension designed to
-          improve the usability of "Moodle+R", the new LMS introduced at Ritsumeikan University, replacing "manaba+R".</p>
-        <p class="lang-zh" style="margin: 8px 0 0 0; color: #555;">“Extension for Moodle+R”
-          是一款旨在改善“Moodle+R”易用性的扩展程序。该系统是立命馆大学取代“manaba+R”引入的新学习管理系统（LMS）。</p>
-        <p class="lang-ko" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R"는 "manaba+R"을 대체하여
-          리츠메이칸 대학에 새롭게 도입된 LMS "Moodle+R"을 더욱 사용하기 쉽게 만들어주는 확장 프로그램입니다.</p>
-        <p class="lang-es" style="margin: 8px 0 0 0; color: #555;">"Extension for Moodle+R" es una extensión diseñada
-          para mejorar la usabilidad de "Moodle+R", el nuevo LMS introducido en la Universidad de Ritsumeikan, en reemplazo de "manaba+R".</p>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="#"><img src="icons/icon128.png" alt="Extension for Moodle+R"><span>Extension for Moodle+R</span></a>
+      <nav class="nav">
+        <a href="#how"><span class="lang-ja">使い方</span><span class="lang-en">How to Use</span><span class="lang-zh">使用方法</span><span class="lang-ko">사용 방법</span><span class="lang-es">Cómo usar</span></a>
+        <a href="#features"><span class="lang-ja">機能</span><span class="lang-en">Features</span><span class="lang-zh">功能</span><span class="lang-ko">기능</span><span class="lang-es">Funciones</span></a>
+        <a href="#contact"><span class="lang-ja">サポート</span><span class="lang-en">Support</span><span class="lang-zh">支持</span><span class="lang-ko">지원</span><span class="lang-es">Soporte</span></a>
+      </nav>
+      <div class="lang-select" role="group" aria-label="Language">
+        <button type="button" data-lang="ja" aria-pressed="true">JA</button><button type="button" data-lang="en" aria-pressed="false">EN</button><button type="button" data-lang="zh" aria-pressed="false">ZH</button><button type="button" data-lang="ko" aria-pressed="false">KO</button><button type="button" data-lang="es" aria-pressed="false">ES</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ヒーロー -->
+    <div class="hero">
+      <div class="wrap">
+        <div>
+          <span class="pill"><span class="dot">✓</span><span class="lang-ja">インストールありがとうございます</span><span class="lang-en">Thanks for installing!</span><span class="lang-zh">感谢您的安装</span><span class="lang-ko">설치해 주셔서 감사합니다</span><span class="lang-es">¡Gracias por instalar!</span></span>
+          <h1 class="lang-ja">Moodle+R を、<br><span class="grad">もっと使いやすく。</span></h1>
+          <h1 class="lang-en">Make Moodle+R<br><span class="grad">easier to use.</span></h1>
+          <h1 class="lang-zh">让 Moodle+R<br><span class="grad">更加好用。</span></h1>
+          <h1 class="lang-ko">Moodle+R을<br><span class="grad">더 편리하게.</span></h1>
+          <h1 class="lang-es">Moodle+R,<br><span class="grad">más fácil de usar.</span></h1>
+          <p class="lang-ja lead">Extension for Moodle+R は、立命館大学の LMS「Moodle+R」の時間割やコースページを見やすく整え、毎日の授業の確認をちょっとラクにする拡張機能です。</p>
+          <p class="lang-en lead">Extension for Moodle+R tidies up the timetable and course pages of Moodle+R, Ritsumeikan University's LMS, making it a little easier to keep track of your classes every day.</p>
+          <p class="lang-zh lead">Extension for Moodle+R 是一款让立命馆大学的学习管理系统“Moodle+R”的课表和课程页面更加清晰易读的扩展程序，让您每天查看课程更轻松。</p>
+          <p class="lang-ko lead">Extension for Moodle+R은 리츠메이칸 대학의 LMS "Moodle+R"의 시간표와 수업 페이지를 보기 쉽게 정리해, 매일 수업을 확인하는 일을 조금 더 편하게 해 주는 확장 프로그램입니다.</p>
+          <p class="lang-es lead">Extension for Moodle+R ordena el horario y las páginas de los cursos de Moodle+R, el LMS de la Universidad Ritsumeikan, para que revisar tus clases cada día sea un poco más fácil.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="https://lms.ritsumei.ac.jp/my/" target="_blank" rel="noopener"><span class="lang-ja">Moodle+R を開く →</span><span class="lang-en">Open Moodle+R →</span><span class="lang-zh">打开 Moodle+R →</span><span class="lang-ko">Moodle+R 열기 →</span><span class="lang-es">Abrir Moodle+R →</span></a>
+            <a class="btn btn-ghost" href="#features"><span class="lang-ja">機能を見る</span><span class="lang-en">See Features</span><span class="lang-zh">查看功能</span><span class="lang-ko">기능 보기</span><span class="lang-es">Ver funciones</span></a>
+          </div>
+          <div class="hero-meta"><span><span class="lang-ja">インストールするだけで動作</span><span class="lang-en">Works right after installing</span><span class="lang-zh">安装即可使用</span><span class="lang-ko">설치만 하면 바로 작동</span><span class="lang-es">Funciona nada más instalarla</span></span><span><span class="lang-ja">5 言語対応</span><span class="lang-en">5 languages</span><span class="lang-zh">支持 5 种语言</span><span class="lang-ko">5개 언어 지원</span><span class="lang-es">5 idiomas</span></span><span><span class="lang-ja">無料</span><span class="lang-en">Free</span><span class="lang-zh">免费</span><span class="lang-ko">무료</span><span class="lang-es">Gratis</span></span></div>
+        </div>
+        <div class="hero-visual">
+          <div class="browser">
+            <div class="browser-bar"><i></i><i></i><i></i><span class="url">lms.ritsumei.ac.jp/my/</span></div>
+            <img src="assets/welcome/dashboard.webp" width="1920" height="1200" alt="拡張機能を適用した Moodle+R のダッシュボード" class="zoomable">
+          </div>
+          <div class="float-card fc2"><span class="float-label"><span class="lang-ja">コースページにシラバス情報</span><span class="lang-en">Syllabus info on course pages</span><span class="lang-zh">课程页面显示教学大纲信息</span><span class="lang-ko">수업 페이지에 강의 계획서 정보</span><span class="lang-es">Temario en la página del curso</span></span><img src="assets/welcome/course-info.webp" width="1362" height="126" alt="コースページに表示されたシラバス情報"></div>
+          <div class="float-card fc1"><span class="float-label"><span class="lang-ja">時間割に締め切り</span><span class="lang-en">Deadlines on your timetable</span><span class="lang-zh">课表上显示截止时间</span><span class="lang-ko">시간표에 마감 표시</span><span class="lang-es">Fechas límite en tu horario</span></span><img src="assets/welcome/deadline.webp" width="1524" height="564" alt="時間割に表示された締め切りの件数"></div>
+        </div>
       </div>
     </div>
 
-    <h2 class="lang-ja">使い方</h2>
-    <h2 class="lang-en">How to Use</h2>
-    <h2 class="lang-zh">使用方法</h2>
-    <h2 class="lang-ko">사용 방법</h2>
-    <h2 class="lang-es">Cómo Usar</h2>
-    <ul class="lang-ja">
-      <li>Moodle+Rの画面右上に追加された <strong>拡張機能ボタン</strong> をクリックすると設定ドロワーが開きます。</li>
-      <li>ドロワー内で各機能のオン・オフなどの設定を切り替えることができます。</li>
-    </ul>
-    <ul class="lang-en">
-      <li>Click the <strong>extension button</strong> added to the top right of the Moodle+R screen to open the settings
-        drawer.</li>
-      <li>You can toggle features on or off and configure settings inside the drawer.</li>
-    </ul>
-    <ul class="lang-zh">
-      <li>点击 Moodle+R 页面右上角新增的 <strong>扩展程序按钮</strong> 即可打开设置抽屉。</li>
-      <li>您可以在抽屉中开启/关闭各项功能或更改设置。</li>
-    </ul>
-    <ul class="lang-ko">
-      <li>Moodle+R 화면 우측 상단에 추가된 <strong>확장 프로그램 버튼</strong>을 클릭하면 설정 서랍이 열립니다.</li>
-      <li>서랍 내에서 각 기능을 켜고 끄거나 설정을 변경할 수 있습니다.</li>
-    </ul>
-    <ul class="lang-es">
-      <li>Haz clic en el <strong>botón de la extensión</strong> agregado en la esquina superior derecha de la pantalla
-        de Moodle+R para abrir el panel de configuración.</li>
-      <li>Puedes activar o desactivar cada función y ajustar la configuración dentro del panel.</li>
-    </ul>
-
-    <div id="features" style="scroll-margin-top: 20px;"></div>
-    <h2 class="lang-ja">機能の紹介</h2>
-    <h2 class="lang-en">Features</h2>
-    <h2 class="lang-zh">功能介绍</h2>
-    <h2 class="lang-ko">기능 소개</h2>
-    <h2 class="lang-es">Características</h2>
-    <ul class="lang-ja">
-      <li>
-        <strong>ベターレイアウト:</strong> 時間割を見やすくし、画面を広く使えます。
-        <div class="before-after-container">
-          <div class="image-wrapper">
-            <span class="image-label">適用前</span>
-            <img src="assets/layout-before.png" alt="ベターレイアウト適用前" class="feature-img">
+    <!-- 使い方 -->
+    <section id="how" class="section-soft">
+      <div class="wrap">
+        <div class="eyebrow">How to use</div>
+        <h2 class="lang-ja">使い方は、3 ステップだけ。</h2>
+        <h2 class="lang-en">Just three steps to get started.</h2>
+        <h2 class="lang-zh">只需 3 步即可上手。</h2>
+        <h2 class="lang-ko">사용법은 단 3단계.</h2>
+        <h2 class="lang-es">Solo tres pasos.</h2>
+        <p class="lang-ja section-lead">特別な設定は要りません。いつものように Moodle+R を開けば、すぐに効果が出ます。</p>
+        <p class="lang-en section-lead">No setup needed. Just open Moodle+R as usual and you'll see the difference right away.</p>
+        <p class="lang-zh section-lead">无需任何特别设置。像平常一样打开 Moodle+R，即可立即看到效果。</p>
+        <p class="lang-ko section-lead">별도의 설정은 필요 없습니다. 평소처럼 Moodle+R을 열면 바로 효과를 확인할 수 있습니다.</p>
+        <p class="lang-es section-lead">No hace falta configurar nada. Abre Moodle+R como siempre y verás el cambio al instante.</p>
+        <div class="steps">
+          <div class="step reveal">
+            <div class="step-num"></div>
+            <h3><span class="lang-ja">Moodle+R を開く</span><span class="lang-en">Open Moodle+R</span><span class="lang-zh">打开 Moodle+R</span><span class="lang-ko">Moodle+R 열기</span><span class="lang-es">Abre Moodle+R</span></h3>
+            <p class="lang-ja">ダッシュボードを開くだけで、時間割が見やすいレイアウトに切り替わります。</p>
+            <p class="lang-en">Just open the dashboard and your timetable switches to an easier-to-read layout.</p>
+            <p class="lang-zh">只需打开仪表板，课表就会切换为更易读的布局。</p>
+            <p class="lang-ko">대시보드를 열기만 하면 시간표가 보기 쉬운 레이아웃으로 바뀝니다.</p>
+            <p class="lang-es">Con solo abrir el panel, tu horario cambia a un diseño más fácil de leer.</p>
+            <div class="shot"><img src="assets/welcome/dashboard.webp" width="1920" height="1200" alt="ダッシュボード" class="zoomable"></div>
           </div>
-          <div class="image-wrapper">
-            <span class="image-label">適用後</span>
-            <img src="assets/layout-after.png" alt="ベターレイアウト適用後" class="feature-img">
+          <div class="step reveal">
+            <div class="step-num"></div>
+            <h3><span class="lang-ja">右端のボタンをクリック</span><span class="lang-en">Click the button on the right edge</span><span class="lang-zh">点击右侧的按钮</span><span class="lang-ko">오른쪽 끝의 버튼 클릭</span><span class="lang-es">Pulsa el botón del borde derecho</span></h3>
+            <p class="lang-ja">画面右端に追加されたキューブ型のボタンから、設定ドロワーが開きます。ツールバーの拡張機能アイコンからも開けます。</p>
+            <p class="lang-en">The cube-shaped button added to the right edge of the screen opens the settings drawer. You can also open it from the extension icon in the toolbar.</p>
+            <p class="lang-zh">点击屏幕右侧新增的立方体形状按钮，即可打开设置抽屉。也可以从工具栏中的扩展程序图标打开。</p>
+            <p class="lang-ko">화면 오른쪽 끝에 추가된 큐브 모양 버튼을 누르면 설정 서랍이 열립니다. 툴바의 확장 프로그램 아이콘에서도 열 수 있습니다.</p>
+            <p class="lang-es">El botón con forma de cubo añadido en el borde derecho de la pantalla abre el panel de configuración. También puedes abrirlo desde el icono de la extensión en la barra de herramientas.</p>
+            <div class="shot"><img src="assets/welcome/drawer-button.webp" width="1080" height="320" alt="設定ドロワーを開くボタン" class="zoomable"></div>
           </div>
-        </div>
-      </li>
-      <li>
-        <strong>スケジュールカラーのカスタマイズ:</strong> 設定ドロワーから、時間割のベースカラー、今日の曜日の色、現在のコマの色を好みに合わせてカスタマイズできます。
-      </li>
-      <li>
-        <strong>教職員モード・便利リンク:</strong> リボンに教職員向けのリンク（教職員ポータル、Responや打刻など）を追加します。
-        <img src="assets/staff-ribbon.png" alt="教職員モードの例" class="feature-img">
-      </li>
-      <li><strong>ホームスキップ:</strong> 使わないトップページをスキップして直接ダッシュボードに遷移します。</li>
-      <li>
-        <strong>現在の授業をハイライト:</strong> 現在行われている授業のコマが時間割上でハイライト表示され、今受けている授業が一目でわかるようになります。
-      </li>
-      <li>
-        <strong>シラバス情報の表示:</strong>
-        Moodleの授業ページに「シラバス」ボタンを追加し、ワンクリックでシラバスに直接アクセス。さらに、一度シラバスを開くだけで<strong>開講曜日・時限、担当教員、単位数、教室</strong>のデータを自動取得し、Moodleのコースページやダッシュボードからいつでも確認できるようにします。<br>
-        また設定ドロワーから「登録された授業のシラバスを全て取得」で一括取得も可能です。コースページ内の取得された教室の場所から地図にアクセスできます。
-        <img src="assets/syllabus.png" alt="シラバス連携の例" class="feature-img">
-      </li>
-      <li>
-        <strong>ダークモード:</strong> 目に優しい暗めの配色に変更します。
-        <img src="assets/dark-mode-welcome.png" alt="ダークモードの例" class="feature-img">
-      </li>
-      <li>
-        <strong>フォーラム一括既読:</strong> フォーラムの画面に「すべて既読にする」ボタンを追加し、未読の投稿をワンクリックでまとめて既読にできます。
-      </li>
-      <li>
-        <strong>先生へのメッセージ（DM）ボタン:</strong> コースページのヘッダーに「DM」ボタンを設置し、クリックするだけでその授業の担当の先生へのメッセージ送信画面を開きます。
-      </li>
-      <li>
-        <strong>多言語対応:</strong> UIとウェルカムページが日本語、英語、中国語、韓国語、スペイン語の5ヶ国語に対応しており、設定ドロワーからいつでも言語を切り替えられます。
-      </li>
-    </ul>
-
-    <ul class="lang-en">
-      <li>
-        <strong>Better Layout:</strong> Makes the timetable easier to read and utilizes screen space more effectively.
-        <div class="before-after-container">
-          <div class="image-wrapper">
-            <span class="image-label">Before</span>
-            <img src="assets/layout-before.png" alt="Before Better Layout" class="feature-img">
-          </div>
-          <div class="image-wrapper">
-            <span class="image-label">After</span>
-            <img src="assets/layout-after.png" alt="After Better Layout" class="feature-img">
+          <div class="step reveal">
+            <div class="step-num"></div>
+            <h3><span class="lang-ja">好みに合わせて設定</span><span class="lang-en">Make it yours</span><span class="lang-zh">按喜好进行设置</span><span class="lang-ko">취향에 맞게 설정</span><span class="lang-es">Ajústala a tu gusto</span></h3>
+            <p class="lang-ja">機能のオン・オフ、時間割の色、表示言語などをいつでも切り替えられます。</p>
+            <p class="lang-en">Turn features on or off and change the timetable colors or display language at any time.</p>
+            <p class="lang-zh">您可以随时开启或关闭各项功能，或更改课表颜色和显示语言等。</p>
+            <p class="lang-ko">기능 켜기·끄기, 시간표 색상, 표시 언어 등을 언제든지 바꿀 수 있습니다.</p>
+            <p class="lang-es">Activa o desactiva funciones y cambia los colores del horario o el idioma cuando quieras.</p>
+            <div class="shot"><img src="assets/welcome/drawer.webp" width="1920" height="1200" alt="設定ドロワーを開いたところ" class="zoomable"></div>
           </div>
         </div>
-      </li>
-      <li>
-        <strong>Customizable Schedule Colors:</strong> Customize the base color of the timetable, today's column color,
-        and the current class slot color from the settings drawer to suit your preferences.
-      </li>
-      <li>
-        <strong>Staff Mode & Useful Links:</strong> Adds direct links to the ribbon for staff (Staff Portal, Respon,
-        Timeclock, etc.).
-        <img src="assets/staff-ribbon.png" alt="Staff Mode Example" class="feature-img">
-      </li>
-      <li><strong>Home Skip:</strong> Skips the unused top page and redirects directly to the dashboard.</li>
-      <li>
-        <strong>Highlight Current Class:</strong> The current class slot is highlighted on the timetable, making it easy
-        to see which class you are currently taking.
-      </li>
-      <li>
-        <strong>Display Syllabus Information:</strong>
-        Adds a "Syllabus" button to Moodle course pages for one-click access. Furthermore, simply opening a syllabus
-        once will automatically fetch the <strong>schedule, teacher, credits, and room</strong> data, allowing you to
-        check them anytime from the Moodle course page or dashboard.<br>
-        You can also fetch all registered syllabus at once from the settings drawer. You can also access the campus map
-        from the fetched room location on the course page.
-        <img src="assets/syllabus.png" alt="Syllabus Integration Example" class="feature-img">
-      </li>
-      <li>
-        <strong>Dark Mode:</strong> Changes to a darker color scheme that is easier on the eyes.
-        <img src="assets/dark-mode-welcome.png" alt="Dark Mode Example" class="feature-img">
-      </li>
-      <li>
-        <strong>Mark Forum as Read:</strong> Adds a "Mark all as read" button to forum screens, allowing you to mark all
-        unread posts as read with a single click.
-      </li>
-      <li>
-        <strong>Direct Message (DM) Button:</strong> Places a "DM" button on the course page header. Clicking it opens
-        the message composition screen for the instructor of that class.
-      </li>
-      <li>
-        <strong>Multi-language Support:</strong> The UI and welcome page support 5 languages (Japanese, English,
-        Chinese, Korean, Spanish). You can switch languages anytime from the settings drawer.
-      </li>
-    </ul>
+        <div class="tip reveal">
+          <span>💡</span>
+          <div class="lang-ja"><strong>最初にやっておくと便利：</strong>設定ドロワーの「登録された授業のシラバスを全て取得」を押すと、時間割に先生の名前が表示され、コースページで教室や単位数を確認できるようになります。</div>
+          <div class="lang-en"><strong>Tip for getting started:</strong> Press "Fetch all registered syllabus data" in the settings drawer to show teachers' names on your timetable and see rooms and credits on course pages.</div>
+          <div class="lang-zh"><strong>建议先完成这一步：</strong>在设置抽屉中点击“获取所有已注册课程的教学大纲”，课表上就会显示授课教师姓名，并可在课程页面查看教室和学分。</div>
+          <div class="lang-ko"><strong>처음에 해 두면 편리해요:</strong> 설정 서랍에서 '등록된 모든 강의 계획서 데이터 가져오기'를 누르면 시간표에 교수 이름이 표시되고, 수업 페이지에서 강의실과 학점을 확인할 수 있습니다.</div>
+          <div class="lang-es"><strong>Consejo para empezar:</strong> pulsa «Obtener todos los datos de temarios registrados» en el panel de configuración para ver el nombre del profesorado en tu horario y consultar el aula y los créditos en las páginas de los cursos.</div>
+        </div>
+      </div>
+    </section>
 
-    <ul class="lang-zh">
-      <li>
-        <strong>优化布局:</strong> 让课表更易读，更有效地利用屏幕空间。
-        <div class="before-after-container">
-          <div class="image-wrapper">
-            <span class="image-label">应用前</span>
-            <img src="assets/layout-before.png" alt="应用优化布局前" class="feature-img">
+    <!-- Before / After -->
+    <section>
+      <div class="wrap">
+        <div class="eyebrow">Before / After</div>
+        <h2 class="lang-ja">ひと目で違いがわかる。</h2>
+        <h2 class="lang-en">See the difference at a glance.</h2>
+        <h2 class="lang-zh">差别一目了然。</h2>
+        <h2 class="lang-ko">한눈에 보이는 차이.</h2>
+        <h2 class="lang-es">La diferencia, a simple vista.</h2>
+        <p class="lang-ja section-lead">つまみを左右にドラッグして、拡張機能の適用前と適用後を比べてみてください。</p>
+        <p class="lang-en section-lead">Drag the handle left and right to compare Moodle+R before and after the extension.</p>
+        <p class="lang-zh section-lead">左右拖动滑块，比较使用扩展程序前后的效果。</p>
+        <p class="lang-ko section-lead">손잡이를 좌우로 드래그해 확장 프로그램 적용 전후를 비교해 보세요.</p>
+        <p class="lang-es section-lead">Arrastra el control a izquierda y derecha para comparar Moodle+R antes y después de la extensión.</p>
+        <div class="compare reveal" id="compare">
+          <img src="assets/welcome/before.webp" width="1920" height="1200" alt="適用前の Moodle+R のダッシュボード">
+          <img class="after" src="assets/welcome/dashboard.webp" width="1920" height="1200" alt="適用後の Moodle+R のダッシュボード">
+          <span class="tag l"><span class="lang-ja">適用前</span><span class="lang-en">Before</span><span class="lang-zh">使用前</span><span class="lang-ko">적용 전</span><span class="lang-es">Antes</span></span><span class="tag r"><span class="lang-ja">適用後</span><span class="lang-en">After</span><span class="lang-zh">使用后</span><span class="lang-ko">적용 후</span><span class="lang-es">Después</span></span>
+          <div class="handle"></div>
+          <span class="hint"><span class="lang-ja">ドラッグして比べる</span><span class="lang-en">Drag to compare</span><span class="lang-zh">拖动进行比较</span><span class="lang-ko">드래그해서 비교</span><span class="lang-es">Arrastra para comparar</span></span>
+          <input type="range" min="0" max="100" value="50" aria-label="Before / After">
+        </div>
+      </div>
+    </section>
+
+    <!-- 機能 -->
+    <section id="features" class="section-soft">
+      <div class="wrap">
+        <div class="eyebrow">Features</div>
+        <h2 class="lang-ja">毎日の Moodle+R を、すみずみまで。</h2>
+        <h2 class="lang-en">Improvements across your everyday Moodle+R.</h2>
+        <h2 class="lang-zh">全面提升每天使用的 Moodle+R。</h2>
+        <h2 class="lang-ko">매일 쓰는 Moodle+R을 구석구석까지.</h2>
+        <h2 class="lang-es">Mejoras en cada rincón de tu Moodle+R.</h2>
+        <p class="lang-ja section-lead">どの機能も設定ドロワーからオン・オフできます。画像はクリックすると拡大できます。</p>
+        <p class="lang-en section-lead">Every feature can be turned on or off from the settings drawer. Click an image to enlarge it.</p>
+        <p class="lang-zh section-lead">所有功能都可以在设置抽屉中开启或关闭。点击图片可放大查看。</p>
+        <p class="lang-ko section-lead">모든 기능은 설정 서랍에서 켜고 끌 수 있습니다. 이미지를 클릭하면 크게 볼 수 있습니다.</p>
+        <p class="lang-es section-lead">Puedes activar o desactivar cada función desde el panel de configuración. Haz clic en una imagen para ampliarla.</p>
+
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">🗓️</div>
+            <h3><span class="lang-ja">ベターレイアウト</span><span class="lang-en">Better Layout</span><span class="lang-zh">优化布局</span><span class="lang-ko">더 나은 레이아웃</span><span class="lang-es">Mejor Diseño</span></h3>
+            <p class="lang-ja">タイムラインと時間割を横に並べて、画面を広く使います。</p>
+            <p class="lang-en">Places the timeline and timetable side by side to make better use of the screen.</p>
+            <p class="lang-zh">将时间线和课表并排显示，更充分地利用屏幕空间。</p>
+            <p class="lang-ko">타임라인과 시간표를 나란히 배치해 화면을 넓게 사용합니다.</p>
+            <p class="lang-es">Coloca la cronología y el horario uno al lado del otro para aprovechar mejor la pantalla.</p>
+            <ul>
+              <li><span class="lang-ja">曜日に日付、時限に授業時間を表示</span><span class="lang-en">Shows the date for each weekday and the time of each period</span><span class="lang-zh">在星期上显示日期，在节次上显示上课时间</span><span class="lang-ko">요일에 날짜, 교시에 수업 시간 표시</span><span class="lang-es">Muestra la fecha de cada día y la hora de cada periodo</span></li>
+              <li><span class="lang-ja">授業名から授業コードなどの余分な表記を省略</span><span class="lang-en">Removes course codes and other clutter from class names</span><span class="lang-zh">省略课程名称中的课程代码等多余内容</span><span class="lang-ko">수업명에서 수업 코드 등 불필요한 표기 생략</span><span class="lang-es">Quita los códigos de curso y otros datos innecesarios de los nombres de las clases</span></li>
+              <li><span class="lang-ja">シラバス取得済みなら教室の横に先生の名前も表示</span><span class="lang-en">Shows the teacher's name next to the room once the syllabus has been fetched</span><span class="lang-zh">获取教学大纲后，还会在教室旁显示授课教师姓名</span><span class="lang-ko">강의 계획서를 가져오면 강의실 옆에 교수 이름도 표시</span><span class="lang-es">Muestra el nombre del profesor junto al aula si ya se ha obtenido el temario</span></li>
+            </ul>
           </div>
-          <div class="image-wrapper">
-            <span class="image-label">应用后</span>
-            <img src="assets/layout-after.png" alt="应用优化布局后" class="feature-img">
+          <div class="frame"><img src="assets/welcome/dashboard.webp" width="1920" height="1200" alt="ベターレイアウトを適用した時間割" class="zoomable"></div>
+        </div>
+
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">🎨</div>
+            <h3><span class="lang-ja">今日の時間割をハイライト</span><span class="lang-en">Highlight Today's Timetable</span><span class="lang-zh">高亮显示今日课表</span><span class="lang-ko">오늘의 시간표 강조</span><span class="lang-es">Resaltar el Horario de Hoy</span></h3>
+            <p class="lang-ja">今日の曜日の列と、いま行われている授業のコマに色が付き、次に向かう教室が一目でわかります。時間割のベース、今日の曜日、現在のコマの色は、それぞれ好みの色に変えられます。</p>
+            <p class="lang-en">Today's column and the class happening right now are highlighted, so you can see at a glance where to go next. You can pick your own colors for the timetable, today's column, and the current class.</p>
+            <p class="lang-zh">今天的那一列和正在进行的课程会以颜色突出显示，下一节课去哪里一目了然。课表、今日列和当前课程的颜色都可以按喜好更改。</p>
+            <p class="lang-ko">오늘 요일의 열과 지금 진행 중인 수업 칸에 색이 칠해져, 다음에 갈 강의실을 한눈에 알 수 있습니다. 시간표, 오늘 열, 현재 수업의 색상은 각각 원하는 색으로 바꿀 수 있습니다.</p>
+            <p class="lang-es">La columna de hoy y la clase que está en curso se resaltan, para que veas de un vistazo a dónde ir. Puedes elegir los colores del horario, de la columna de hoy y de la clase actual.</p>
+            <div class="switcher" data-target="colorShot" role="group">
+              <button type="button" aria-pressed="true" data-src="assets/welcome/colors-0.webp"><span class="swatch" style="background:#bfecf4"></span><span class="lang-ja">デフォルト</span><span class="lang-en">Default</span><span class="lang-zh">默认</span><span class="lang-ko">기본</span><span class="lang-es">Predeterminado</span></button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/colors-1.webp"><span class="swatch" style="background:#f48fb1"></span><span class="lang-ja">ピンク</span><span class="lang-en">Pink</span><span class="lang-zh">粉色</span><span class="lang-ko">핑크</span><span class="lang-es">Rosa</span></button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/colors-2.webp"><span class="swatch" style="background:#80cbc4"></span><span class="lang-ja">ティール</span><span class="lang-en">Teal</span><span class="lang-zh">鸭青色</span><span class="lang-ko">청록색</span><span class="lang-es">Verde azulado</span></button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/colors-3.webp"><span class="swatch" style="background:#9fa8da"></span><span class="lang-ja">インディゴ</span><span class="lang-en">Indigo</span><span class="lang-zh">靛青色</span><span class="lang-ko">인디고</span><span class="lang-es">Índigo</span></button>
+            </div>
+          </div>
+          <div class="frame"><img id="colorShot" src="assets/welcome/colors-0.webp" width="1524" height="882" alt="色を変えた時間割" class="zoomable"></div>
+        </div>
+
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">⏰</div>
+            <h3><span class="lang-ja">課題の締め切りを表示</span><span class="lang-en">Show Deadlines</span><span class="lang-zh">显示作业截止时间</span><span class="lang-ko">과제 마감 표시</span><span class="lang-es">Mostrar Fechas Límite</span><span class="badge-new">NEW</span></h3>
+            <p class="lang-ja">7 日以内の課題や小テストなどの締め切りを、時間割の授業に件数で表示します（マウスを乗せると日時と課題名を表示）。24 時間以内の件数は拡張機能のアイコンにも表示されます。</p>
+            <p class="lang-en">Shows the number of assignment, quiz, and other deadlines within 7 days on each class in your timetable (hover to see the dates and names). The number due within 24 hours also appears on the extension icon.</p>
+            <p class="lang-zh">在课表的各门课程上显示7天内作业、小测验等的截止数量（鼠标悬停可查看日期和名称），24小时内截止的数量也会显示在扩展图标上。</p>
+            <p class="lang-ko">7일 이내 과제·퀴즈 등의 마감 건수를 시간표의 각 수업에 표시합니다(마우스를 올리면 일시와 이름 표시). 24시간 이내 마감 건수는 확장 프로그램 아이콘에도 표시됩니다.</p>
+            <p class="lang-es">Muestra en cada clase de tu horario cuántas tareas, cuestionarios y otras actividades vencen en los próximos 7 días (pasa el cursor para ver las fechas y los nombres). Las que vencen en 24 horas también se cuentan en el icono de la extensión.</p>
+            <p class="lang-ja">「締め切りを通知」をオンにすると、締め切りの 24 時間前と 1 時間前にお知らせします。不要な締め切りは、バッジをクリックして開く一覧や通知から非表示にできます。</p>
+            <p class="lang-en">Turn on Deadline Notifications to be notified 24 hours and 1 hour before each deadline. Deadlines you don't need can be hidden from the list that opens when you click a badge, or from the notification.</p>
+            <p class="lang-zh">开启“截止提醒”后，会在截止前24小时和1小时通知您。不需要的截止事项可以在点击徽章打开的列表或通知中隐藏。</p>
+            <p class="lang-ko">'마감 알림'을 켜면 마감 24시간 전과 1시간 전에 알려 드립니다. 필요 없는 마감은 배지를 클릭해 여는 목록이나 알림에서 숨길 수 있습니다.</p>
+            <p class="lang-es">Activa Avisos de Fechas Límite para recibir un aviso 24 horas y 1 hora antes de cada fecha límite. Las fechas límite que no necesites se pueden ocultar desde la lista que se abre al hacer clic en una insignia o desde el aviso.</p>
+          </div>
+          <div class="frame"><img src="assets/welcome/deadline.webp" width="1524" height="564" alt="時間割の授業に表示された締め切りの件数" class="zoomable"></div>
+        </div>
+
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">📘</div>
+            <h3><span class="lang-ja">シラバス情報の表示</span><span class="lang-en">Display Syllabus</span><span class="lang-zh">显示教学大纲</span><span class="lang-ko">강의 계획서 표시</span><span class="lang-es">Mostrar Temario</span></h3>
+            <p class="lang-ja">コースページに「シラバス」ボタンを追加し、ワンクリックでシラバスを開けます。一度シラバスを開くと、<strong>開講曜日・時限、担当教員、単位数、教室</strong>を自動で取得してコースページに表示します。</p>
+            <p class="lang-en">Adds a "Syllabus" button to course pages so you can open the syllabus in one click. Once you open a syllabus, the <strong>schedule, teacher, credits, and room</strong> are fetched automatically and shown on the course page.</p>
+            <p class="lang-zh">在课程页面添加“教学大纲”按钮，一键即可打开教学大纲。只需打开一次教学大纲，就会自动获取<strong>上课时间、授课教师、学分和教室</strong>，并显示在课程页面上。</p>
+            <p class="lang-ko">수업 페이지에 '강의 계획서' 버튼을 추가해 한 번의 클릭으로 강의 계획서를 열 수 있습니다. 강의 계획서를 한 번 열면 <strong>수업 요일·교시, 담당 교수, 학점, 강의실</strong>을 자동으로 가져와 수업 페이지에 표시합니다.</p>
+            <p class="lang-es">Añade un botón «Temario» a las páginas de los cursos para abrir el temario con un solo clic. Al abrir un temario una vez, se obtienen automáticamente el <strong>horario, profesor, créditos y aula</strong> y se muestran en la página del curso.</p>
+            <p class="lang-ja">教室名をクリックするとキャンパスマップを開けます。設定ドロワーの「登録された授業のシラバスを全て取得」で一括取得もできます。</p>
+            <p class="lang-en">Click the room name to open the campus map. You can also fetch everything at once with "Fetch all registered syllabus data" in the settings drawer.</p>
+            <p class="lang-zh">点击教室名称即可打开校园地图。也可以通过设置抽屉中的“获取所有已注册课程的教学大纲”一次性获取。</p>
+            <p class="lang-ko">강의실 이름을 클릭하면 캠퍼스 맵을 열 수 있습니다. 설정 서랍의 '등록된 모든 강의 계획서 데이터 가져오기'로 한꺼번에 가져올 수도 있습니다.</p>
+            <p class="lang-es">Haz clic en el nombre del aula para abrir el mapa del campus. También puedes obtenerlo todo de una vez con «Obtener todos los datos de temarios registrados» en el panel de configuración.</p>
+          </div>
+          <div class="frame pad">
+            <img src="assets/welcome/course-info.webp" width="1362" height="126" alt="コースページに表示されたシラバス情報と「シラバス」「DM」ボタン" class="zoomable">
+            <img src="assets/welcome/course-header.webp" width="1920" height="145" alt="コースページのヘッダー全体" class="zoomable sub">
           </div>
         </div>
-      </li>
-      <li>
-        <strong>自定义课表颜色:</strong> 您可以从设置抽屉中根据自己的喜好自定义课表的基础颜色、今天星期的颜色以及当前课程时段的颜色。
-      </li>
-      <li>
-        <strong>教职工模式与实用链接:</strong> 在功能区添加教职工专用链接（如教职工门户、Respon、打卡等）。
-        <img src="assets/staff-ribbon.png" alt="教职工模式示例" class="feature-img">
-      </li>
-      <li><strong>跳过首页:</strong> 跳过未使用的首页，直接跳转至仪表板。</li>
-      <li>
-        <strong>高亮显示当前课程:</strong> 在课表上高亮显示正在进行的课程时段，让您一眼就能看出当前正在上的课。
-      </li>
-      <li>
-        <strong>显示教学大纲信息:</strong>
-        在 Moodle 的课程页面添加“教学大纲”按钮，一键直达大纲。此外，只需打开一次大纲，即可自动获取<strong>上课时间、授课教师、学分、教室</strong>数据，让您随时能从 Moodle
-        的课程页面或仪表板查看。<br>
-        您还可以从设置抽屉中一键获取所有已注册课程的教学大纲。您还可以通过课程页面上获取的教室位置访问校园地图。
-        <img src="assets/syllabus.png" alt="教学大纲整合示例" class="feature-img">
-      </li>
-      <li>
-        <strong>深色模式:</strong> 切换至较暗的配色方案，减轻眼部疲劳。
-        <img src="assets/dark-mode-welcome.png" alt="深色模式示例" class="feature-img">
-      </li>
-      <li>
-        <strong>一键已读论坛:</strong> 在论坛屏幕添加“全部标记为已读”按钮，一键即可将所有未读帖子标记为已读。
-      </li>
-      <li>
-        <strong>发送消息 (DM) 按钮:</strong> 在课程页面顶部添加一个“DM”按钮。点击它即可打开向该课程讲师发送消息的编辑界面。
-      </li>
-      <li>
-        <strong>多语言支持:</strong> 用户界面和欢迎页面支持5种语言（日语、英语、中文、韩语、西班牙语）。您可以随时在设置抽屉中切换语言。
-      </li>
-    </ul>
 
-    <ul class="lang-ko">
-      <li>
-        <strong>더 나은 레이아웃:</strong> 시간표를 읽기 쉽게 만들고 화면 공간을 더 효과적으로 활용합니다.
-        <div class="before-after-container">
-          <div class="image-wrapper">
-            <span class="image-label">적용 전</span>
-            <img src="assets/layout-before.png" alt="더 나은 레이아웃 적용 전" class="feature-img">
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">🌙</div>
+            <h3><span class="lang-ja">ダークモード</span><span class="lang-en">Dark Mode</span><span class="lang-zh">深色模式</span><span class="lang-ko">다크 모드</span><span class="lang-es">Modo Oscuro</span></h3>
+            <p class="lang-ja">Moodle+R 全体を目に優しい暗めの配色にします。夜の課題作業にも。</p>
+            <p class="lang-en">Switches all of Moodle+R to a darker color scheme that's easier on the eyes, great for late-night assignments.</p>
+            <p class="lang-zh">将整个 Moodle+R 切换为柔和的深色配色，减轻眼睛负担，适合夜间写作业。</p>
+            <p class="lang-ko">Moodle+R 전체를 눈이 편안한 어두운 색상으로 바꿉니다. 밤에 과제할 때도 좋아요.</p>
+            <p class="lang-es">Cambia todo Moodle+R a una combinación de colores oscura y más cómoda para la vista, ideal para hacer tareas de noche.</p>
+            <div class="switcher" data-target="darkShot" role="group">
+              <button type="button" aria-pressed="false" data-src="assets/welcome/dashboard.webp">☀️ <span class="lang-ja">ライト</span><span class="lang-en">Light</span><span class="lang-zh">浅色</span><span class="lang-ko">라이트</span><span class="lang-es">Claro</span></button>
+              <button type="button" aria-pressed="true" data-src="assets/welcome/dark.webp">🌙 <span class="lang-ja">ダーク</span><span class="lang-en">Dark</span><span class="lang-zh">深色</span><span class="lang-ko">다크</span><span class="lang-es">Oscuro</span></button>
+            </div>
           </div>
-          <div class="image-wrapper">
-            <span class="image-label">적용 후</span>
-            <img src="assets/layout-after.png" alt="더 나은 레이아웃 적용 후" class="feature-img">
+          <div class="frame"><img id="darkShot" src="assets/welcome/dark.webp" width="1920" height="1200" alt="ダークモードの Moodle+R" class="zoomable"></div>
+        </div>
+
+        <div class="feature reveal">
+          <div class="feature-text">
+            <div class="feature-icon">🌏</div>
+            <h3><span class="lang-ja">5 言語に対応</span><span class="lang-en">Available in 5 Languages</span><span class="lang-zh">支持 5 种语言</span><span class="lang-ko">5개 언어 지원</span><span class="lang-es">Disponible en 5 idiomas</span></h3>
+            <p class="lang-ja">設定ドロワーとこのページは日本語・英語・中国語・韓国語・スペイン語に対応しています。日本語以外を選ぶと、Moodle のメニューやボタン、日付なども選んだ言語で表示します。</p>
+            <p class="lang-en">The settings drawer and this page are available in Japanese, English, Chinese, Korean, and Spanish. If you choose a language other than Japanese, Moodle's menus, buttons, dates, and more are also shown in that language.</p>
+            <p class="lang-zh">设置抽屉和本页面支持日语、英语、中文、韩语和西班牙语。选择日语以外的语言后，Moodle 的菜单、按钮和日期等也会以所选语言显示。</p>
+            <p class="lang-ko">설정 서랍과 이 페이지는 일본어, 영어, 중국어, 한국어, 스페인어를 지원합니다. 일본어 이외의 언어를 선택하면 Moodle의 메뉴, 버튼, 날짜 등도 선택한 언어로 표시됩니다.</p>
+            <p class="lang-es">El panel de configuración y esta página están disponibles en japonés, inglés, chino, coreano y español. Si eliges un idioma distinto del japonés, los menús, botones, fechas y demás elementos de Moodle también se muestran en ese idioma.</p>
+            <p class="lang-ja note">先生が投稿した内容やコース名は翻訳しません。設定の「Moodleの表示も翻訳」でオフにできます。</p>
+            <p class="lang-en note">Content posted by teachers and course names are not translated. You can turn this off with "Translate Moodle UI" in the settings.</p>
+            <p class="lang-zh note">教师发布的内容和课程名称不会被翻译。可在设置中通过“同时翻译 Moodle 界面”关闭此功能。</p>
+            <p class="lang-ko note">교수님이 올린 내용과 수업명은 번역하지 않습니다. 설정의 'Moodle 화면도 번역'에서 끌 수 있습니다.</p>
+            <p class="lang-es note">El contenido publicado por el profesorado y los nombres de los cursos no se traducen. Puedes desactivarlo con «Traducir también la interfaz de Moodle» en la configuración.</p>
+            <div class="switcher" data-target="langShot" role="group">
+              <button type="button" aria-pressed="false" data-src="assets/welcome/dashboard.webp">日本語</button>
+              <button type="button" aria-pressed="true" data-src="assets/welcome/translate-en.webp">English</button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/translate-zh.webp">中文</button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/translate-ko.webp">한국어</button>
+              <button type="button" aria-pressed="false" data-src="assets/welcome/translate-es.webp">Español</button>
+            </div>
+          </div>
+          <div class="frame"><img id="langShot" src="assets/welcome/translate-en.webp" width="1920" height="1200" alt="翻訳して表示した Moodle+R" class="zoomable"></div>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini reveal">
+            <h4>✉️ <span class="lang-ja">先生へ DM</span><span class="lang-en">Message Your Teacher (DM)</span><span class="lang-zh">给老师发私信 (DM)</span><span class="lang-ko">교수님께 DM</span><span class="lang-es">Mensaje al profesor (DM)</span></h4>
+            <p class="lang-ja">コースページの「DM」ボタンから、担当の先生へのメッセージ画面をすぐに開けます。</p>
+            <p class="lang-en">The "DM" button on course pages opens a message to the class's teacher right away.</p>
+            <p class="lang-zh">通过课程页面上的“DM”按钮，可立即打开给授课教师发送消息的界面。</p>
+            <p class="lang-ko">수업 페이지의 'DM' 버튼으로 담당 교수님께 메시지를 보내는 화면을 바로 열 수 있습니다.</p>
+            <p class="lang-es">El botón «DM» de las páginas de los cursos abre al instante un mensaje para el profesor de la asignatura.</p>
+          </div>
+          <div class="mini reveal">
+            <h4>✅ <span class="lang-ja">フォーラムを一括既読</span><span class="lang-en">Mark Forum as Read</span><span class="lang-zh">论坛一键已读</span><span class="lang-ko">포럼 모두 읽음</span><span class="lang-es">Marcar Foro como Leído</span></h4>
+            <p class="lang-ja">フォーラムに「すべて既読にする」ボタンを追加。未読の投稿をワンクリックでまとめて既読にできます。</p>
+            <p class="lang-en">Adds a "Mark all as read" button to forums so you can mark every unread post as read in one click.</p>
+            <p class="lang-zh">在论坛中添加“全部标记为已读”按钮，一键即可将所有未读帖子标记为已读。</p>
+            <p class="lang-ko">포럼에 '모두 읽음으로 표시' 버튼을 추가해, 읽지 않은 게시물을 한 번에 읽음 처리할 수 있습니다.</p>
+            <p class="lang-es">Añade a los foros un botón «Marcar todo como leído» para marcar todas las publicaciones no leídas con un solo clic.</p>
+            <img src="assets/welcome/forum.webp" width="1920" height="665" alt="フォーラムに追加された「すべて既読にする」ボタン" class="zoomable">
+          </div>
+          <div class="mini reveal">
+            <h4>⏭️ <span class="lang-ja">ホームスキップ</span><span class="lang-en">Skip Home</span><span class="lang-zh">跳过首页</span><span class="lang-ko">홈 건너뛰기</span><span class="lang-es">Omitir Inicio</span></h4>
+            <p class="lang-ja">使わないトップページを飛ばして、ダッシュボードへ直接移動します。</p>
+            <p class="lang-en">Skips the unused top page and takes you straight to the dashboard.</p>
+            <p class="lang-zh">跳过不常用的首页，直接进入仪表板。</p>
+            <p class="lang-ko">사용하지 않는 시작 페이지를 건너뛰고 대시보드로 바로 이동합니다.</p>
+            <p class="lang-es">Omite la página de inicio que no usas y te lleva directamente al panel.</p>
+          </div>
+          <div class="mini reveal">
+            <h4>🏫 <span class="lang-ja">教職員モード</span><span class="lang-en">Staff Mode</span><span class="lang-zh">教职工模式</span><span class="lang-ko">교직원 모드</span><span class="lang-es">Modo Personal</span></h4>
+            <p class="lang-ja">ナビゲーションに教職員ポータル、教務支援、Respon、打刻などのリンクを追加します。</p>
+            <p class="lang-en">Adds links for faculty and staff (Staff Portal, Respon, Timeclock, etc.) to the navigation bar.</p>
+            <p class="lang-zh">在导航栏中添加教职工专用链接（教职工门户、Respon、打卡等）。</p>
+            <p class="lang-ko">내비게이션 바에 교직원용 링크(교직원 포털, Respon, 근태 관리 등)를 추가합니다.</p>
+            <p class="lang-es">Añade a la barra de navegación enlaces para el personal (Portal del Personal, Respon, Control de Asistencia, etc.).</p>
+            <img src="assets/welcome/staff.webp" width="1920" height="115" alt="教職員モードで追加されるリンク" class="zoomable">
           </div>
         </div>
-      </li>
-      <li>
-        <strong>시간표 색상 사용자 지정:</strong> 설정 서랍에서 시간표의 기본 색상, 오늘 요일의 색상, 현재 수업 시간의 색상을 취향에 맞게 사용자 지정할 수 있습니다.
-      </li>
-      <li>
-        <strong>교직원 모드 및 유용한 링크:</strong> 교직원을 위한 직접 링크(교직원 포털, Respon, 근태 관리 등)를 리본에 추가합니다.
-        <img src="assets/staff-ribbon.png" alt="교직원 모드 예시" class="feature-img">
-      </li>
-      <li><strong>홈 건너뛰기:</strong> 사용하지 않는 시작 페이지를 건너뛰고 대시보드로 바로 이동합니다.</li>
-      <li>
-        <strong>현재 수업 강조:</strong> 현재 진행 중인 수업 시간이 시간표에 강조 표시되어, 현재 듣고 있는 수업을 한눈에 볼 수 있습니다.
-      </li>
-      <li>
-        <strong>강의 계획서 정보 표시:</strong>
-        Moodle 수업 페이지에 "강의 계획서" 버튼을 추가하여 한 번의 클릭으로 접근할 수 있습니다. 또한, 강의 계획서를 한 번 열기만 하면 <strong>수업 시간, 담당 교수, 학점,
-          강의실</strong> 데이터를 자동으로 가져와 Moodle 수업 페이지나 대시보드에서 언제든지 확인할 수 있습니다.<br>
-        또한 설정 서랍에서 '등록된 수업의 강의 계획서 모두 가져오기'를 통해 일괄적으로 가져올 수도 있습니다. 수업 페이지에서 가져온 강의실 위치를 통해 캠퍼스 맵에도 접속할 수 있습니다.
-        <img src="assets/syllabus.png" alt="강의 계획서 통합 예시" class="feature-img">
-      </li>
-      <li>
-        <strong>다크 모드:</strong> 눈을 편안하게 해주는 어두운 색상 구성으로 변경합니다.
-        <img src="assets/dark-mode-welcome.png" alt="다크 모드 예시" class="feature-img">
-      </li>
-      <li>
-        <strong>포럼 모두 읽음:</strong> 포럼 화면에 "모두 읽음으로 표시" 버튼을 추가하여, 단 한 번의 클릭으로 읽지 않은 모든 게시물을 읽음 처리할 수 있습니다.
-      </li>
-      <li>
-        <strong>다이렉트 메시지 (DM) 버튼:</strong> 수업 페이지 상단에 "DM" 버튼을 배치합니다. 이 버튼을 클릭하면 해당 수업의 강사에게 메시지를 보낼 수 있는 작성 화면이 열립니다.
-      </li>
-      <li>
-        <strong>다국어 지원:</strong> UI 및 환영 페이지는 5개 언어(일본어, 영어, 중국어, 한국어, 스페인어)를 지원합니다. 설정 서랍에서 언제든지 언어를 전환할 수 있습니다.
-      </li>
-    </ul>
+      </div>
+    </section>
 
-    <ul class="lang-es">
-      <li>
-        <strong>Mejor Diseño:</strong> Hace que el horario sea más fácil de leer y utiliza el espacio de la pantalla de
-        manera más efectiva.
-        <div class="before-after-container">
-          <div class="image-wrapper">
-            <span class="image-label">Antes</span>
-            <img src="assets/layout-before.png" alt="Antes de Mejor Diseño" class="feature-img">
-          </div>
-          <div class="image-wrapper">
-            <span class="image-label">Después</span>
-            <img src="assets/layout-after.png" alt="Después de Mejor Diseño" class="feature-img">
-          </div>
+    <!-- ご利用にあたって -->
+    <section>
+      <div class="wrap">
+        <div class="eyebrow">Notes</div>
+        <h2 class="lang-ja">ご利用にあたって</h2>
+        <h2 class="lang-en">Before You Use</h2>
+        <h2 class="lang-zh">使用须知</h2>
+        <h2 class="lang-ko">이용 안내</h2>
+        <h2 class="lang-es">Antes de usar</h2>
+        <div class="legal">
+          <details>
+            <summary><span class="lang-ja">免責事項</span><span class="lang-en">Disclaimer</span><span class="lang-zh">免责声明</span><span class="lang-ko">면책 조항</span><span class="lang-es">Descargo de Responsabilidad</span></summary>
+            <div class="lang-ja">
+              <p>本拡張機能は個人が開発した非公式なツールであり、立命館大学およびMoodleとは一切関係ありません。本拡張機能について大学側に問い合わせることがないようにお願いいたします。</p>
+              <p>本拡張機能の利用によって生じたいかなる直接的・間接的なトラブル、不利益、または損害（例: 課題の提出遅延、データの未反映など）について、開発者は一切の責任を負いません。すべて自己責任でのご利用をお願いいたします。</p>
+              <p>また、大学側のシステム（Moodleやシラバスなど）のアップデートや仕様変更により、本拡張機能が正常に動作しなくなる、あるいは画面表示が崩れる場合があるほか、開発者の裁量により予告なく機能の追加・変更・アップデート、または本拡張機能の提供を停止することがあります。あらかじめご了承ください。</p>
+              <p>なお、本拡張機能をインストールした時点で、免責事項に同意したものとみなします。</p>
+            </div>
+            <div class="lang-en">
+              <p>This extension is an unofficial tool developed by an individual and is not affiliated with Ritsumeikan University or Moodle. Please do not contact the university regarding this extension.</p>
+              <p>The developer assumes no responsibility for any direct or indirect trouble, disadvantage, or damage (e.g., delayed assignment submissions, unreflected data) caused by the use of this extension. Please use it entirely at your own risk.</p>
+              <p>In addition, due to updates or specification changes in the university's systems (such as Moodle or Syllabus), this extension may stop working properly or the display may become distorted. Furthermore, the developer may add, change, update features, or discontinue the provision of this extension without notice. Please be aware of this in advance.</p>
+              <p>By installing this extension, you are deemed to have agreed to this disclaimer.</p>
+            </div>
+            <div class="lang-zh">
+              <p>本扩展程序为个人开发的非官方工具，与立命馆大学及 Moodle 没有任何关系。请勿向大学方面咨询有关本扩展程序的问题。</p>
+              <p>对于因使用本扩展程序而造成的任何直接或间接麻烦、不利或损害（例如：作业提交延迟、数据未反映等），开发者不承担任何责任。请完全自行承担风险使用。</p>
+              <p>此外，由于大学系统（如 Moodle 或教学大纲）的更新或规格变更，本扩展程序可能会无法正常工作，或者画面显示可能会崩溃。此外，开发者可能会自行决定在不另行通知的情况下添加、更改、更新功能或停止提供本扩展程序。请事先知悉。</p>
+              <p>另外，在您安装本扩展程序时，即视为您已同意本免责声明。</p>
+            </div>
+            <div class="lang-ko">
+              <p>본 확장 프로그램은 개인이 개발한 비공식 도구이며, 리츠메이칸 대학 및 Moodle과는 전혀 관계가 없습니다. 본 확장 프로그램에 대해 대학 측에 문의하지 마십시오.</p>
+              <p>본 확장 프로그램의 이용으로 인해 발생한 직·간접적인 문제, 불이익 또는 손해(예: 과제 제출 지연, 데이터 미반영 등)에 대해 개발자는 일체의 책임을 지지 않습니다. 전적으로 사용자 본인의 책임하에 사용하시기 바랍니다.</p>
+              <p>또한, 대학 시스템(Moodle이나 강의 계획서 등)의 업데이트나 사양 변경에 따라 본 확장 프로그램이 정상적으로 작동하지 않거나 화면 표시가 깨질 수 있습니다. 또한, 개발자의 재량에 따라 예고 없이 기능 추가, 변경, 업데이트를 하거나 본 확장 프로그램의 제공을 중단할 수 있습니다. 이 점 미리 양해 부탁드립니다.</p>
+              <p>아울러, 본 확장 프로그램을 설치한 시점에 면책 조항에 동의한 것으로 간주합니다.</p>
+            </div>
+            <div class="lang-es">
+              <p>Esta extensión es una herramienta no oficial desarrollada por un individuo y no está afiliada con la Universidad de Ritsumeikan o Moodle. Por favor, no contacte a la universidad en relación con esta extensión.</p>
+              <p>El desarrollador no asume ninguna responsabilidad por ningún problema, desventaja o daño directo o indirecto (por ejemplo, envíos de tareas retrasados, datos no reflejados) causado por el uso de esta extensión. Utilícela bajo su propio riesgo.</p>
+              <p>Además, debido a actualizaciones o cambios de especificaciones en los sistemas de la universidad (como Moodle o Temario), esta extensión puede dejar de funcionar correctamente o la visualización puede distorsionarse. Además, el desarrollador puede agregar, cambiar, actualizar funciones o suspender la provisión de esta extensión sin previo aviso. Por favor, tenga esto en cuenta de antemano.</p>
+              <p>Al instalar esta extensión, se considera que ha aceptado este descargo de responsabilidad.</p>
+            </div>
+          </details>
+          <details>
+            <summary><span class="lang-ja">プライバシーポリシー</span><span class="lang-en">Privacy Policy</span><span class="lang-zh">隐私政策</span><span class="lang-ko">개인정보처리방침</span><span class="lang-es">Política de Privacidad</span></summary>
+            <p class="lang-ja">本拡張機能における個人情報の取り扱いについては、こちらの<a href="privacy.html">プライバシーポリシー</a>をご確認ください。<br>なお、本拡張機能をインストールした時点で、プライバシーポリシーに同意したものとみなします。</p>
+            <p class="lang-en">For the handling of personal information in this extension, please check this <a href="privacy.html">Privacy Policy</a>.<br>By installing this extension, you are deemed to have agreed to the privacy policy.</p>
+            <p class="lang-zh">关于本扩展程序中对个人信息的处理方式，请查看此<a href="privacy.html">隐私政策</a>。<br>在您安装本扩展程序时，即视为您已同意该隐私政策。</p>
+            <p class="lang-ko">본 확장 프로그램의 개인정보 취급에 대해서는 이 <a href="privacy.html">개인정보처리방침</a>을 확인해 주십시오.<br>아울러, 본 확장 프로그램을 설치한 시점에 개인정보처리방침에 동의한 것으로 간주합니다.</p>
+            <p class="lang-es">Para el manejo de información personal en esta extensión, por favor revise esta <a href="privacy.html">Política de Privacidad</a>.<br>Al instalar esta extensión, se considera que ha aceptado la política de privacidad.</p>
+          </details>
         </div>
-      </li>
-      <li>
-        <strong>Colores de Horario Personalizables:</strong> Personalice el color base del horario, el color de la
-        columna de hoy y el color del espacio de la clase actual desde el panel de configuración para que se adapte a
-        sus preferencias.
-      </li>
-      <li>
-        <strong>Modo Personal y Enlaces Útiles:</strong> Agrega enlaces directos en la cinta para el personal (Portal
-        del Personal, Respon, Control de Asistencia, etc.).
-        <img src="assets/staff-ribbon.png" alt="Ejemplo del Modo Personal" class="feature-img">
-      </li>
-      <li><strong>Omitir Inicio:</strong> Omite la página de inicio no utilizada y redirige directamente al panel.</li>
-      <li>
-        <strong>Resaltar Clase Actual:</strong> El espacio de la clase actual se resalta en el horario, lo que facilita
-        ver qué clase estás tomando actualmente.
-      </li>
-      <li>
-        <strong>Mostrar Temario:</strong>
-        Agrega un botón de "Temario" a las páginas de cursos de Moodle para un acceso de un solo clic. Además, con solo
-        abrir un temario una vez, se obtendrán automáticamente los datos de <strong>horario, profesor, créditos y
-          aula</strong>, permitiéndote verificarlos en cualquier momento desde la página del curso o el panel de
-        Moodle.<br>
-        También puede obtener todos los temarios registrados a la vez desde el panel de configuración. También puedes
-        acceder al mapa del campus desde la ubicación del aula obtenida en la página del curso.
-        <img src="assets/syllabus.png" alt="Ejemplo de Integración de Temario" class="feature-img">
-      </li>
-      <li>
-        <strong>Modo Oscuro:</strong> Cambia a una combinación de colores más oscura que es más agradable a la vista.
-        <img src="assets/dark-mode-welcome.png" alt="Ejemplo del Modo Oscuro" class="feature-img">
-      </li>
-      <li>
-        <strong>Marcar Foro como Leído:</strong> Agrega un botón de "Marcar todo como leído" a las pantallas de los
-        foros, lo que te permite marcar todas las publicaciones no leídas como leídas con un solo clic.
-      </li>
-      <li>
-        <strong>Botón de Mensaje Directo (DM):</strong> Coloca un botón de "DM" en el encabezado de la página del curso.
-        Al hacer clic en él, se abre la pantalla de redacción de mensajes para el instructor de esa clase.
-      </li>
-      <li>
-        <strong>Soporte Multilingüe:</strong> La interfaz de usuario y la página de bienvenida admiten 5 idiomas
-        (japonés, inglés, chino, coreano, español). Puede cambiar de idioma en cualquier momento desde el panel de
-        configuración.
-      </li>
-    </ul>
+      </div>
+    </section>
 
-    <h2 class="lang-ja">免責事項</h2>
-    <h2 class="lang-en">Disclaimer</h2>
-    <h2 class="lang-zh">免责声明</h2>
-    <h2 class="lang-ko">면책 조항</h2>
-    <h2 class="lang-es">Descargo de Responsabilidad</h2>
-    <p class="lang-ja">
-      本拡張機能は個人が開発した非公式なツールであり、立命館大学およびMoodleとは一切関係ありません。本拡張機能について大学側に問い合わせることがないようにお願いいたします。<br>
-      本拡張機能の利用によって生じたいかなる直接的・間接的なトラブル、不利益、または損害（例: 課題の提出遅延、データの未反映など）について、開発者は一切の責任を負いません。すべて自己責任でのご利用をお願いいたします。<br>
-      また、大学側のシステム（Moodleやシラバスなど）のアップデートや仕様変更により、本拡張機能が正常に動作しなくなる、あるいは画面表示が崩れる場合があるほか、開発者の裁量により予告なく機能の追加・変更・アップデート、または本拡張機能の提供を停止することがあります。あらかじめご了承ください。<br>
-      なお、本拡張機能をインストールした時点で、免責事項に同意したものとみなします。
-    </p>
-    <p class="lang-en">
-      This extension is an unofficial tool developed by an individual and is not affiliated with Ritsumeikan University
-      or Moodle. Please do not contact the university regarding this extension.<br>
-      The developer assumes no responsibility for any direct or indirect trouble, disadvantage, or damage (e.g., delayed
-      assignment submissions, unreflected data) caused by the use of this extension. Please use it entirely at your own
-      risk.<br>
-      In addition, due to updates or specification changes in the university's systems (such as Moodle or Syllabus),
-      this extension may stop working properly or the display may become distorted. Furthermore, the developer may add,
-      change, update features, or discontinue the provision of this extension without notice. Please be aware of this in
-      advance.<br>
-      By installing this extension, you are deemed to have agreed to this disclaimer.
-    </p>
-    <p class="lang-zh">
-      本扩展程序为个人开发的非官方工具，与立命馆大学及 Moodle 没有任何关系。请勿向大学方面咨询有关本扩展程序的问题。<br>
-      对于因使用本扩展程序而造成的任何直接或间接麻烦、不利或损害（例如：作业提交延迟、数据未反映等），开发者不承担任何责任。请完全自行承担风险使用。<br>
-      此外，由于大学系统（如 Moodle
-      或教学大纲）的更新或规格变更，本扩展程序可能会无法正常工作，或者画面显示可能会崩溃。此外，开发者可能会自行决定在不另行通知的情况下添加、更改、更新功能或停止提供本扩展程序。请事先知悉。<br>
-      另外，在您安装本扩展程序时，即视为您已同意本免责声明。
-    </p>
-    <p class="lang-ko">
-      본 확장 프로그램은 개인이 개발한 비공식 도구이며, 리츠메이칸 대학 및 Moodle과는 전혀 관계가 없습니다. 본 확장 프로그램에 대해 대학 측에 문의하지 마십시오.<br>
-      본 확장 프로그램의 이용으로 인해 발생한 직·간접적인 문제, 불이익 또는 손해(예: 과제 제출 지연, 데이터 미반영 등)에 대해 개발자는 일체의 책임을 지지 않습니다. 전적으로 사용자 본인의 책임하에
-      사용하시기 바랍니다.<br>
-      또한, 대학 시스템(Moodle이나 강의 계획서 등)의 업데이트나 사양 변경에 따라 본 확장 프로그램이 정상적으로 작동하지 않거나 화면 표시가 깨질 수 있습니다. 또한, 개발자의 재량에 따라 예고 없이
-      기능 추가, 변경, 업데이트를 하거나 본 확장 프로그램의 제공을 중단할 수 있습니다. 이 점 미리 양해 부탁드립니다.<br>
-      아울러, 본 확장 프로그램을 설치한 시점에 면책 조항에 동의한 것으로 간주합니다.
-    </p>
-    <p class="lang-es">
-      Esta extensión es una herramienta no oficial desarrollada por un individuo y no está afiliada con la Universidad
-      de Ritsumeikan o Moodle. Por favor, no contacte a la universidad en relación con esta extensión.<br>
-      El desarrollador no asume ninguna responsabilidad por ningún problema, desventaja o daño directo o indirecto (por
-      ejemplo, envíos de tareas retrasados, datos no reflejados) causado por el uso de esta extensión. Utilícela bajo su
-      propio riesgo.<br>
-      Además, debido a actualizaciones o cambios de especificaciones en los sistemas de la universidad (como Moodle o
-      Temario), esta extensión puede dejar de funcionar correctamente o la visualización puede distorsionarse. Además,
-      el desarrollador puede agregar, cambiar, actualizar funciones o suspender la provisión de esta extensión sin
-      previo aviso. Por favor, tenga esto en cuenta de antemano.<br>
-      Al instalar esta extensión, se considera que ha aceptado este descargo de responsabilidad.
-    </p>
+    <!-- サポート -->
+    <section id="contact" class="section-soft">
+      <div class="wrap">
+        <div class="eyebrow">Support</div>
+        <h2 class="lang-ja">サポートと連絡先</h2>
+        <h2 class="lang-en">Support and Contact</h2>
+        <h2 class="lang-zh">支持与联系</h2>
+        <h2 class="lang-ko">지원 및 문의</h2>
+        <h2 class="lang-es">Soporte y Contacto</h2>
+        <p class="lang-ja section-lead">不具合のご報告、機能のご要望、その他ご質問などがございましたら、お気軽にご連絡ください。</p>
+        <p class="lang-en section-lead">If you have any bug reports, feature requests, or other questions, please feel free to contact us.</p>
+        <p class="lang-zh section-lead">如果您有任何错误报告、功能请求或其他问题，请随时与我们联系。</p>
+        <p class="lang-ko section-lead">버그 신고, 기능 요청 또는 기타 질문이 있으시면 언제든지 문의해 주세요.</p>
+        <p class="lang-es section-lead">Si tienes algún informe de errores, solicitud de funciones u otra pregunta, no dudes en contactarnos.</p>
+        <div class="support">
+          <a class="support-card" href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank" rel="noopener"><span class="ico">📝</span><strong><span class="lang-ja">お問い合わせフォーム</span><span class="lang-en">Contact Form</span><span class="lang-zh">联系表单</span><span class="lang-ko">문의 양식</span><span class="lang-es">Formulario de contacto</span></strong><span>Google Forms</span></a>
+          <a class="support-card" href="https://x.com/somakumagai" target="_blank" rel="noopener"><span class="ico"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span><strong>X</strong><span>@somakumagai</span></a>
+          <a class="support-card" href="mailto:somakumagai1023@gmail.com"><span class="ico">📮</span><strong><span class="lang-ja">メール</span><span class="lang-en">Email</span><span class="lang-zh">电子邮件</span><span class="lang-ko">이메일</span><span class="lang-es">Correo electrónico</span></strong><span>somakumagai1023@gmail.com</span></a>
+        </div>
+        <div class="donate">
+          <div>
+            <h3><span class="lang-ja">開発を応援する</span><span class="lang-en">Support Development</span><span class="lang-zh">支持开发</span><span class="lang-ko">개발 응원하기</span><span class="lang-es">Apoya el desarrollo</span></h3>
+            <p class="lang-ja">もしこの拡張機能が役に立ったと感じていただけたら、開発のサポートをしていただけると嬉しいです。PayPay アプリの「送る」から、こちらの PayPay ID 宛てにお送りいただけます。</p>
+            <p class="lang-en">If you find this extension useful, I would appreciate your support for its development. In the PayPay app, tap 「送る」 (Send) and search for the PayPay ID shown here.</p>
+            <p class="lang-zh">如果您觉得这个扩展程序有用，希望能得到您的支持，以帮助我们继续开发。在 PayPay 应用中点击「送る」（转账），搜索这里的 PayPay ID 即可。</p>
+            <p class="lang-ko">이 확장 프로그램이 유용하다고 생각되신다면, 개발을 위해 후원해 주시면 감사하겠습니다. PayPay 앱에서 「送る」(보내기)를 누르고 여기의 PayPay ID를 검색해 주세요.</p>
+            <p class="lang-es">Si esta extensión te resulta útil, agradecería tu apoyo para su desarrollo. En la app de PayPay, pulsa 「送る」 (Enviar) y busca el ID de PayPay que aparece aquí.</p>
+          </div>
+          <span class="paypay-id"><img src="assets/welcome/paypay.svg" width="29" height="28" alt="PayPay">PayPay ID: <strong>souma1023</strong><button type="button" class="copy-btn" data-copy="souma1023"><span class="copy-label"><span class="lang-ja">コピー</span><span class="lang-en">Copy</span><span class="lang-zh">复制</span><span class="lang-ko">복사</span><span class="lang-es">Copiar</span></span><span class="copy-done"><span class="lang-ja">コピーしました</span><span class="lang-en">Copied</span><span class="lang-zh">已复制</span><span class="lang-ko">복사했습니다</span><span class="lang-es">Copiado</span></span></button></span>
+        </div>
+      </div>
+    </section>
+  </main>
 
-    <h2 class="lang-ja">プライバシーポリシー</h2>
-    <h2 class="lang-en">Privacy Policy</h2>
-    <h2 class="lang-zh">隐私政策</h2>
-    <h2 class="lang-ko">개인정보처리방침</h2>
-    <h2 class="lang-es">Política de Privacidad</h2>
-    <p class="lang-ja">
-      本拡張機能における個人情報の取り扱いについては、こちらの<a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">プライバシーポリシー</a>をご確認ください。<br>
-      なお、本拡張機能をインストールした時点で、プライバシーポリシーに同意したものとみなします。
-    </p>
-    <p class="lang-en">
-      For the handling of personal information in this extension, please check this <a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">Privacy Policy</a>.<br>
-      By installing this extension, you are deemed to have agreed to the privacy policy.
-    </p>
-    <p class="lang-zh">
-      关于本扩展程序中对个人信息的处理方式，请查看此 <a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">隐私政策</a>。<br>
-      在您安装本扩展程序时，即视为您已同意该隐私政策。
-    </p>
-    <p class="lang-ko">
-      본 확장 프로그램의 개인정보 취급에 대해서는 이 <a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">개인정보처리방침</a>을 확인해 주십시오.<br>
-      아울러, 본 확장 프로그램을 설치한 시점에 개인정보처리방침에 동의한 것으로 간주합니다.
-    </p>
-    <p class="lang-es">
-      Para el manejo de información personal en esta extensión, por favor revise esta <a href="privacy.html"
-        style="color: #2196F3; font-weight: bold; text-decoration: none;">Política de Privacidad</a>.<br>
-      Al instalar esta extensión, se considera que ha aceptado la política de privacidad.
-    </p>
+  <footer>
+    <div class="wrap">
+      <span>&copy; 2026 <a href="https://x.com/somakumagai" target="_blank" rel="noopener">Soma Kumagai</a> All rights reserved.</span>
+      <a href="privacy.html"><span class="lang-ja">プライバシーポリシー</span><span class="lang-en">Privacy Policy</span><span class="lang-zh">隐私政策</span><span class="lang-ko">개인정보처리방침</span><span class="lang-es">Política de Privacidad</span></a>
+    </div>
+  </footer>
 
-    <div id="contact" style="scroll-margin-top: 20px;"></div>
-    <h2 class="lang-ja">サポートと連絡先</h2>
-    <h2 class="lang-en">Support and Contact</h2>
-    <h2 class="lang-zh">支持与联系</h2>
-    <h2 class="lang-ko">지원 및 문의</h2>
-    <h2 class="lang-es">Soporte y Contacto</h2>
-    <div class="contact-links lang-ja">
-      <p>不具合のご報告、機能のご要望、その他ご質問などがございましたら、以下のフォームよりお気軽にご連絡ください。<br>
-        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">お問い合わせフォーム (Google Forms)</a>
-      </p>
-      <p>または、以下のSNSやメールでも受け付けております。<br>
-        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
-        <a href="mailto:somakumagai1023@gmail.com">Email (somakumagai1023@gmail.com)</a>
-      </p>
-      <p>もしこの拡張機能が役に立ったと感じていただけたら、開発のサポートをしていただけると嬉しいです。<br>
-        PayPay アプリの「送る」から、下の PayPay ID 宛てにお送りいただけます。<br>
-        <span class="paypay-id">PayPay ID: <strong>souma1023</strong>
-          <button type="button" class="copy-btn" data-copy="souma1023" data-copied="コピーしました">コピー</button></span>
-      </p>
-    </div>
-    <div class="contact-links lang-en">
-      <p>If you have any bug reports, feature requests, or other questions, please feel free to contact us via the form
-        below.<br>
-        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">Contact Form (Google Forms)</a>
-      </p>
-      <p>Alternatively, you can reach out via the following SNS or email.<br>
-        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
-        <a href="mailto:somakumagai1023@gmail.com">Email (somakumagai1023@gmail.com)</a>
-</p>
-      <p>If you find this extension useful, I would appreciate your support for its development.<br>
-        You can send support via PayPay: in the PayPay app, tap 「送る」 (Send) and search for the PayPay ID below.<br>
-        <span class="paypay-id">PayPay ID: <strong>souma1023</strong>
-          <button type="button" class="copy-btn" data-copy="souma1023" data-copied="Copied">Copy</button></span>
-      </p>
-    </div>
-    <div class="contact-links lang-zh">
-      <p>如果您有任何错误报告、功能请求或其他问题，请随时通过以下表单联系我们。<br>
-        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">联系表单 (Google Forms)</a>
-      </p>
-      <p>或者，您也可以通过以下社交媒体或电子邮件与我们取得联系。<br>
-        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
-        <a href="mailto:somakumagai1023@gmail.com">电子邮件 (somakumagai1023@gmail.com)</a>
-</p>
-      <p>如果您觉得这个扩展程序有用，希望能得到您的支持，以帮助我们继续开发。<br>
-        您可以通过 PayPay 进行赞助：在 PayPay 应用中点击「送る」（转账），搜索下方的 PayPay ID 即可。<br>
-        <span class="paypay-id">PayPay ID: <strong>souma1023</strong>
-          <button type="button" class="copy-btn" data-copy="souma1023" data-copied="已复制">复制</button></span>
-      </p>
-    </div>
-    <div class="contact-links lang-ko">
-      <p>버그 신고, 기능 요청 또는 기타 질문이 있으시면 아래 양식을 통해 자유롭게 문의해 주세요.<br>
-        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">문의 양식 (Google Forms)</a>
-      </p>
-      <p>또는 다음 SNS나 이메일로도 연락하실 수 있습니다.<br>
-        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
-        <a href="mailto:somakumagai1023@gmail.com">이메일 (somakumagai1023@gmail.com)</a>
-</p>
-      <p>이 확장 프로그램이 유용하다고 생각되신다면, 개발을 위해 후원해 주시면 감사하겠습니다.<br>
-        PayPay로 후원하실 수 있습니다. PayPay 앱에서 「送る」(보내기)를 누르고 아래 PayPay ID를 검색해 주세요.<br>
-        <span class="paypay-id">PayPay ID: <strong>souma1023</strong>
-          <button type="button" class="copy-btn" data-copy="souma1023" data-copied="복사했습니다">복사</button></span>
-      </p>
-    </div>
-    <div class="contact-links lang-es">
-      <p>Si tiene algún informe de errores, solicitudes de funciones u otras preguntas, no dude en contactarnos a través
-        del siguiente formulario.<br>
-        <a href="https://forms.gle/THai6UsTLrEzRBWJ8" target="_blank">Formulario de Contacto (Google Forms)</a>
-      </p>
-      <p>Alternativamente, puede comunicarse a través de las siguientes redes sociales o correo electrónico.<br>
-        <a href="https://x.com/somakumagai" target="_blank">X (@somakumagai)</a> /
-        <a href="mailto:somakumagai1023@gmail.com">Correo Electrónico (somakumagai1023@gmail.com)</a>
-</p>
-      <p>Si encuentra útil esta extensión, agradecería su apoyo para su desarrollo.<br>
-        Puedes apoyar el desarrollo con PayPay: en la app de PayPay, pulsa 「送る」 (Enviar) y busca el ID de PayPay que aparece abajo.<br>
-        <span class="paypay-id">PayPay ID: <strong>souma1023</strong>
-          <button type="button" class="copy-btn" data-copy="souma1023" data-copied="Copiado">Copiar</button></span>
-      </p>
-    </div>
-
-    <div style="text-align: center; margin-top: 30px;">
-      <a href="privacy.html" class="lang-ja"
-        style="color: #666; text-decoration: underline; font-size: 14px;">プライバシーポリシー</a>
-      <a href="privacy.html" class="lang-en" style="color: #666; text-decoration: underline; font-size: 14px;">Privacy
-        Policy</a>
-      <a href="privacy.html" class="lang-zh" style="color: #666; text-decoration: underline; font-size: 14px;">隐私政策</a>
-      <a href="privacy.html" class="lang-ko"
-        style="color: #666; text-decoration: underline; font-size: 14px;">개인정보처리방침</a>
-      <a href="privacy.html" class="lang-es" style="color: #666; text-decoration: underline; font-size: 14px;">Política
-        de Privacidad</a>
-    </div>
-
-    <div class="lang-switcher">
-      <a id="langBtnJa">JA</a> <span style="color: #ccc;">|</span> <a id="langBtnEn">EN</a> <span
-        style="color: #ccc;">|</span> <a id="langBtnZh">ZH</a> <span style="color: #ccc;">|</span> <a
-        id="langBtnKo">KO</a> <span style="color: #ccc;">|</span> <a id="langBtnEs">ES</a>
-    </div>
-
-    <div class="footer">
-      &copy; 2026 <a href="https://x.com/somakumagai" target="_blank" class="bottom-link">Soma Kumagai</a> All rights
-      reserved.
-    </div>
-  </div>
-
-  <!-- 拡大表示用のモーダル -->
-  <div id="imageModal" class="modal">
-    <img class="modal-content" id="modalImage">
-  </div>
+  <!-- 画像の拡大表示 -->
+  <dialog class="lightbox" id="lightbox"><img alt=""></dialog>
 
   <script src="page-i18n.js"></script>
   <script src="welcome.js"></script>
