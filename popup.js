@@ -1,5 +1,3 @@
-import { sendGAEvent } from './analytics.js';
-
 // iframe内（ドロワー）で動作しているかを検出
 let isInIframe = false;
 try {
@@ -158,25 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 設定画面が開かれたことを計測する
-  const sendPopupOpenedEvent = () => {
-    sendGAEvent('popup_opened', {
-      better_layout: toggle.checked,
-      dark_mode: darkToggle.checked,
-      skip_home: skipHomeToggle.checked,
-      staff_mode: staffModeToggle.checked,
-      highlight_current_class: highlightCurrentClassToggle.checked,
-      syllabus_auto_fetch: syllabusToggle ? syllabusToggle.checked : false,
-      deadline_display: deadlineToggle.checked,
-      deadline_notification: deadlineNotifyToggle.checked
-    });
-  };
-
-  // ドロワーが開かれたときに計測し、虹色アニメーションを再実行する
-  // （ドロワーの iframe は Moodle のページを開くたびに読み込まれるため、読み込み時ではなく開いたときに計測する）
+  // ドロワーが開かれたときに虹色アニメーションを再実行する
   window.addEventListener('message', (event) => {
     if (event.data && event.data.action === 'drawerOpened') {
-      sendPopupOpenedEvent();
       if (luckyBtn) {
         luckyBtn.classList.remove('rainbow-animate');
         void luckyBtn.offsetWidth; // リフローを強制してアニメーションをリセット
@@ -415,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   restoreDeadlinesBtn.addEventListener('click', () => {
-    sendGAEvent('action_taken', { action_name: 'restore_deadlines' });
     chrome.storage.local.remove('dismissedDeadlines', () => {
       safeAlert(window.MoodleExtI18n.getMessage('alert_deadlines_restored', currentLang));
     });
@@ -460,9 +441,6 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(() => {
       setTimeout(() => document.body.classList.remove('preload'), 50);
     });
-
-    // ツールバーのポップアップは開いた時点で計測する（ドロワーは drawerOpened で計測）
-    if (!isInIframe) sendPopupOpenedEvent();
   });
 
   // トグル切り替え時の処理 (レイアウト変更)
@@ -477,8 +455,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     }
-
-    sendGAEvent('feature_toggled', { feature_name: 'better_layout', enabled: isEnabled });
 
     updateDependentUI(isEnabled);
 
@@ -521,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (ダークモード)
   darkToggle.addEventListener('change', () => {
     const isDarkMode = darkToggle.checked;
-    sendGAEvent('feature_toggled', { feature_name: 'dark_mode', enabled: isDarkMode });
     if (isDarkMode) {
       document.body.classList.add('dark-mode');
       document.documentElement.classList.add('dark-mode');
@@ -535,7 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (Moodleの表示も翻訳)
   if (translateMoodleToggle) {
     translateMoodleToggle.addEventListener('change', () => {
-      sendGAEvent('feature_toggled', { feature_name: 'translate_moodle', enabled: translateMoodleToggle.checked });
       chrome.storage.local.set({ isTranslateMoodleEnabled: translateMoodleToggle.checked }, reloadTabs);
     });
   }
@@ -546,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
     luckyBtn.addEventListener('click', () => {
       const isEnabled = luckyBtn.dataset.enabled === 'true';
       const newState = !isEnabled;
-      sendGAEvent('feature_toggled', { feature_name: 'im_feeling_lucky', enabled: newState });
 
       const selectedUni = newState ? universities[Math.floor(Math.random() * universities.length)] : 'kyodai';
 
@@ -559,19 +532,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // トグル切り替え時の処理 (ホームスキップ)
   skipHomeToggle.addEventListener('change', () => {
-    sendGAEvent('feature_toggled', { feature_name: 'skip_home', enabled: skipHomeToggle.checked });
     chrome.storage.local.set({ isSkipHomeEnabled: skipHomeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (教職員モード)
   staffModeToggle.addEventListener('change', () => {
-    sendGAEvent('feature_toggled', { feature_name: 'staff_mode', enabled: staffModeToggle.checked });
     chrome.storage.local.set({ isStaffMode: staffModeToggle.checked }, reloadTabs);
   });
 
   // トグル切り替え時の処理 (現在の授業をハイライト)
   highlightCurrentClassToggle.addEventListener('change', () => {
-    sendGAEvent('feature_toggled', { feature_name: 'highlight_current_class', enabled: highlightCurrentClassToggle.checked });
     updateDependentUI(toggle.checked);
     chrome.storage.local.set({ isHighlightCurrentClassEnabled: highlightCurrentClassToggle.checked }, reloadTabs);
   });
@@ -579,7 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // トグル切り替え時の処理 (課題の締め切りを表示)
   deadlineToggle.addEventListener('change', async () => {
     const isEnabled = deadlineToggle.checked;
-    sendGAEvent('feature_toggled', { feature_name: 'deadline_display', enabled: isEnabled });
     if (!isEnabled) await clearDeadlineData();
     updateDependentUI(toggle.checked);
     chrome.storage.local.set({ isDeadlineEnabled: isEnabled }, reloadTabs);
@@ -592,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     // 許可ダイアログはクリックの直後にしか出せないので、ほかの処理より先に求める
-    // （許可されたときの設定の保存と計測は background.js が permissions.onAdded で行う）
+    // （許可されたときの設定の保存は background.js が permissions.onAdded で行う）
     chrome.permissions.request(DEADLINE_PERMISSIONS)
       .then((granted) => {
         deadlineNotifyToggle.checked = granted;
@@ -687,15 +656,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      sendGAEvent('feature_toggled', { feature_name: 'syllabus_auto_fetch', enabled: isEnabled });
-
       updateSyllabusButtons(isEnabled);
 
       chrome.storage.local.set({ isSyllabusEnabled: isEnabled, hasPromptedAutoFetch: true }, async () => {
         if (isEnabled) {
           const shouldFetch = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_enable_syllabus', currentLang));
           if (shouldFetch) {
-            sendGAEvent('action_taken', { action_name: 'start_auto_fetch_from_toggle' });
             triggerAutoFetch();
           } else {
             reloadTabs();
@@ -710,7 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // シラバスデータの自動取得ボタン
   if (autoFetchSyllabusBtn) {
     autoFetchSyllabusBtn.addEventListener('click', () => {
-      sendGAEvent('action_taken', { action_name: 'click_auto_fetch_btn' });
       triggerAutoFetch();
     });
   }
@@ -720,7 +685,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSyllabusDataBtn.addEventListener('click', async () => {
       const confirmed = await safeConfirm(window.MoodleExtI18n.getMessage('confirm_clear_syllabus', currentLang));
       if (confirmed) {
-        sendGAEvent('action_taken', { action_name: 'click_clear_syllabus_data' });
         clearSyllabusData(true, reloadTabs);
       }
     });

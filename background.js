@@ -1,4 +1,3 @@
-import { sendGAEvent } from './analytics.js';
 import './i18n.js';
 
 const i18n = globalThis.MoodleExtI18n;
@@ -21,12 +20,12 @@ chrome.runtime.onInstalled.addListener((details) => {
       isStaffMode: false,
       hasPromptedAutoFetch: false
     });
-    
-    // 拡張機能のインストールを計測
-    sendGAEvent('extension_installed', { version: chrome.runtime.getManifest().version });
 
     chrome.tabs.create({ url: welcomeUrl });
   } else if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+    // 過去のバージョンで保存していたGA用のキーを削除
+    chrome.storage.local.remove(['clientId', 'lastSettingsSentDate']);
+
     // 開発中のリロード時を避け、実際のバージョンアップ時のみ開く
     const currentVersion = chrome.runtime.getManifest().version;
     if (details.previousVersion !== currentVersion) {
@@ -51,10 +50,7 @@ const TAB_RETRY_DELAY_MS = 500;
 const TAB_RETRY_MAX = 20;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "sendDailySettings") {
-    // sendGAEvent は analytics.js 側で設定情報を自動的に付与してくれます
-    sendGAEvent('daily_settings_report', request.deviceInfo || {});
-  } else if (request.action === "startAutoFetchSyllabus") {
+  if (request.action === "startAutoFetchSyllabus") {
     fetchQueue = request.courseCodes;
     originalTabId = request.originalTabId || (sender.tab ? sender.tab.id : null);
     if (!isFetching) {
@@ -98,9 +94,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     });
     return true; // 非同期レスポンスのために必要
-  } else if (request.action === "trackAction") {
-    // content script は GA に直接送れないので、操作の名前だけ受け取って送る
-    sendGAEvent('action_taken', { action_name: request.actionName });
   } else if (request.action === "fetchAcademicStatus") {
     // コンテンツスクリプトのCORS回避のため、バックグラウンドでフェッチを実行
     fetch('https://www.ritsumei.ac.jp/academic-affairs/status/')
@@ -301,7 +294,6 @@ function handleDeadlineNotificationButton(notificationId, buttonIndex) {
   chrome.notifications.clear(notificationId);
   // 保存すると storage.onChanged でバッジと通知の予約が組み直される
   queueDeadlineTask(() => dismissDeadline(`${id}:${timesort}`));
-  sendGAEvent('action_taken', { action_name: 'dismiss_deadline_notification' });
 }
 
 // 通知をクリックしたら、その締め切りの活動ページを開く
@@ -327,7 +319,6 @@ async function syncDeadlineNotifySetting() {
   const { isDeadlineNotifyEnabled } = await chrome.storage.local.get({ isDeadlineNotifyEnabled: false });
   if (granted === isDeadlineNotifyEnabled) return;
   await chrome.storage.local.set({ isDeadlineNotifyEnabled: granted });
-  sendGAEvent('feature_toggled', { feature_name: 'deadline_notification', enabled: granted });
 }
 
 // 権限があるときは、アラームと通知のクリックで Service Worker を起こせるようトップレベルで登録する

@@ -30,7 +30,6 @@ chrome.storage.local.get({
   isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true,
   isLuckyEnabled: false,
   luckyUniversity: 'kyodai',
-  lastSettingsSentDate: "",
   displayLanguage: "",
   baseColor: "default",
   todayColor: "lightblue",
@@ -50,20 +49,6 @@ chrome.storage.local.get({
   // Moodle 本体の UI を表示言語に翻訳する（ベターレイアウトとは独立した機能）
   if (data.isTranslateMoodleEnabled && currentLang !== 'ja' && window.MoodleExtTranslate) {
     window.MoodleExtTranslate.start(currentLang);
-  }
-
-  // 1日1回の設定状況送信
-  const today = new Date().toDateString();
-  if (data.lastSettingsSentDate !== today && window.location.hostname.includes('lms.ritsumei.ac.jp')) {
-    chrome.runtime.sendMessage({
-      action: "sendDailySettings",
-      deviceInfo: {
-        screen_resolution: `${window.screen.width}x${window.screen.height}`,
-        user_agent: navigator.userAgent,
-        language: navigator.language
-      }
-    });
-    chrome.storage.local.set({ lastSettingsSentDate: today });
   }
 
   // ホームスキップ（リダイレクト）
@@ -215,7 +200,6 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     const msg = window.MoodleExtI18n.getMessage('content_toast_course_code_copied', currentLang, { code });
     const onCopied = () => {
       showToast(msg);
-      chrome.runtime.sendMessage({ action: 'trackAction', actionName: 'copy_course_code' });
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(code).then(onCopied).catch(() => {
@@ -1338,7 +1322,6 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       button.addEventListener('click', () => {
         const dismiss = !row.classList.contains('dismissed');
         setDeadlineDismissed(deadlineKey(e), dismiss);
-        if (dismiss) chrome.runtime.sendMessage({ action: 'trackAction', actionName: 'dismiss_deadline_timetable' });
         showState(dismiss);
       });
       showState(false);
