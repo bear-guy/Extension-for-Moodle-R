@@ -161,6 +161,50 @@ body.moodle-ext-enabled .timetable-table .subject a {
     white-space: normal !important;
 }
 
+/* 教職員モード用：時間割の授業コードコピーバッジ */
+body.moodle-ext-enabled .moodle-ext-course-code-badge {
+    display: inline-block;
+    margin-bottom: 2px;
+    padding: 0 5px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #495057;
+    background-color: rgba(0, 0, 0, 0.07);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+body.moodle-ext-enabled .timetable-others .moodle-ext-course-code-badge {
+    margin: 0 6px 0 0;
+    vertical-align: middle;
+}
+
+body.moodle-ext-enabled .moodle-ext-course-code-badge:hover {
+    background-color: rgba(0, 0, 0, 0.15);
+    color: #212529;
+}
+
+body.moodle-ext-enabled .moodle-ext-course-code-badge:focus-visible {
+    outline: 2px solid #2196F3;
+    outline-offset: 1px;
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-course-code-badge {
+    color: #d0d7de;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.moodle-ext-enabled.dark-mode .moodle-ext-course-code-badge:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
 /* --- ホームリンクのスキップ処理 --- */
 /* ナビゲーションおよびドロワーのHomeリンクを非表示 */
 body.moodle-ext-skip-home li[data-key="home"],
@@ -329,6 +373,70 @@ body.moodle-ext-enabled:not(.dark-mode)[data-today-color="grey"] .timetable-tabl
 /* Current Class Color: grey */
 body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="grey"] .timetable-table td.current-class-highlight { background-color: #f5f5f5 !important; border: 2px solid #e0e0e0 !important; box-shadow: 0 0 8px rgba(224, 224, 224, 0.3) !important; }
 
+/* Base Color: rose */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="rose"] .timetable-table td:not(.empty):not(.time) { background-color: #fff1f2 !important; }
+/* Today Color: rose */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="rose"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="rose"] .timetable-table td.empty.today-column-highlight { background-color: #fff1f2 !important; }
+/* Current Class Color: rose */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="rose"] .timetable-table td.current-class-highlight { background-color: #fff1f2 !important; border: 2px solid #fb7185 !important; box-shadow: 0 0 8px rgba(251, 113, 133, 0.3) !important; }
+
+/* Base Color: coral */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="coral"] .timetable-table td:not(.empty):not(.time) { background-color: #fbe9e7 !important; }
+/* Today Color: coral */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="coral"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="coral"] .timetable-table td.empty.today-column-highlight { background-color: #fbe9e7 !important; }
+/* Current Class Color: coral */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="coral"] .timetable-table td.current-class-highlight { background-color: #fbe9e7 !important; border: 2px solid #ff8a65 !important; box-shadow: 0 0 8px rgba(255, 138, 101, 0.3) !important; }
+
+/* Base Color: lavender */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="lavender"] .timetable-table td:not(.empty):not(.time) { background-color: #ede7f6 !important; }
+/* Today Color: lavender */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lavender"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="lavender"] .timetable-table td.empty.today-column-highlight { background-color: #ede7f6 !important; }
+/* Current Class Color: lavender */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="lavender"] .timetable-table td.current-class-highlight { background-color: #ede7f6 !important; border: 2px solid #9575cd !important; box-shadow: 0 0 8px rgba(149, 117, 205, 0.3) !important; }
+
+/* Base Color: mint */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="mint"] .timetable-table td:not(.empty):not(.time) { background-color: #e6fcf7 !important; }
+/* Today Color: mint */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="mint"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="mint"] .timetable-table td.empty.today-column-highlight { background-color: #e6fcf7 !important; }
+/* Current Class Color: mint */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="mint"] .timetable-table td.current-class-highlight { background-color: #e6fcf7 !important; border: 2px solid #2dd4bf !important; box-shadow: 0 0 8px rgba(45, 212, 191, 0.3) !important; }
+
+/* Base Color: emerald */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="emerald"] .timetable-table td:not(.empty):not(.time) { background-color: #e6f9f1 !important; }
+/* Today Color: emerald */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="emerald"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="emerald"] .timetable-table td.empty.today-column-highlight { background-color: #e6f9f1 !important; }
+/* Current Class Color: emerald */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="emerald"] .timetable-table td.current-class-highlight { background-color: #e6f9f1 !important; border: 2px solid #34d399 !important; box-shadow: 0 0 8px rgba(52, 211, 153, 0.3) !important; }
+
+/* Base Color: forest */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="forest"] .timetable-table td:not(.empty):not(.time) { background-color: #dcece0 !important; }
+/* Today Color: forest */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="forest"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="forest"] .timetable-table td.empty.today-column-highlight { background-color: #dcece0 !important; }
+/* Current Class Color: forest */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="forest"] .timetable-table td.current-class-highlight { background-color: #dcece0 !important; border: 2px solid #4d8c5e !important; box-shadow: 0 0 8px rgba(77, 140, 94, 0.3) !important; }
+
+/* Base Color: olive */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="olive"] .timetable-table td:not(.empty):not(.time) { background-color: #eff3e4 !important; }
+/* Today Color: olive */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="olive"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="olive"] .timetable-table td.empty.today-column-highlight { background-color: #eff3e4 !important; }
+/* Current Class Color: olive */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="olive"] .timetable-table td.current-class-highlight { background-color: #eff3e4 !important; border: 2px solid #97ab63 !important; box-shadow: 0 0 8px rgba(151, 171, 99, 0.3) !important; }
+
+/* Base Color: bluegrey */
+body.moodle-ext-enabled:not(.dark-mode)[data-base-color="bluegrey"] .timetable-table td:not(.empty):not(.time) { background-color: #eceff1 !important; }
+/* Today Color: bluegrey */
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="bluegrey"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled:not(.dark-mode)[data-today-color="bluegrey"] .timetable-table td.empty.today-column-highlight { background-color: #eceff1 !important; }
+/* Current Class Color: bluegrey */
+body.moodle-ext-enabled:not(.dark-mode)[data-current-class-color="bluegrey"] .timetable-table td.current-class-highlight { background-color: #eceff1 !important; border: 2px solid #90a4ae !important; box-shadow: 0 0 8px rgba(144, 164, 174, 0.3) !important; }
+
 
 /* --- ダークモード専用テーマカラー --- */
 /* Dark Mode: red */
@@ -426,6 +534,54 @@ body.moodle-ext-enabled.dark-mode[data-base-color="grey"] .timetable-table td:no
 body.moodle-ext-enabled.dark-mode[data-today-color="grey"] .timetable-table th.today-column-highlight,
 body.moodle-ext-enabled.dark-mode[data-today-color="grey"] .timetable-table td.empty.today-column-highlight { background-color: hsl(0, 0%, 22%) !important; }
 body.moodle-ext-enabled.dark-mode[data-current-class-color="grey"] .timetable-table td.current-class-highlight { background-color: hsl(0, 0%, 16%) !important; border: 2px solid hsl(0, 0%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: rose */
+body.moodle-ext-enabled.dark-mode[data-base-color="rose"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(345, 22%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="rose"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="rose"] .timetable-table td.empty.today-column-highlight { background-color: hsl(345, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="rose"] .timetable-table td.current-class-highlight { background-color: hsl(345, 31%, 16%) !important; border: 2px solid hsl(345, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: coral */
+body.moodle-ext-enabled.dark-mode[data-base-color="coral"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(14, 22%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="coral"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="coral"] .timetable-table td.empty.today-column-highlight { background-color: hsl(14, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="coral"] .timetable-table td.current-class-highlight { background-color: hsl(14, 31%, 16%) !important; border: 2px solid hsl(14, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: lavender */
+body.moodle-ext-enabled.dark-mode[data-base-color="lavender"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(262, 22%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="lavender"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="lavender"] .timetable-table td.empty.today-column-highlight { background-color: hsl(262, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="lavender"] .timetable-table td.current-class-highlight { background-color: hsl(262, 31%, 16%) !important; border: 2px solid hsl(262, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: mint */
+body.moodle-ext-enabled.dark-mode[data-base-color="mint"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(168, 22%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="mint"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="mint"] .timetable-table td.empty.today-column-highlight { background-color: hsl(168, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="mint"] .timetable-table td.current-class-highlight { background-color: hsl(168, 31%, 16%) !important; border: 2px solid hsl(168, 56%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: emerald */
+body.moodle-ext-enabled.dark-mode[data-base-color="emerald"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(152, 24%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="emerald"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="emerald"] .timetable-table td.empty.today-column-highlight { background-color: hsl(152, 55%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="emerald"] .timetable-table td.current-class-highlight { background-color: hsl(152, 33%, 16%) !important; border: 2px solid hsl(152, 58%, 32%) !important; box-shadow: none !important; }
+
+/* Dark Mode: forest */
+body.moodle-ext-enabled.dark-mode[data-base-color="forest"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(136, 25%, 10%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="forest"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="forest"] .timetable-table td.empty.today-column-highlight { background-color: hsl(136, 48%, 19%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="forest"] .timetable-table td.current-class-highlight { background-color: hsl(136, 30%, 14%) !important; border: 2px solid hsl(136, 50%, 28%) !important; box-shadow: none !important; }
+
+/* Dark Mode: olive */
+body.moodle-ext-enabled.dark-mode[data-base-color="olive"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(78, 20%, 11%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="olive"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="olive"] .timetable-table td.empty.today-column-highlight { background-color: hsl(78, 45%, 20%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="olive"] .timetable-table td.current-class-highlight { background-color: hsl(78, 28%, 15%) !important; border: 2px solid hsl(78, 48%, 29%) !important; box-shadow: none !important; }
+
+/* Dark Mode: bluegrey */
+body.moodle-ext-enabled.dark-mode[data-base-color="bluegrey"] .timetable-table td:not(.empty):not(.time) { background-color: hsl(200, 18%, 12%) !important; }
+body.moodle-ext-enabled.dark-mode[data-today-color="bluegrey"] .timetable-table th.today-column-highlight,
+body.moodle-ext-enabled.dark-mode[data-today-color="bluegrey"] .timetable-table td.empty.today-column-highlight { background-color: hsl(200, 35%, 22%) !important; }
+body.moodle-ext-enabled.dark-mode[data-current-class-color="bluegrey"] .timetable-table td.current-class-highlight { background-color: hsl(200, 25%, 16%) !important; border: 2px solid hsl(200, 38%, 32%) !important; box-shadow: none !important; }
 
 /* --- その他のUI調整 --- */
 /* バッジ（未提出課題など）を赤色にして目立たせる */

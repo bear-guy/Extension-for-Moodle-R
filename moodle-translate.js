@@ -20,6 +20,7 @@
     '.timetable-others a', '.messageteacher_link', '.usertext', '.fullname',
     // 時間割の授業名と教室は content.js が加工する（曜日時限の除去・教員名の追加）ので触らない
     '.timetable-table .subject a', '.timetable-table .room', '.moodle-ext-deadline-badge', '.moodle-ext-deadline-popover',
+    '.moodle-ext-course-code-badge', '.custom-course-code-btn', '.custom-staff-actions-wrapper',
     '.custom-settings-drawer', '.custom-settings-toggler-wrapper', '.syllabus-info-container', '.extension-status-banner'
   ].join(',');
 

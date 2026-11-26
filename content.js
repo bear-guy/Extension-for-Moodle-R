@@ -22,6 +22,9 @@ const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-schem
 // ==========================================
 // 初期化・設定読み込み
 // ==========================================
+// PDF等のファイルをブラウザで直接開いたとき（pluginfile.php など Moodle の HTML ページでない場合）は何もしない
+const isMoodlePage = () => !window.location.hostname.includes('lms.ritsumei.ac.jp') || (document.contentType === 'text/html' && !!document.querySelector('#page, #page-wrapper'));
+
 chrome.storage.local.get({
   isEnabled: true, isDarkMode: prefersDark, isSkipHomeEnabled: true,
   isStaffMode: false, isSyllabusEnabled: true, isHighlightCurrentClassEnabled: true,
@@ -35,6 +38,8 @@ chrome.storage.local.get({
   isTranslateMoodleEnabled: true,
   isDeadlineEnabled: true
 }, (data) => {
+  if (!isMoodlePage()) return;
+
   document.body.dataset.baseColor = data.baseColor;
   document.body.dataset.todayColor = data.todayColor;
   document.body.dataset.currentClassColor = data.currentClassColor;
@@ -71,6 +76,7 @@ chrome.storage.local.get({
   // 拡張機能のメイン処理開始
   if (data.isEnabled) {
     document.body.classList.add('moodle-ext-enabled');
+    if (data.isStaffMode) document.body.classList.add('moodle-ext-staff-mode');
     initExtension(data.isStaffMode, data.isSyllabusEnabled, data.isHighlightCurrentClassEnabled, data.isLuckyEnabled, data.luckyUniversity, currentLang, data.isDeadlineEnabled);
   }
 
@@ -135,8 +141,8 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     style.id = 'moodle-ext-dynamic-style';
     style.textContent = `
       body.dark-mode img[src*="/monologo"] { filter: invert(1) brightness(1.5) !important; }
-      body.dark-mode .btn-secondary, body.dark-mode .custom-syllabus-link, body.dark-mode .custom-message-teacher-link { background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #555 !important; }
-      body.dark-mode .btn-secondary:hover, body.dark-mode .custom-syllabus-link:hover, body.dark-mode .custom-message-teacher-link:hover { background-color: #3a3a3a !important; color: #ffffff !important; }
+      body.dark-mode .btn-secondary, body.dark-mode .custom-syllabus-link, body.dark-mode .custom-message-teacher-link, body.dark-mode .custom-course-code-btn, body.dark-mode .custom-staff-actions-btn { background-color: #2c2c2c !important; color: #e0e0e0 !important; border-color: #555 !important; }
+      body.dark-mode .btn-secondary:hover, body.dark-mode .custom-syllabus-link:hover, body.dark-mode .custom-message-teacher-link:hover, body.dark-mode .custom-course-code-btn:hover, body.dark-mode .custom-staff-actions-btn:hover { background-color: #3a3a3a !important; color: #ffffff !important; }
       body.dark-mode .activity-header, body.dark-mode .activity-information, body.dark-mode .completion-info { background: transparent !important; box-shadow: none !important; border: none !important; position: relative; z-index: 0; }
       body.dark-mode .completion-info *, body.dark-mode .activity-information * { color: #e0e0e0 !important; position: relative; z-index: 1; }
       body.dark-mode .completion-info .badge { background-color: #444 !important; }
@@ -204,13 +210,45 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     });
   };
 
+  // 授業コードをクリップボードにコピーしてトースト通知を表示する（教職員モード用）
+  const copyCourseCode = (code) => {
+    const msg = window.MoodleExtI18n.getMessage('content_toast_course_code_copied', currentLang, { code });
+    const onCopied = () => {
+      showToast(msg);
+      chrome.runtime.sendMessage({ action: 'trackAction', actionName: 'copy_course_code' });
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(onCopied).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        onCopied();
+      });
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = code;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      onCopied();
+    }
+  };
+
   // カスタムリンクの定義
   const currentLinks = isStaffMode ? [
     { name: '教職員ポータル', url: 'https://ritsumei365.sharepoint.com/sites/portal/' },
     { name: '教務支援', url: 'https://www.ritsumei.ac.jp/staff-all/academic-affairs/' },
     { name: '教員ポータル', url: 'https://www.ritsumei.ac.jp/faculty-portal/' },
     { name: 'Respon', url: 'https://ritsumei.respon.jp/t/' },
-    { name: '休補講・教室変更', url: 'https://www.ritsumei.ac.jp/pathways-future/course/cancel.html/' },
+    { name: '休補講・教室変更', url: 'https://ritsumei.lightning.force.com/lightning/page/home/' },
     { name: '打刻', url: 'https://ritsumei-cws.company.works-hi.com/self-workflow/cws/srwtimerec' },
     { name: 'manaba+R', url: 'https://ct.ritsumei.ac.jp/ct/' }
   ] : [
@@ -333,6 +371,7 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
       table.querySelectorAll('.subject a:not([data-processed="true"])').forEach(link => {
         link.dataset.processed = "true";
         link.title = link.innerText.trim();
+        const codeMatch = link.title.match(/\d{5,}/);
 
         // 先頭の授業コード（例: "16965:"）を削除し、§以降の文字も削除
         let subjectText = link.innerText.trim().replace(/^\d{5,}\s*[:：]\s*/, '');
@@ -340,18 +379,77 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
         subjectText = subjectText.replace(/^[月火水木金土日][\d・]+[：:]\s*/, '');
         link.innerText = subjectText.replace(/\s*§.*/, '');
 
+        // 教職員モードでは授業コード（5桁）をワンクリックでコピーできるバッジとして残す
+        if (isStaffMode && codeMatch && !link.parentElement.querySelector('.moodle-ext-course-code-badge')) {
+          const code = codeMatch[0];
+          const badge = document.createElement('span');
+          badge.className = 'moodle-ext-course-code-badge';
+          badge.setAttribute('role', 'button');
+          badge.tabIndex = 0;
+          badge.textContent = code;
+          badge.title = window.MoodleExtI18n.getMessage('content_copy_course_code_hint', currentLang);
+          badge.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            copyCourseCode(code);
+          });
+          badge.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              copyCourseCode(code);
+            }
+          });
+          link.insertAdjacentElement('beforebegin', badge);
+        }
+
         const roomDiv = link.parentElement.querySelector('.room');
         if (roomDiv) {
           // 教室名からも同様に曜日・時限表記を削除
           const roomText = roomDiv.innerText.trim().replace(/^[月火水木金土日][\d・]+[：:]\s*/, '');
           roomDiv.innerText = roomText;
-          const match = link.title.match(/\d{5,}/);
-          if (match) chrome.storage.local.get(`syllabus_${match[0]}`, (res) => {
-            if (res[`syllabus_${match[0]}`]?.teacher && res[`syllabus_${match[0]}`].teacher !== "不明") {
-              const firstTeacher = res[`syllabus_${match[0]}`].teacher.split(/[、,・\n]+/)[0].trim();
-              roomDiv.innerText = `${roomText} ${firstTeacher}`;
+          // 教職員モードでは自分の時間割に自分の教員名を毎コマ追記しない
+          if (!isStaffMode && codeMatch) {
+            chrome.storage.local.get(`syllabus_${codeMatch[0]}`, (res) => {
+              if (res[`syllabus_${codeMatch[0]}`]?.teacher && res[`syllabus_${codeMatch[0]}`].teacher !== "不明") {
+                const firstTeacher = res[`syllabus_${codeMatch[0]}`].teacher.split(/[、,・\n]+/)[0].trim();
+                roomDiv.innerText = `${roomText} ${firstTeacher}`;
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // 教職員モードでは「その他」の授業一覧にもワンクリックでコピーできる授業コードバッジを付け、一覧名から重複する授業コードを整理する
+    if (isStaffMode) {
+      document.querySelectorAll('.timetable-others td.course-name a:not([data-staff-processed="true"])').forEach(link => {
+        link.dataset.staffProcessed = "true";
+        const originalText = link.title || link.textContent.trim();
+        link.title = originalText;
+        const codeMatch = originalText.match(/\d{5,}/);
+        if (codeMatch && !link.parentElement.querySelector('.moodle-ext-course-code-badge')) {
+          const code = codeMatch[0];
+          link.textContent = originalText.replace(/^\d{5,}\s*[:：]\s*/, '').replace(/\s*§.*/, '');
+          const badge = document.createElement('span');
+          badge.className = 'moodle-ext-course-code-badge';
+          badge.setAttribute('role', 'button');
+          badge.tabIndex = 0;
+          badge.textContent = code;
+          badge.title = window.MoodleExtI18n.getMessage('content_copy_course_code_hint', currentLang);
+          badge.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            copyCourseCode(code);
+          });
+          badge.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              copyCourseCode(code);
             }
           });
+          link.insertAdjacentElement('beforebegin', badge);
         }
       });
     }
@@ -416,10 +514,14 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     });
   };
 
-  // 重複するデフォルトリンクを非表示
+  // 重複するデフォルトリンクおよびモード対象外のリンクを非表示
   const hideDuplicateLinks = () => {
-    const duplicateKeywords = isStaffMode ? ['休補講・教室変更', '教職員ポータル', '教務支援', '教員ポータル', 'Respon', '打刻', 'manaba+R'] : ['Student Portal', 'STUDENT PORTAL', 'Campus Web'];
-    const duplicateUrls = isStaffMode ? ['course/cancel.html', 'kyu-hoko', 'sharepoint.com/sites/portal', 'academic-affairs', 'faculty-portal', 'ritsumei.respon.jp', 'ritsumei-cws', 'ct.ritsumei.ac.jp/ct/'] : ['sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'cw.ritsumei.ac.jp/campusweb'];
+    const duplicateKeywords = isStaffMode
+      ? ['休補講・教室変更', '教職員ポータル', '教務支援', '教員ポータル', 'Respon', '打刻', 'manaba+R', 'Student Portal', 'STUDENT PORTAL', 'Student Intelliboard']
+      : ['Student Portal', 'STUDENT PORTAL', 'Campus Web', '教員のみ', 'Faculty only', 'Teacher Intelliboard'];
+    const duplicateUrls = isStaffMode
+      ? ['course/cancel.html', 'kyu-hoko', 'ritsumei.lightning.force.com', 'sharepoint.com/sites/portal', 'academic-affairs', 'faculty-portal', 'ritsumei.respon.jp', 'ritsumei-cws', 'ct.ritsumei.ac.jp/ct/', 'sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'local/intelliboard/student/']
+      : ['sp.ritsumei.ac.jp/studentportal', 'www.ritsumei.ac.jp/rsp', 'cw.ritsumei.ac.jp/campusweb', 'staff-all/academic-affairs', 'ritsumei.respon.jp/t/', 'ritsumei.lightning.force.com', 'local/intelliboard/instructor/'];
 
     document.querySelectorAll('a:not(.custom-drawer-link):not([data-hidden-checked="true"])').forEach(a => {
       if (a.closest('.custom-nav-link') || a.classList.contains('custom-drawer-link')) return;
@@ -433,6 +535,61 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           if (a.nextSibling?.nodeName === 'BR') a.nextSibling.style.display = 'none';
         }
       }
+    });
+
+    // ドロップダウンメニュー内で末尾や先頭に残った不要な区切り線（.dropdown-divider）を非表示にする
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      const visibleChildren = Array.from(menu.children).filter(el => el.style.display !== 'none');
+      visibleChildren.forEach((el, idx) => {
+        if (el.classList.contains('dropdown-divider')) {
+          const isFirst = idx === 0;
+          const isLast = idx === visibleChildren.length - 1;
+          const prevIsDivider = idx > 0 && visibleChildren[idx - 1].classList.contains('dropdown-divider');
+          if (isFirst || isLast || prevIsDivider) {
+            el.style.display = 'none';
+          }
+        }
+      });
+    });
+
+    // Intelliboard を現在のモード（教職員: Teacher Intelliboard / 学生: Student Intelliboard）への直接リンクに変換する
+    const targetIntelliboardUrl = isStaffMode
+      ? 'https://lms.ritsumei.ac.jp/local/intelliboard/instructor/index.php'
+      : 'https://lms.ritsumei.ac.jp/local/intelliboard/student/index.php';
+
+    // 1. 上部ナビバーの Intelliboard ドロップダウンを直接リンク化
+    document.querySelectorAll('ul.navbar-nav.more-nav li.dropdown.nav-item').forEach(li => {
+      if (li.dataset.intelliboardDirect === 'true') return;
+      if (!li.querySelector('a[href*="local/intelliboard/"]')) return;
+      li.dataset.intelliboardDirect = 'true';
+      const toggleLink = li.querySelector(':scope > a.dropdown-toggle');
+      const menu = li.querySelector(':scope > .dropdown-menu');
+      if (toggleLink) {
+        toggleLink.href = targetIntelliboardUrl;
+        toggleLink.classList.remove('dropdown-toggle');
+        toggleLink.removeAttribute('data-toggle');
+        toggleLink.removeAttribute('data-bs-toggle');
+        toggleLink.removeAttribute('aria-haspopup');
+        toggleLink.removeAttribute('aria-expanded');
+        li.classList.remove('dropdown');
+      }
+      if (menu) menu.style.display = 'none';
+    });
+
+    // 2. 左ドロワーの Intelliboard アコーディオンを直接リンク化
+    document.querySelectorAll('.drawercontent .list-group > a.icons-collapse-expand').forEach(toggleLink => {
+      if (toggleLink.dataset.intelliboardDirect === 'true') return;
+      const collapseDiv = toggleLink.nextElementSibling;
+      if (!collapseDiv || !collapseDiv.querySelector('a[href*="local/intelliboard/"]')) return;
+      toggleLink.dataset.intelliboardDirect = 'true';
+      toggleLink.href = targetIntelliboardUrl;
+      toggleLink.classList.remove('icons-collapse-expand', 'collapsed', 'd-flex');
+      toggleLink.removeAttribute('data-toggle');
+      toggleLink.removeAttribute('data-bs-toggle');
+      toggleLink.removeAttribute('aria-expanded');
+      toggleLink.removeAttribute('aria-controls');
+      toggleLink.querySelectorAll('.collapsed-icon, .expanded-icon').forEach(icon => { icon.style.display = 'none'; });
+      collapseDiv.style.display = 'none';
     });
   };
 
@@ -494,8 +651,9 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
     }
   };
 
-  // コースページに「先生へDMする」ボタンを追加
+  // コースページに「先生へDMする」ボタンを追加（教職員モードでは非表示）
   const addMessageTeacherButton = () => {
+    if (isStaffMode) return;
     if (!window.location.pathname.includes('/course/view.php')) return;
 
     const headerContainer = document.querySelector('.header-actions-container');
@@ -631,6 +789,101 @@ const initExtension = (isStaffMode, isSyllabusEnabled, isHighlightCurrentClassEn
           const syllabusBtn = headerContainer.querySelector('.custom-syllabus-link');
           if (res[`syllabus_${courseCode}`]?.url && syllabusBtn) syllabusBtn.href = res[`syllabus_${courseCode}`].url;
         });
+      }
+    }
+
+    // 教職員モード用：コースページのヘッダーに「授業コードのワンクリックコピー」ボタンと「管理」クイックメニューを追加
+    if (isStaffMode && headerContainer && !isCourseSearch) {
+      if (courseCode && !headerContainer.querySelector('.custom-course-code-btn')) {
+        const codeBtn = document.createElement('button');
+        codeBtn.type = 'button';
+        codeBtn.className = 'btn btn-secondary custom-course-code-btn';
+        codeBtn.style.flexShrink = '0';
+        codeBtn.style.whiteSpace = 'nowrap';
+        codeBtn.title = window.MoodleExtI18n.getMessage('content_copy_course_code_hint', currentLang);
+        codeBtn.innerHTML = `<i class="icon fa fa-copy fa-fw" aria-hidden="true" style="margin-right: 4px;"></i>${escapeHtml(courseCode)}`;
+        codeBtn.addEventListener('click', () => copyCourseCode(courseCode));
+        const syllabusBtn = headerContainer.querySelector('.custom-syllabus-link');
+        if (syllabusBtn) syllabusBtn.insertAdjacentElement('afterend', codeBtn);
+        else headerContainer.appendChild(codeBtn);
+      }
+
+      const courseId = new URLSearchParams(window.location.search).get('id');
+      if (courseId && !headerContainer.querySelector('.custom-staff-actions-wrapper')) {
+        const isDark = document.body.classList.contains('dark-mode');
+        const bgColor = isDark ? '#3a3a3a' : '#ffffff';
+        const borderColor = isDark ? '#555' : '#ccc';
+        const textColor = isDark ? '#e0e0e0' : '#212529';
+        const hoverColor = isDark ? '#444' : '#f0f0f0';
+        const msg = (key) => window.MoodleExtI18n.getMessage(key, currentLang);
+
+        const wrapper = document.createElement('details');
+        wrapper.className = 'custom-staff-actions-wrapper';
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.flexShrink = '0';
+
+        const summary = document.createElement('summary');
+        summary.className = 'btn btn-secondary custom-staff-actions-btn';
+        summary.style.whiteSpace = 'nowrap';
+        summary.style.outline = 'none';
+        summary.style.cursor = 'pointer';
+        summary.style.listStyle = 'none';
+        summary.innerHTML = `${escapeHtml(msg('content_staff_quick_actions'))} <span style="font-size: 0.8em; margin-left: 4px;">▼</span>`;
+
+        const dropdown = document.createElement('div');
+        Object.assign(dropdown.style, {
+          position: 'absolute', top: '100%', right: '0',
+          backgroundColor: bgColor, border: `1px solid ${borderColor}`,
+          borderRadius: '4px', padding: '4px 0', marginTop: '4px',
+          zIndex: '1000', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', minWidth: '170px'
+        });
+
+        const actions = [
+          { label: msg('content_staff_participants'), href: `https://lms.ritsumei.ac.jp/user/index.php?id=${encodeURIComponent(courseId)}` },
+          { label: msg('content_staff_grades'), href: `https://lms.ritsumei.ac.jp/grade/report/index.php?id=${encodeURIComponent(courseId)}` },
+          { label: msg('content_staff_course_settings'), href: `https://lms.ritsumei.ac.jp/course/edit.php?id=${encodeURIComponent(courseId)}` }
+        ];
+
+        const editSwitchInput = document.querySelector('form.editmode-switch-form input[name="setmode"]');
+        if (editSwitchInput) {
+          actions.push({
+            label: msg('content_staff_toggle_edit'),
+            onClick: (e) => {
+              e.preventDefault();
+              wrapper.removeAttribute('open');
+              editSwitchInput.click();
+            }
+          });
+        }
+
+        actions.forEach(act => {
+          const item = document.createElement('a');
+          item.href = act.href || '#';
+          item.dataset.hiddenChecked = 'true';
+          item.textContent = act.label;
+          Object.assign(item.style, {
+            display: 'block', padding: '8px 16px', color: textColor,
+            textDecoration: 'none', whiteSpace: 'nowrap', fontSize: '0.9rem', textAlign: 'left'
+          });
+          item.onmouseover = () => { item.style.backgroundColor = hoverColor; };
+          item.onmouseout = () => { item.style.backgroundColor = 'transparent'; };
+          item.onclick = (e) => {
+            if (act.onClick) act.onClick(e);
+            else wrapper.removeAttribute('open');
+          };
+          dropdown.appendChild(item);
+        });
+
+        const style = document.createElement('style');
+        style.textContent = '.custom-staff-actions-wrapper > summary::-webkit-details-marker { display: none; }';
+        wrapper.append(summary, dropdown, style);
+
+        document.addEventListener('click', (e) => {
+          if (!wrapper.contains(e.target)) wrapper.removeAttribute('open');
+        });
+
+        headerContainer.appendChild(wrapper);
       }
     }
 
